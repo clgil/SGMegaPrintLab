@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Órdenes - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📋 Órdenes de Reparación</h1>
+        <a href="{{ url_for('ordenes.nuevo') }}" class="btn btn-primary btn-lg">➕ Nueva Orden</a>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('ordenes.index') }}" class="row g-3">
+                <div class="col-md-3">
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        {% for est in estados %}
+                        <option value="{{ est }}" {% if estado_seleccionado == est %}selected{% endif %}>{{ est }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="cliente_id" class="form-select">
+                        <option value="">Todos los clientes</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}" {% if cliente_seleccionado == cliente.id %}selected{% endif %}>{{ cliente.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="busqueda" placeholder="Buscar por número o cliente..." value="{{ busqueda }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">🔍 Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de órdenes -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Dispositivo</th>
+                        <th>Estado</th>
+                        <th>Técnico</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orden in ordenes.items %}
+                    <tr>
+                        <td><strong>{{ orden.numero_orden }}</strong></td>
+                        <td>{{ orden.fecha_entrada }}</td>
+                        <td>{{ orden.cliente.nombre if orden.cliente else '-' }}</td>
+                        <td>{{ orden.dispositivo.marca if orden.dispositivo else '-' }}</td>
+                        <td>
+                            {% if orden.estado == 'Recibido' %}
+                                <span class="badge bg-secondary">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'En diagnostico' %}
+                                <span class="badge bg-info">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'Esperando piezas' %}
+                                <span class="badge bg-warning">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'En reparacion' %}
+                                <span class="badge bg-primary">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'Listo para entregar' %}
+                                <span class="badge bg-success">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'Entregado' %}
+                                <span class="badge bg-success">{{ orden.estado }}</span>
+                            {% elif orden.estado == 'Cancelado' %}
+                                <span class="badge bg-danger">{{ orden.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ orden.tecnico.nombre if orden.tecnico else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                            <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay órdenes registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if ordenes.pages > 1 %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if ordenes.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('ordenes.index', pagina=ordenes.prev_num, estado=estado_seleccionado, cliente_id=cliente_seleccionado, busqueda=busqueda) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in ordenes.iter_pages() %}
+                        {% if page %}
+                            {% if page != ordenes.page %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('ordenes.index', pagina=page, estado=estado_seleccionado, cliente_id=cliente_seleccionado, busqueda=busqueda) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if ordenes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('ordenes.index', pagina=ordenes.next_num, estado=estado_seleccionado, cliente_id=cliente_seleccionado, busqueda=busqueda) }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

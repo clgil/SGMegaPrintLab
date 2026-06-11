@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Reportes</h1>
+    
+    <div class="row">
+        <!-- Reporte de Ingresos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">💰 Ingresos</h3>
+                    <p class="card-text">Reporte de ingresos por rango de fechas</p>
+                    <a href="{{ url_for('reportes.ingresos') }}" class="btn btn-primary">Ver Reporte</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reporte de Órdenes por Estado -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">📋 Órdenes por Estado</h3>
+                    <p class="card-text">Distribución de órdenes según su estado actual</p>
+                    <a href="{{ url_for('reportes.ordenes_estado') }}" class="btn btn-primary">Ver Reporte</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reporte de Piezas Utilizadas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">🔧 Piezas Utilizadas</h3>
+                    <p class="card-text">Reporte de piezas más utilizadas en un período</p>
+                    <a href="{{ url_for('reportes.piezas_utilizadas') }}" class="btn btn-primary">Ver Reporte</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reporte de Clientes Activos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">👥 Clientes Activos</h3>
+                    <p class="card-text">Clientes con más órdenes registradas</p>
+                    <a href="{{ url_for('reportes.clientes_activos') }}" class="btn btn-primary">Ver Reporte</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

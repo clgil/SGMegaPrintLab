@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📦 Inventario de Piezas</h1>
+        <a href="{{ url_for('inventario.nuevo') }}" class="btn btn-primary btn-lg">➕ Nueva Pieza</a>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('inventario.index') }}" class="row g-3">
+                <div class="col-md-4">
+                    <select name="categoria_id" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if categoria_seleccionada == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check mt-2">
+                        <input type="checkbox" name="stock_bajo" value="1" class="form-check-input" id="stockBajo" {% if mostrar_stock_bajo %}checked{% endif %}>
+                        <label class="form-check-label" for="stockBajo">Mostrar solo stock bajo</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">🔍 Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de piezas -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Código</th>
+                        <th>Stock</th>
+                        <th>Mínimo</th>
+                        <th>Precio Venta</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pieza in piezas.items %}
+                    <tr class="{% if pieza.cantidad <= pieza.cantidad_minima %}table-warning{% endif %}">
+                        <td><strong>{{ pieza.nombre }}</strong></td>
+                        <td>{{ pieza.categoria.nombre if pieza.categoria else '-' }}</td>
+                        <td>{{ pieza.codigo_interno or '-' }}</td>
+                        <td>
+                            {{ pieza.cantidad }} {{ pieza.unidad }}
+                            {% if pieza.cantidad <= pieza.cantidad_minima %}
+                                <span class="badge bg-danger">Bajo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ pieza.cantidad_minima }} {{ pieza.unidad }}</td>
+                        <td>${{ "%.2f"|format(pieza.precio_venta) }}</td>
+                        <td>{{ pieza.proveedor or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('inventario.ver', id=pieza.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                            <a href="{{ url_for('inventario.editar', id=pieza.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay piezas registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if piezas.pages > 1 %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if piezas.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('inventario.index', pagina=piezas.prev_num, categoria_id=categoria_seleccionada, stock_bajo=mostrar_stock_bajo) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in piezas.iter_pages() %}
+                        {% if page %}
+                            {% if page != piezas.page %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('inventario.index', pagina=page, categoria_id=categoria_seleccionada, stock_bajo=mostrar_stock_bajo) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if piezas.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('inventario.index', pagina=piezas.next_num, categoria_id=categoria_seleccionada, stock_bajo=mostrar_stock_bajo) }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

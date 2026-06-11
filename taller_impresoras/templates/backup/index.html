@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Backup - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">💾 Copia de Seguridad y Restauración</h1>
+    
+    <!-- Estado actual -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Estado de la Base de Datos</h5>
+            {% if db_existe %}
+                <p class="text-success">✅ La base de datos existe en: <code>{{ db_path }}</code></p>
+            {% else %}
+                <p class="text-danger">❌ No se encontró la base de datos</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Crear Backup -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📥 Crear Respaldo</h5>
+                </div>
+                <div class="card-body">
+                    <p>Genera una copia de seguridad completa de la base de datos actual.</p>
+                    <form action="{{ url_for('backup.crear') }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-lg w-100">Crear Respaldo Ahora</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Descargar Backup -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📤 Descargar Último Respaldo</h5>
+                </div>
+                <div class="card-body">
+                    <p>Descarga el archivo de respaldo más reciente creado automáticamente.</p>
+                    <a href="{{ url_for('backup.descargar') }}" class="btn btn-info btn-lg w-100">Descargar Backup</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Restaurar Backup -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">⚠️ Restaurar Base de Datos</h5>
+        </div>
+        <div class="card-body">
+            <p class="alert alert-warning">
+                <strong>Advertencia:</strong> Esta acción reemplazará la base de datos actual con el archivo que seleccione. 
+                Se creará automáticamente un respaldo de la base de datos actual antes de restaurar.
+            </p>
+            <form action="{{ url_for('backup.restaurar') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="archivo" class="form-label">Seleccione archivo de respaldo (.db)</label>
+                    <input type="file" name="archivo" class="form-control" accept=".db" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Restaurar Base de Datos</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listar Backups -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 Respaldos Disponibles</h5>
+        </div>
+        <div class="card-body">
+            <a href="{{ url_for('backup.listar') }}" class="btn btn-outline-primary">Ver lista completa de respaldos</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
