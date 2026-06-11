@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Dispositivos - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🖨️ Dispositivos / Impresoras</h1>
+        <a href="{{ url_for('dispositivos.nuevo') }}" class="btn btn-primary btn-lg">➕ Nuevo Dispositivo</a>
+    </div>
+    
+    <!-- Filtro por cliente -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('dispositivos.index') }}" class="row g-3">
+                <div class="col-md-8">
+                    <select name="cliente_id" class="form-select">
+                        <option value="">Todos los clientes</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}" {% if cliente_seleccionado == cliente.id %}selected{% endif %}>{{ cliente.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">🔍 Filtrar por cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de dispositivos -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Número de Serie</th>
+                        <th>Tipo</th>
+                        <th>Cliente</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dispositivo in dispositivos.items %}
+                    <tr>
+                        <td><strong>{{ dispositivo.marca }}</strong></td>
+                        <td>{{ dispositivo.modelo or '-' }}</td>
+                        <td>{{ dispositivo.numero_serie or '-' }}</td>
+                        <td>{{ dispositivo.tipo or '-' }}</td>
+                        <td>{{ dispositivo.cliente.nombre if dispositivo.cliente else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('dispositivos.editar', id=dispositivo.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                            <form action="{{ url_for('dispositivos.eliminar', id=dispositivo.id) }}" method="POST" class="d-inline delete-form">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay dispositivos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if dispositivos.pages > 1 %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if dispositivos.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.prev_num, cliente_id=cliente_seleccionado) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in dispositivos.iter_pages() %}
+                        {% if page %}
+                            {% if page != dispositivos.page %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('dispositivos.index', pagina=page, cliente_id=cliente_seleccionado) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if dispositivos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.next_num, cliente_id=cliente_seleccionado) }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
