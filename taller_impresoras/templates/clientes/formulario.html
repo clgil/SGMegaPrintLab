@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Cliente - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4>{{ accion }} Cliente</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% if cliente %}{{ url_for('clientes.editar', id=cliente.id) }}{% else %}{{ url_for('clientes.nuevo') }}{% endif %}">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required autofocus>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" placeholder="Ej: 51234567">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="direccion" name="direccion" rows="2">{{ cliente.direccion if cliente else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tipo_cliente" class="form-label">Tipo de Cliente</label>
+                            <select class="form-select" id="tipo_cliente" name="tipo_cliente">
+                                <option value="Particular" {% if cliente and cliente.tipo_cliente == 'Particular' %}selected{% endif %}>Particular</option>
+                                <option value="Empresa estatal" {% if cliente and cliente.tipo_cliente == 'Empresa estatal' %}selected{% endif %}>Empresa estatal</option>
+                                <option value="Cuentapropista" {% if cliente and cliente.tipo_cliente == 'Cuentapropista' %}selected{% endif %}>Cuentapropista</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg">💾 Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

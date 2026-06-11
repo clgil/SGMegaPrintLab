@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Control - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Panel de Control</h1>
+    
+    <!-- Tarjetas resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes Activas</h5>
+                    <h2 class="display-4">{{ total_ordenes_activas }}</h2>
+                    <p class="card-text">En proceso actualmente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Pendientes Diagnóstico</h5>
+                    <h2 class="display-4">{{ ordenes_pendientes_diagnostico }}</h2>
+                    <p class="card-text">Requieren atención</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Listas para Entregar</h5>
+                    <h2 class="display-4">{{ ordenes_listas_entregar }}</h2>
+                    <p class="card-text">Para notificar al cliente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
+                    <p class="card-text">Piezas por reponer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ingresos del mes -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5>💰 Ingresos del Mes</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">${{ "%.2f"|format(ingresos_mes) }} CUP</h3>
+                    <small>Basado en órdenes entregadas este mes</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico simple de ingresos mensuales (texto) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5>📈 Ingresos últimos 6 meses</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th>Ingreso (CUP)</th>
+                                <th>Gráfico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in ingresos_mensuales %}
+                            <tr>
+                                <td>{{ item.mes }}</td>
+                                <td>${{ "%.2f"|format(item.ingreso) }}</td>
+                                <td>
+                                    {% set max_ingreso = ingresos_mensuales | map(attribute='ingreso') | max %}
+                                    {% if max_ingreso > 0 %}
+                                        {% set ancho = (item.ingreso / max_ingreso * 100)|int %}
+                                        <div class="progress" style="height: 10px; width: 100px;">
+                                            <div class="progress-bar bg-success" style="width: {{ ancho }}%"></div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas órdenes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5>📋 Últimas Órdenes</h5>
+                    <a href="{{ url_for('ordenes.index') }}" class="btn btn-sm btn-light">Ver todas</a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in ultimas_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.cliente.nombre }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No hay órdenes registradas</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
