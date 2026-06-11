@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 Clientes</h1>
+        <a href="{{ url_for('clientes.nuevo') }}" class="btn btn-primary btn-lg">➕ Nuevo Cliente</a>
+    </div>
+    
+    <!-- Formulario de búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('clientes.index') }}" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" class="form-control form-control-lg" name="busqueda" placeholder="Buscar por nombre o teléfono..." value="{{ busqueda }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">🔍 Buscar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary w-100">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de clientes -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes.items %}
+                    <tr>
+                        <td><strong>{{ cliente.nombre }}</strong></td>
+                        <td>{{ cliente.telefono or '-' }}</td>
+                        <td>{{ cliente.direccion or '-' }}</td>
+                        <td>
+                            {% if cliente.tipo_cliente == 'Empresa estatal' %}
+                                <span class="badge bg-info">{{ cliente.tipo_cliente }}</span>
+                            {% elif cliente.tipo_cliente == 'Cuentapropista' %}
+                                <span class="badge bg-warning">{{ cliente.tipo_cliente }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ cliente.tipo_cliente }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('clientes.editar', id=cliente.id) }}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                            <form action="{{ url_for('clientes.eliminar', id=cliente.id) }}" method="POST" class="d-inline delete-form">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No hay clientes registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if clientes.pages > 1 %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if clientes.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('clientes.index', pagina=clientes.prev_num, busqueda=busqueda) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in clientes.iter_pages() %}
+                        {% if page %}
+                            {% if page != clientes.page %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('clientes.index', pagina=page, busqueda=busqueda) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if clientes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('clientes.index', pagina=clientes.next_num, busqueda=busqueda) }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
