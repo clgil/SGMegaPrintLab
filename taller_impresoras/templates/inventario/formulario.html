@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Pieza de Repuesto{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-box"></i> {{ accion }} Pieza de Repuesto</h2>
+                <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al inventario
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% if pieza %}{{ url_for('inventario.editar', id=pieza.id) }}{% else %}{{ url_for('inventario.nuevo') }}{% endif %}">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tag"></i> Información Básica</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombre">Nombre de la Pieza *</label>
+                            <input type="text" name="nombre" id="nombre" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.nombre }}{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="codigo_interno">Código Interno</label>
+                            <input type="text" name="codigo_interno" id="codigo_interno" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.codigo_interno }}{% endif %}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="categoria_id">Categoría</label>
+                            <select name="categoria_id" id="categoria_id" class="form-control">
+                                <option value="">Sin categoría...</option>
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}" {% if pieza and pieza.categoria_id == categoria.id %}selected{% endif %}>
+                                    {{ categoria.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="modelos_compatibles">Modelos Compatibles</label>
+                            <input type="text" name="modelos_compatibles" id="modelos_compatibles" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.modelos_compatibles }}{% endif %}"
+                                   placeholder="Ej: HP LaserJet P1102, Canon LBP6030">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-cubes"></i> Control de Stock</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="cantidad">Cantidad Actual</label>
+                            <input type="number" step="0.01" name="cantidad" id="cantidad" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.cantidad }}{% else %}0{% endif %}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="cantidad_minima">Stock Mínimo</label>
+                            <input type="number" step="0.01" name="cantidad_minima" id="cantidad_minima" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.cantidad_minima }}{% else %}1{% endif %}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="unidad">Unidad de Medida</label>
+                            <select name="unidad" id="unidad" class="form-control">
+                                {% for unidad_item in unidades %}
+                                <option value="{{ unidad_item }}" {% if pieza and pieza.unidad == unidad_item %}selected{% endif %}>
+                                    {{ unidad_item }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-dollar-sign"></i> Precios y Proveedor</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="precio_costo">Precio de Costo (CUP)</label>
+                            <input type="number" step="0.01" name="precio_costo" id="precio_costo" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.precio_costo }}{% else %}0{% endif %}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="precio_venta">Precio de Venta (CUP)</label>
+                            <input type="number" step="0.01" name="precio_venta" id="precio_venta" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.precio_venta }}{% else %}0{% endif %}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="proveedor">Proveedor Habitual</label>
+                            <input type="text" name="proveedor" id="proveedor" class="form-control" 
+                                   value="{% if pieza %}{{ pieza.proveedor }}{% endif %}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> {{ accion }} Pieza
+            </button>
+            <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Validación del formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const nombre = document.getElementById('nombre').value.trim();
+    
+    if (!nombre) {
+        e.preventDefault();
+        alert('El nombre de la pieza es obligatorio');
+        return false;
+    }
+    
+    const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
+    const stockMinimo = parseFloat(document.getElementById('cantidad_minima').value) || 0;
+    
+    if (cantidad < 0) {
+        e.preventDefault();
+        alert('La cantidad no puede ser negativa');
+        return false;
+    }
+    
+    if (stockMinimo < 0) {
+        e.preventDefault();
+        alert('El stock mínimo no puede ser negativo');
+        return false;
+    }
+});
+</script>
+{% endblock %}

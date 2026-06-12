@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Clientes Activos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 Reporte de Clientes Activos</h1>
+        <a href="{{ url_for('reportes.index') }}" class="btn btn-secondary">← Volver</a>
+    </div>
+
+    {% if resultados %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5>Total de Clientes con Órdenes: {{ resultados|length }}</h5>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{{ url_for('reportes.exportar_csv', tipo='clientes') }}" class="btn btn-success">📥 Exportar CSV</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Total de Órdenes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in resultados %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.telefono }}</td>
+                        <td><strong>{{ item.total_ordenes }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No hay clientes con órdenes registradas en el sistema.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
