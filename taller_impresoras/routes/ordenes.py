@@ -231,10 +231,10 @@ def editar(id):
     import json
     piezas_usadas_json = json.dumps([{
         'id': op.pieza_id,
-        'nombre': op.pieza.nombre,
+        'nombre': op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual',
         'cantidad': op.cantidad,
         'precio': op.precio_unitario,
-        'unidad': op.pieza.unidad
+        'unidad': op.pieza_rel.unidad if op.pieza_rel else 'unidad'
     } for op in orden.piezas_usadas])
     
     return render_template('ordenes/formulario_edicion.html', 
@@ -317,12 +317,12 @@ def api_piezas():
 @ordenes_bp.route('/api/ordenes/<int:orden_id>/piezas')
 @login_required
 def api_orden_piezas(orden_id):
-    """API para obtener las piezas de una orden"""
+    # API para obtener las piezas de una orden
     orden = Orden.query.get_or_404(orden_id)
     resultado = [{
         'id': op.id,
         'pieza_id': op.pieza_id,
-        'nombre': op.pieza.nombre,
+        'nombre': op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual',
         'cantidad': op.cantidad,
         'costo_unitario': op.precio_unitario
     } for op in orden.piezas_usadas]
