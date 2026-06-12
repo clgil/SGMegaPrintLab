@@ -4,57 +4,32 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.ENV.*
-.venv.bak/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-*.pot
-*.pyc
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
 
-# Django/Flask specific
-*.db
-*.sqlite
-*.sqlite3
-local_settings.py
-db.sqlite3
-media/
-staticfiles/
+# Database
+taller_impresoras/instance/taller.db
+
+# Logs
+*.log
+
+# Environment
 .env
 .env.local
+*.env.*
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-.DS_Store
-Thumbs.db
+*.tmp
 
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Icon?
-Thumbs.db
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# Build artifacts
+dist/
+build/
+target/
 ```
