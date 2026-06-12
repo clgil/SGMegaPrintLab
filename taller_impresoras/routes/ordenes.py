@@ -292,6 +292,30 @@ def api_piezas():
     return jsonify(resultado)
 
 
+@ordenes_bp.route('/api/ordenes/<int:orden_id>/piezas')
+@login_required
+def api_orden_piezas(orden_id):
+    """API para obtener las piezas de una orden"""
+    orden = Orden.query.get_or_404(orden_id)
+    resultado = [{
+        'id': op.id,
+        'pieza_id': op.pieza_id,
+        'nombre': op.pieza.nombre,
+        'cantidad': op.cantidad,
+        'costo_unitario': op.precio_unitario
+    } for op in orden.piezas_usadas]
+    return jsonify(resultado)
+
+
+@ordenes_bp.route('/api/ordenes/<int:orden_id>/historial')
+@login_required
+def api_orden_historial(orden_id):
+    """API para obtener el historial de estados de una orden"""
+    # Nota: El modelo HistorialOrden no existe en models.py
+    # Se devuelve un array vacío como fallback
+    return jsonify([])
+
+
 @ordenes_bp.route('/estadisticas')
 @login_required
 def estadisticas():

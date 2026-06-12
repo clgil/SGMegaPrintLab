@@ -193,7 +193,7 @@ document.getElementById('cliente_id').addEventListener('change', function() {
     dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
     
     if (clienteId) {
-        fetch(`/api/dispositivos/${clienteId}`)
+        fetch(`/dispositivos/api/dispositivos/${clienteId}`)
             .then(response => response.json())
             .then(data => {
                 dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
@@ -259,7 +259,7 @@ function agregarPieza() {
     const busqueda = prompt('Ingrese el nombre de la pieza a buscar:');
     if (!busqueda) return;
     
-    fetch(`/api/piezas?q=${encodeURIComponent(busqueda)}`)
+    fetch(`/inventario/api/piezas?q=${encodeURIComponent(busqueda)}`)
         .then(response => response.json())
         .then(data => {
             if (data.length === 0) {
