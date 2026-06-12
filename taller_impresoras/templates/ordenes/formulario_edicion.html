@@ -126,9 +126,28 @@
                 <div id="lista-piezas">
                     <!-- Se llena dinámicamente con JS -->
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="agregarPieza()">
-                    <i class="fas fa-plus"></i> Agregar Pieza
-                </button>
+                <div class="row mt-2">
+                    <div class="col-md-5">
+                        <select id="pieza_select" class="form-control form-control-sm">
+                            <option value="">Seleccione una pieza...</option>
+                            <!-- Se llena dinámicamente con JS -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" id="pieza_cantidad" class="form-control form-control-sm" 
+                               placeholder="Cantidad" value="1" min="0.01" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="agregarPiezaDesdeSelect()">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="agregarPiezaManual()">
+                            <i class="fas fa-pencil"></i> Otra
+                        </button>
+                    </div>
+                </div>
                 <!-- Campo oculto para enviar las piezas como JSON -->
                 <input type="hidden" name="piezas_usadas" id="piezas_usadas" value='{{ piezas_usadas_json }}'>
             </div>
@@ -184,6 +203,7 @@
 <script>
 // Variables globales para piezas
 let piezasActuales = [];
+let todasLasPiezas = [];
 
 // Cargar dispositivos cuando se selecciona un cliente
 document.getElementById('cliente_id').addEventListener('change', function() {
@@ -193,7 +213,7 @@ document.getElementById('cliente_id').addEventListener('change', function() {
     dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
     
     if (clienteId) {
-        fetch(`/dispositivos/api/dispositivos/${clienteId}`)
+        fetch(`/api/clientes/${clienteId}/dispositivos`)
             .then(response => response.json())
             .then(data => {
                 dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
@@ -213,11 +233,42 @@ document.getElementById('cliente_id').addEventListener('change', function() {
     }
 });
 
+// Cargar lista de piezas en el dropdown al iniciar
+function cargarPiezasEnDropdown() {
+    fetch('/api/piezas?q=')
+        .then(response => response.json())
+        .then(data => {
+            todasLasPiezas = data;
+            const select = document.getElementById('pieza_select');
+            select.innerHTML = '<option value="">Seleccione una pieza...</option>';
+            
+            data.forEach(pieza => {
+                const option = document.createElement('option');
+                option.value = pieza.id;
+                option.textContent = `${pieza.texto} - $${pieza.precio.toFixed(2)}`;
+                option.dataset.precio = pieza.precio;
+                option.dataset.unidad = pieza.unidad;
+                option.dataset.nombre = pieza.texto.split(' (')[0];
+                select.appendChild(option);
+            });
+            
+            // Agregar opción "Otra" al final
+            const optionOtra = document.createElement('option');
+            optionOtra.value = 'otra';
+            optionOtra.textContent = '--- Otra (escribir manualmente) ---';
+            select.appendChild(optionOtra);
+        })
+        .catch(error => {
+            console.error('Error al cargar piezas:', error);
+        });
+}
+
 // Cargar piezas al iniciar
 window.addEventListener('DOMContentLoaded', function() {
     try {
         piezasActuales = JSON.parse(document.getElementById('piezas_usadas').value) || [];
         renderizarPiezas();
+        cargarPiezasEnDropdown();
     } catch (e) {
         console.error('Error al cargar piezas:', e);
         piezasActuales = [];
@@ -255,52 +306,76 @@ function renderizarPiezas() {
     document.getElementById('piezas_usadas').value = JSON.stringify(piezasActuales);
 }
 
-function agregarPieza() {
-    const busqueda = prompt('Ingrese el nombre de la pieza a buscar:');
-    if (!busqueda) return;
+function agregarPiezaDesdeSelect() {
+    const select = document.getElementById('pieza_select');
+    const cantidadInput = document.getElementById('pieza_cantidad');
     
-    fetch(`/inventario/api/piezas?q=${encodeURIComponent(busqueda)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                alert('No se encontraron piezas disponibles');
-                return;
-            }
-            
-            // Mostrar opciones simples
-            let opciones = 'Piezas encontradas:\n\n';
-            data.forEach((p, i) => {
-                opciones += `${i + 1}. ${p.texto}\n`;
-            });
-            opciones += '\nIngrese el número de la pieza deseada:';
-            
-            const seleccion = prompt(opciones);
-            if (seleccion && !isNaN(seleccion) && seleccion > 0 && seleccion <= data.length) {
-                const piezaSeleccionada = data[seleccion - 1];
-                
-                const cantidad = prompt('Ingrese la cantidad:', '1');
-                if (cantidad && !isNaN(cantidad) && parseFloat(cantidad) > 0) {
-                    // Verificar si ya existe
-                    const existente = piezasActuales.find(p => p.id === piezaSeleccionada.id);
-                    if (existente) {
-                        existente.cantidad += parseFloat(cantidad);
-                    } else {
-                        piezasActuales.push({
-                            id: piezaSeleccionada.id,
-                            nombre: piezaSeleccionada.texto.split(' (')[0],
-                            cantidad: parseFloat(cantidad),
-                            precio: piezaSeleccionada.precio,
-                            unidad: piezaSeleccionada.unidad
-                        });
-                    }
-                    renderizarPiezas();
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al buscar piezas');
+    if (select.value === '' || select.value === 'otra') {
+        alert('Seleccione una pieza del listado');
+        return;
+    }
+    
+    const option = select.options[select.selectedIndex];
+    const piezaId = parseInt(select.value);
+    const nombre = option.dataset.nombre;
+    const precio = parseFloat(option.dataset.precio);
+    const unidad = option.dataset.unidad;
+    const cantidad = parseFloat(cantidadInput.value) || 1;
+    
+    if (cantidad <= 0) {
+        alert('La cantidad debe ser mayor a 0');
+        return;
+    }
+    
+    // Verificar si ya existe
+    const existente = piezasActuales.find(p => p.id === piezaId);
+    if (existente) {
+        existente.cantidad += cantidad;
+    } else {
+        piezasActuales.push({
+            id: piezaId,
+            nombre: nombre,
+            cantidad: cantidad,
+            precio: precio,
+            unidad: unidad
         });
+    }
+    
+    renderizarPiezas();
+    select.value = '';
+    cantidadInput.value = '1';
+}
+
+function agregarPiezaManual() {
+    const nombre = prompt('Ingrese el nombre de la pieza:');
+    if (!nombre) return;
+    
+    const precio = parseFloat(prompt('Ingrese el precio unitario:', '0'));
+    if (isNaN(precio)) {
+        alert('Precio inválido');
+        return;
+    }
+    
+    const unidad = prompt('Ingrese la unidad (unidad, juego, ml, etc.):', 'unidad') || 'unidad';
+    const cantidad = parseFloat(prompt('Ingrese la cantidad:', '1')) || 1;
+    
+    if (cantidad <= 0) {
+        alert('La cantidad debe ser mayor a 0');
+        return;
+    }
+    
+    // Generar ID negativo para piezas manuales (no se descuentan del inventario)
+    const idManual = -Date.now();
+    
+    piezasActuales.push({
+        id: idManual,
+        nombre: nombre,
+        cantidad: cantidad,
+        precio: precio,
+        unidad: unidad
+    });
+    
+    renderizarPiezas();
 }
 
 function eliminarPieza(index) {

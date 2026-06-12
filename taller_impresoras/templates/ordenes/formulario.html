@@ -181,7 +181,7 @@ document.getElementById('cliente_id').addEventListener('change', function() {
     dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
     
     if (clienteId) {
-        fetch(`/clientes/api/clientes/${clienteId}/dispositivos`)
+        fetch(`/api/clientes/${clienteId}/dispositivos`)
             .then(response => response.json())
             .then(data => {
                 dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
