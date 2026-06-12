@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración del Taller{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>⚙️ Configuración del Taller</h1>
+        <a href="{{ url_for('backup.index') }}" class="btn btn-secondary">← Volver</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Datos del Taller para Impresiones</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('backup.configuracion') }}">
+                        <div class="mb-3">
+                            <label for="nombre_taller" class="form-label">Nombre del Taller *</label>
+                            <input type="text" class="form-control" name="nombre_taller" id="nombre_taller" 
+                                   value="{{ config.get('nombre_taller', '') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="direccion_taller" class="form-label">Dirección *</label>
+                            <input type="text" class="form-control" name="direccion_taller" id="direccion_taller" 
+                                   value="{{ config.get('direccion_taller', '') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="telefono_taller" class="form-label">Teléfono *</label>
+                            <input type="text" class="form-control" name="telefono_taller" id="telefono_taller" 
+                                   value="{{ config.get('telefono_taller', '') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email_taller" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email_taller" id="email_taller" 
+                                   value="{{ config.get('email_taller', '') }}">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">💾 Guardar Configuración</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-header">
+                    <h5 class="mb-0">ℹ️ Información</h5>
+                </div>
+                <div class="card-body">
+                    <p>Estos datos se utilizarán en:</p>
+                    <ul>
+                        <li>Recibos de órdenes de reparación</li>
+                        <li>Documentos impresos del sistema</li>
+                        <li>Encabezados de reportes</li>
+                    </ul>
+                    <hr>
+                    <p class="small">Asegúrese de que la información sea correcta para una impresión profesional.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

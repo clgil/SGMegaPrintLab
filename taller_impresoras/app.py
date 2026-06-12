@@ -32,7 +32,8 @@ from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza
 # Cargar usuario para Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(int(user_id))
+    from models import Usuario
+    return db.session.get(Usuario, int(user_id))
 
 # Ruta del dashboard (página principal)
 @app.route('/')

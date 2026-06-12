@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Orden - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📋 Orden #{{ orden.numero }}</h1>
+        <div>
+            <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-info" target="_blank">🖨️ Imprimir</a>
+            <a href="{{ url_for('ordenes.editar', id=orden.id) }} " class="btn btn-warning">✏️ Editar</a>
+            <a href="{{ url_for('ordenes.index') }}" class="btn btn-secondary">← Volver</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Información del Cliente</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
+                    <p><strong>Teléfono:</strong> {{ orden.cliente.telefono }}</p>
+                    <p><strong>Email:</strong> {{ orden.cliente.email or 'N/A' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Información del Dispositivo</h5>
+                </div>
+                <div class="card-body">
+                    {% if orden.dispositivo %}
+                    <p><strong>Tipo:</strong> {{ orden.dispositivo.tipo }}</p>
+                    <p><strong>Marca:</strong> {{ orden.dispositivo.marca }}</p>
+                    <p><strong>Modelo:</strong> {{ orden.dispositivo.modelo }}</p>
+                    <p><strong>Serie:</strong> {{ orden.dispositivo.serie or 'N/A' }}</p>
+                    {% else %}
+                    <p class="text-muted">Sin dispositivo asociado</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Detalles de la Orden</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Fecha de Entrada:</strong> {{ orden.fecha_entrada }}</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-{{ 'success' if orden.estado == 'Entregado' else 'warning' }}">{{ orden.estado }}</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Técnico:</strong> {{ orden.tecnico.nombre if orden.tecnico else 'No asignado' }}</p>
+                    <p><strong>Fecha Prevista:</strong> {{ orden.fecha_prevista or 'N/A' }}</p>
+                </div>
+                <div class="col-md-4">
+                    {% if orden.fecha_entrega %}
+                    <p><strong>Fecha de Entrega:</strong> {{ orden.fecha_entrega }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <p><strong>Problema Reportado:</strong></p>
+            <p>{{ orden.problema_reportado }}</p>
+            <hr>
+            <p><strong>Diagnóstico:</strong></p>
+            <p>{{ orden.diagnostico or 'Pendiente' }}</p>
+            <hr>
+            <p><strong>Notas Internas:</strong></p>
+            <p>{{ orden.notas_internas or 'Sin notas' }}</p>
+            <hr>
+            <p><strong>Notas para el Cliente:</strong></p>
+            <p>{{ orden.notas_cliente or 'Sin notas' }}</p>
+        </div>
+    </div>
+
+    {% if orden.piezas_usadas %}
+    <div class="card mb-3">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">Piezas Utilizadas</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Pieza</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pieza in orden.piezas_usadas %}
+                    <tr>
+                        <td>{{ pieza.pieza.nombre }}</td>
+                        <td>{{ pieza.cantidad }} {{ pieza.pieza.unidad }}</td>
+                        <td>${{ "%.2f"|format(pieza.precio_unitario) }}</td>
+                        <td>${{ "%.2f"|format(pieza.cantidad * pieza.precio_unitario) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Resumen de Costos</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Mano de Obra:</strong> ${{ "%.2f"|format(orden.mano_obra_costo) }}</p>
+                    {% if orden.mano_obra_desc %}
+                    <p><small class="text-muted">{{ orden.mano_obra_desc }}</small></p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 text-end">
+                    <h3>Total: ${{ "%.2f"|format(orden.costo_total) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

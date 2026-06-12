@@ -95,7 +95,7 @@ def piezas_utilizadas():
                              fecha_inicio=fecha_inicio,
                              fecha_fin=fecha_fin)
     
-    return render_template('reportes/piezas_utilizadas_form.html')
+    return render_template('reportes/piezas_utilizadas.html')
 
 
 @reportes_bp.route('/clientes_activos')

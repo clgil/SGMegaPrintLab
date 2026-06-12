@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Técnico{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-user-cog"></i> {{ accion }} Técnico</h2>
+                <a href="{{ url_for('tecnicos.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% if tecnico %}{{ url_for('tecnicos.editar', id=tecnico.id) }}{% else %}{{ url_for('tecnicos.nuevo') }}{% endif %}">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-badge"></i> Datos del Técnico</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombre">Nombre Completo *</label>
+                            <input type="text" name="nombre" id="nombre" class="form-control" 
+                                   value="{% if tecnico %}{{ tecnico.nombre }}{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="especialidad">Especialidad</label>
+                            <input type="text" name="especialidad" id="especialidad" class="form-control" 
+                                   value="{% if tecnico %}{{ tecnico.especialidad }}{% endif %}"
+                                   placeholder="Ej: Impresoras Láser, Multifuncionales...">
+                        </div>
+                    </div>
+                </div>
+                
+                {% if tecnico %}
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="activo">Estado</label>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="activo" id="activo" class="custom-control-input" 
+                                       value="1" {% if tecnico.activo %}checked{% endif %}>
+                                <label class="custom-control-label" for="activo">Activo</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Órdenes Asignadas</label>
+                            <p class="form-control-plaintext">{{ tecnico.ordenes|length }} órdenes</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> {{ accion }} Técnico
+            </button>
+            <a href="{{ url_for('tecnicos.index') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Validación del formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const nombre = document.getElementById('nombre').value.trim();
+    
+    if (!nombre) {
+        e.preventDefault();
+        alert('El nombre del técnico es obligatorio');
+        return false;
+    }
+});
+</script>
+{% endblock %}

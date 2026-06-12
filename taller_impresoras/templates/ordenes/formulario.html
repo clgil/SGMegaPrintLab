@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Orden de Reparación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-file-medical"></i> {{ accion }} Orden de Reparación</h2>
+                <a href="{{ url_for('ordenes.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% if orden %}{{ url_for('ordenes.editar', id=orden.id) }}{% else %}{{ url_for('ordenes.nuevo') }}{% endif %}">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="cliente_id">Cliente *</label>
+                            <select name="cliente_id" id="cliente_id" class="form-control" required>
+                                <option value="">Seleccione un cliente...</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}" {% if orden and orden.cliente_id == cliente.id %}selected{% endif %}>
+                                    {{ cliente.nombre }} - {{ cliente.telefono }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="dispositivo_id">Dispositivo (Opcional)</label>
+                            <select name="dispositivo_id" id="dispositivo_id" class="form-control">
+                                <option value="">Seleccione un dispositivo...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Detalles de la Reparación</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="tecnico_id">Técnico Asignado</label>
+                            <select name="tecnico_id" id="tecnico_id" class="form-control">
+                                <option value="">Sin asignar...</option>
+                                {% for tecnico in tecnicos %}
+                                <option value="{{ tecnico.id }}" {% if orden and orden.tecnico_id == tecnico.id %}selected{% endif %}>
+                                    {{ tecnico.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fecha_prevista">Fecha Prevista de Entrega</label>
+                            <input type="date" name="fecha_prevista" id="fecha_prevista" class="form-control" 
+                                   value="{% if orden and orden.fecha_prevista %}{{ orden.fecha_prevista }}{% endif %}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="problema_reportado">Problema Reportado *</label>
+                            <textarea name="problema_reportado" id="problema_reportado" class="form-control" rows="3" required>{% if orden %}{{ orden.problema_reportado }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="notas_cliente">Notas Adicionales del Cliente</label>
+                            <textarea name="notas_cliente" id="notas_cliente" class="form-control" rows="2">{% if orden %}{{ orden.notas_cliente }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if orden %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-cogs"></i> Piezas Utilizadas</h5>
+            </div>
+            <div class="card-body">
+                <div id="lista-piezas">
+                    <!-- Se llena dinámicamente con JS -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="agregarPieza()">
+                    <i class="fas fa-plus"></i> Agregar Pieza
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Historial de Estados</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Técnico</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historial-estados">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="nuevo_estado">Cambiar Estado</label>
+                            <select name="nuevo_estado" id="nuevo_estado" class="form-control">
+                                <option value="">Seleccione estado...</option>
+                                <option value="Recibido">Recibido</option>
+                                <option value="En diagnostico">En diagnóstico</option>
+                                <option value="Esperando piezas">Esperando piezas</option>
+                                <option value="En reparacion">En reparación</option>
+                                <option value="Listo para entregar">Listo para entregar</option>
+                                <option value="Entregado">Entregado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="notas_internas">Notas Internas</label>
+                            <input type="text" name="notas_internas" id="notas_internas" class="form-control" placeholder="Notas sobre el cambio de estado">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" name="accion" value="cambiar_estado" class="btn btn-warning btn-block">
+                            Actualizar Estado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> {{ accion }} Orden
+            </button>
+            <a href="{{ url_for('ordenes.index') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Cargar dispositivos cuando se selecciona un cliente
+document.getElementById('cliente_id').addEventListener('change', function() {
+    const clienteId = this.value;
+    const dispositivoSelect = document.getElementById('dispositivo_id');
+    
+    dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
+    
+    if (clienteId) {
+        fetch(`/api/clientes/${clienteId}/dispositivos`)
+            .then(response => response.json())
+            .then(data => {
+                dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
+                data.forEach(dispositivo => {
+                    const option = document.createElement('option');
+                    option.value = dispositivo.id;
+                    option.textContent = `${dispositivo.tipo} - ${dispositivo.marca} ${dispositivo.modelo} (${dispositivo.serial})`;
+                    
+                    {% if orden and orden.dispositivo_id %}
+                    if (dispositivo.id == {{ orden.dispositivo_id }}) {
+                        option.selected = true;
+                    }
+                    {% endif %}
+                    
+                    dispositivoSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                dispositivoSelect.innerHTML = '<option value="">Error al cargar</option>';
+            });
+    } else {
+        dispositivoSelect.innerHTML = '<option value="">Primero seleccione un cliente</option>';
+    }
+});
+
+// Disparar evento si hay cliente seleccionado al cargar
+window.addEventListener('DOMContentLoaded', function() {
+    const clienteSelect = document.getElementById('cliente_id');
+    if (clienteSelect.value) {
+        clienteSelect.dispatchEvent(new Event('change'));
+    }
+    
+    {% if orden %}
+    cargarPiezas();
+    cargarHistorial();
+    {% endif %}
+});
+
+{% if orden %}
+function cargarPiezas() {
+    fetch(`/api/ordenes/{{ orden.id }}/piezas`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('lista-piezas');
+            if (data.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay piezas registradas</p>';
+                return;
+            }
+            
+            let html = '<table class="table table-sm"><thead><tr><th>Pieza</th><th>Cantidad</th><th>Costo Unit.</th><th>Total</th><th></th></tr></thead><tbody>';
+            let totalGeneral = 0;
+            
+            data.forEach(pieza => {
+                const total = pieza.cantidad * pieza.costo_unitario;
+                totalGeneral += total;
+                html += `<tr>
+                    <td>${pieza.nombre}</td>
+                    <td>${pieza.cantidad}</td>
+                    <td>$${pieza.costo_unitario.toFixed(2)}</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarPieza(${pieza.id})"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+            
+            html += `</tbody><tfoot><tr><td colspan="3" class="text-right"><strong>Total:</strong></td><td colspan="2"><strong>$${totalGeneral.toFixed(2)}</strong></td></tr></tfoot></table>`;
+            container.innerHTML = html;
+        });
+}
+
+function cargarHistorial() {
+    fetch(`/api/ordenes/{{ orden.id }}/historial`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('historial-estados');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Sin historial</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            data.forEach(h => {
+                html += `<tr>
+                    <td>${h.fecha}</td>
+                    <td><span class="badge badge-info">${h.estado}</span></td>
+                    <td>${h.tecnico || 'N/A'}</td>
+                    <td>${h.notas || ''}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        });
+}
+
+function agregarPieza() {
+    // Implementar modal o formulario inline para agregar pieza
+    alert('Funcionalidad de agregar pieza en desarrollo');
+}
+
+function eliminarPieza(id) {
+    if (confirm('¿Eliminar esta pieza de la orden?')) {
+        // Implementar eliminación
+    }
+}
+{% endif %}
+</script>
+{% endblock %}

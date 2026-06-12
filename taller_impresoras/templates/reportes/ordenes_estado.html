@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Órdenes por Estado{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-tasks"></i> Órdenes por Estado</h2>
+                <a href="{{ url_for('reportes.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a reportes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Resumen de Órdenes</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Estado</th>
+                                    <th class="text-right">Cantidad</th>
+                                    <th class="text-right">Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for resultado in resultados %}
+                                <tr>
+                                    <td>
+                                        {% if resultado[0] == 'Recibido' %}
+                                            <span class="badge badge-secondary">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'En diagnostico' %}
+                                            <span class="badge badge-info">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'Esperando piezas' %}
+                                            <span class="badge badge-warning">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'En reparacion' %}
+                                            <span class="badge badge-primary">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'Listo para entregar' %}
+                                            <span class="badge badge-success">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'Entregado' %}
+                                            <span class="badge badge-success">{{ resultado[0] }}</span>
+                                        {% elif resultado[0] == 'Cancelado' %}
+                                            <span class="badge badge-danger">{{ resultado[0] }}</span>
+                                        {% else %}
+                                            {{ resultado[0] }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-right">{{ resultado[1] }}</td>
+                                    <td class="text-right">
+                                        {% if total > 0 %}
+                                            {{ ((resultado[1] / total) * 100)|round(1) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-right"><strong>{{ total }}</strong></td>
+                                    <td class="text-right"><strong>100%</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="graficoEstados"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        Este reporte muestra la distribución de órdenes según su estado actual.
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico de torta con Chart.js
+const ctx = document.getElementById('graficoEstados').getContext('2d');
+const datos = {
+    labels: [{% for r in resultados %}'{{ r[0] }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+    datasets: [{
+        data: [{% for r in resultados %}{{ r[1] }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: [
+            '#6c757d',  // Recibido - gris
+            '#17a2b8',  // En diagnostico - info
+            '#ffc107',  // Esperando piezas - warning
+            '#007bff',  // En reparacion - primary
+            '#28a745',  // Listo para entregar - success
+            '#28a745',  // Entregado - success
+            '#dc3545'   // Cancelado - danger
+        ]
+    }]
+};
+
+const grafico = new Chart(ctx, {
+    type: 'doughnut',
+    data: datos,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
