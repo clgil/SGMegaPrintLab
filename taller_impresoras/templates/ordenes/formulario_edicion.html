@@ -178,6 +178,25 @@
         </div>
 
         <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-calculator"></i> Resumen de Costos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Total Piezas:</strong> $<span id="total_piezas">0.00</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Mano de Obra:</strong> $<span id="mano_obra_valor">{{ orden.mano_obra_costo or 0 }}</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="text-end"><strong class="text-success">TOTAL A PAGAR: $<span id="total_general">{{ orden.costo_total or 0 }}</span></strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
             <div class="card-header bg-secondary text-white">
                 <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notas Internas</h5>
             </div>

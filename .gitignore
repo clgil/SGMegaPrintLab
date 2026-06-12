@@ -1,18 +1,39 @@
 ```
-# Compiled Python files
-*.pyc
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Logs and temporary files
+# Database
+taller_impresoras/instance/*.db
+
+# Logs
 *.log
-*.tmp
 
-# Environment files
+# Environment
 .env
 .env.local
 *.env.*
 
+# Dependencies
+venv/
+.venv/
+node_modules/
+
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+target/
 ```

@@ -3,7 +3,7 @@ Rutas de autenticación para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from models import db, Usuario
 from werkzeug.security import generate_password_hash
 
@@ -66,3 +66,41 @@ def cambiar_password():
         return redirect(url_for('dashboard'))
     
     return render_template('auth/cambiar_password.html')
+
+
+@auth_bp.route('/configuracion_taller', methods=['GET', 'POST'])
+@login_required
+def configuracion_taller():
+    """Configuración de datos del taller (acceso directo para el administrador)"""
+    from models import Configuracion
+    
+    if request.method == 'POST':
+        # Actualizar configuración
+        config_vals = {
+            'nombre_taller': request.form.get('nombre_taller'),
+            'direccion_taller': request.form.get('direccion_taller'),
+            'telefono_taller': request.form.get('telefono_taller'),
+            'email_taller': request.form.get('email_taller'),
+            'nit_taller': request.form.get('nit_taller'),
+            'responsable_taller': request.form.get('responsable_taller')
+        }
+        
+        for clave, valor in config_vals.items():
+            config = Configuracion.query.get(clave)
+            if not config:
+                config = Configuracion(clave=clave, valor=valor)
+                db.session.add(config)
+            else:
+                config.valor = valor
+        
+        db.session.commit()
+        
+        flash('Configuración actualizada correctamente', 'success')
+        return redirect(url_for('auth.configuracion_taller'))
+    
+    # Cargar configuración actual
+    config = {}
+    for c in Configuracion.query.all():
+        config[c.clave] = c.valor
+    
+    return render_template('backup/configuracion.html', config=config)

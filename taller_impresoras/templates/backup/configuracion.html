@@ -24,21 +24,34 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="responsable_taller" class="form-label">Responsable / Dueño</label>
+                            <input type="text" class="form-control" name="responsable_taller" id="responsable_taller" 
+                                   value="{{ config.get('responsable_taller', '') }}" placeholder="Nombre del responsable">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nit_taller" class="form-label">NIT / Carnet de Identidad</label>
+                            <input type="text" class="form-control" name="nit_taller" id="nit_taller" 
+                                   value="{{ config.get('nit_taller', '') }}" placeholder="Número de identificación tributaria o CI">
+                        </div>
+
+                        <div class="mb-3">
                             <label for="direccion_taller" class="form-label">Dirección *</label>
                             <input type="text" class="form-control" name="direccion_taller" id="direccion_taller" 
                                    value="{{ config.get('direccion_taller', '') }}" required>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="telefono_taller" class="form-label">Teléfono *</label>
-                            <input type="text" class="form-control" name="telefono_taller" id="telefono_taller" 
-                                   value="{{ config.get('telefono_taller', '') }}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email_taller" class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email_taller" id="email_taller" 
-                                   value="{{ config.get('email_taller', '') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono_taller" class="form-label">Teléfono *</label>
+                                <input type="text" class="form-control" name="telefono_taller" id="telefono_taller" 
+                                       value="{{ config.get('telefono_taller', '') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email_taller" class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email_taller" id="email_taller" 
+                                       value="{{ config.get('email_taller', '') }}">
+                            </div>
                         </div>
 
                         <div class="d-grid">

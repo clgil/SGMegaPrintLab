@@ -170,7 +170,9 @@ def crear_datos_iniciales():
             'nombre_taller': 'Taller de Impresoras',
             'direccion_taller': 'Dirección del taller',
             'telefono_taller': '00000000',
-            'email_taller': ''
+            'email_taller': '',
+            'nit_taller': '',
+            'responsable_taller': ''
         }
         for clave, valor in config_vals.items():
             config = Configuracion(clave=clave, valor=valor)

@@ -6,6 +6,12 @@
 <div class="container-fluid" onload="window.print()">
     <div class="text-center mb-4">
         <h2>{{ config.get('nombre_taller', 'Taller de Impresoras') }}</h2>
+        {% if config.get('responsable_taller') %}
+        <p>Responsable: {{ config.get('responsable_taller') }}</p>
+        {% endif %}
+        {% if config.get('nit_taller') %}
+        <p>NIT/CI: {{ config.get('nit_taller') }}</p>
+        {% endif %}
         <p>{{ config.get('direccion_taller', '') }} | Tel: {{ config.get('telefono_taller', '') }}</p>
         {% if config.get('email_taller') %}
         <p>Email: {{ config.get('email_taller') }}</p>
@@ -14,7 +20,7 @@
 
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
-            <h3>ORDEN DE REPARACIÓN #{{ orden.numero }}</h3>
+            <h3>ORDEN DE REPARACIÓN #{{ orden.numero_orden }}</h3>
         </div>
         <div class="card-body">
             <div class="row mb-3">
@@ -22,9 +28,6 @@
                     <h5>Cliente:</h5>
                     <p><strong>{{ orden.cliente.nombre }}</strong></p>
                     <p>Tel: {{ orden.cliente.telefono }}</p>
-                    {% if orden.cliente.email %}
-                    <p>Email: {{ orden.cliente.email }}</p>
-                    {% endif %}
                 </div>
                 <div class="col-md-6 text-end">
                     <h5>Fecha de Entrada:</h5>
@@ -38,8 +41,8 @@
             <div class="mb-3">
                 <h5>Dispositivo:</h5>
                 <p><strong>{{ orden.dispositivo.tipo }} - {{ orden.dispositivo.marca }} {{ orden.dispositivo.modelo }}</strong></p>
-                {% if orden.dispositivo.serie %}
-                <p>No. Serie: {{ orden.dispositivo.serie }}</p>
+                {% if orden.dispositivo.numero_serie %}
+                <p>No. Serie: {{ orden.dispositivo.numero_serie }}</p>
                 {% endif %}
             </div>
             {% endif %}
@@ -84,6 +87,10 @@
                             <td>${{ "%.2f"|format(pieza.cantidad * pieza.precio_unitario) }}</td>
                         </tr>
                         {% endfor %}
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Subtotal Piezas:</strong></td>
+                            <td><strong>${{ "%.2f"|format(orden.piezas_usadas|sum(attribute='cantidad') * 0 + orden.piezas_usadas|map(attribute='precio_unitario')|list|zip(orden.piezas_usadas|map(attribute='cantidad')|list)|map('mul')|sum) }}</strong></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
