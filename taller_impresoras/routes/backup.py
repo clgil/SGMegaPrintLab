@@ -208,7 +208,9 @@ def configuracion():
             'nombre_taller': request.form.get('nombre_taller'),
             'direccion_taller': request.form.get('direccion_taller'),
             'telefono_taller': request.form.get('telefono_taller'),
-            'email_taller': request.form.get('email_taller')
+            'email_taller': request.form.get('email_taller'),
+            'nit_taller': request.form.get('nit_taller'),
+            'responsable_taller': request.form.get('responsable_taller')
         }
         
         for clave, valor in config_vals.items():
