@@ -80,13 +80,13 @@
                     </thead>
                     <tbody>
                         {% set subtotal_piezas = namespace(total=0) %}
-                        {% for pieza in orden.piezas_usadas %}
+                        {% for op in orden.piezas_usadas %}
                         <tr>
-                            <td>{{ pieza.pieza.nombre }}</td>
-                            <td>{{ pieza.cantidad }}</td>
-                            <td>${{ "%.2f"|format(pieza.precio_unitario) }}</td>
-                            <td>${{ "%.2f"|format(pieza.cantidad * pieza.precio_unitario) }}</td>
-                            {% set subtotal_piezas.total = subtotal_piezas.total + (pieza.cantidad * pieza.precio_unitario) %}
+                            <td>{{ op.pieza.nombre if op.pieza else 'Pieza manual' }}</td>
+                            <td>{{ op.cantidad }}</td>
+                            <td>${{ "%.2f"|format(op.precio_unitario) }}</td>
+                            <td>${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
+                            {% set subtotal_piezas.total = subtotal_piezas.total + (op.cantidad * op.precio_unitario) %}
                         </tr>
                         {% endfor %}
                         <tr>

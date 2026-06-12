@@ -171,9 +171,12 @@ class OrdenPieza(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     orden_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'), nullable=False)
-    pieza_id = db.Column(db.Integer, db.ForeignKey('piezas.id'), nullable=False)
+    pieza_id = db.Column(db.Integer, db.ForeignKey('piezas.id'), nullable=True)  # Nullable para piezas manuales
     cantidad = db.Column(db.Float, nullable=False, default=1)
     precio_unitario = db.Column(db.Float, nullable=False)
+    
+    # Relación con Pieza (puede ser None para piezas manuales)
+    pieza = db.relationship('Pieza', backref=db.backref('orden_piezas_rel', lazy='dynamic'))
     
     def __repr__(self):
         return f'<OrdenPieza Orden:{self.orden_id} Pieza:{self.pieza_id}>'

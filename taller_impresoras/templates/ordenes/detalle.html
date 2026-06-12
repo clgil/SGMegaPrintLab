@@ -97,12 +97,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for pieza in orden.piezas_usadas %}
+                    {% for op in orden.piezas_usadas %}
                     <tr>
-                        <td>{{ pieza.pieza.nombre }}</td>
-                        <td>{{ pieza.cantidad }} {{ pieza.pieza.unidad }}</td>
-                        <td>${{ "%.2f"|format(pieza.precio_unitario) }}</td>
-                        <td>${{ "%.2f"|format(pieza.cantidad * pieza.precio_unitario) }}</td>
+                        <td>{{ op.pieza.nombre if op.pieza else 'Pieza manual' }}</td>
+                        <td>{{ op.cantidad }} {{ op.pieza.unidad if op.pieza else '' }}</td>
+                        <td>${{ "%.2f"|format(op.precio_unitario) }}</td>
+                        <td>${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

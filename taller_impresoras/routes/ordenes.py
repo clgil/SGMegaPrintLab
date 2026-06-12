@@ -152,39 +152,61 @@ def editar(id):
         import json
         piezas_data = json.loads(piezas_json)
         
-        # Eliminar piezas anteriores y restar stock si es necesario
-        for op in orden.piezas_usadas:
-            pieza = Pieza.query.get(op.pieza_id)
-            if pieza:
-                pieza.cantidad += op.cantidad  # Devolver al stock temporalmente
+        # Verificar si la orden está siendo concluida (cambio a estado final)
+        estado_anterior = Orden.query.get(orden.id).estado
+        estados_finales = ['Entregado', 'Listo para entregar']
+        orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
+        
+        # Eliminar piezas anteriores y devolver al stock SOLO si la orden ya había sido concluida previamente
+        # Esto permite editar órdenes que aún no están en estado final sin afectar el inventario
+        if estado_anterior in estados_finales:
+            for op in orden.piezas_usadas:
+                if op.pieza_id:  # Solo para piezas reales del inventario
+                    pieza = Pieza.query.get(op.pieza_id)
+                    if pieza:
+                        pieza.cantidad += op.cantidad  # Devolver al stock
         
         # Limpiar piezas anteriores
         orden.piezas_usadas = []
         
-        # Agregar nuevas piezas y descontar del stock
+        # Agregar nuevas piezas y descontar del stock solo si la orden está siendo concluida
         for item in piezas_data:
             pieza_id = item.get('id')
             cantidad = float(item.get('cantidad', 1))
             precio_unitario = float(item.get('precio', 0))
             
             if pieza_id and cantidad > 0:
+                # Ignorar piezas manuales (ID negativo)
+                if pieza_id < 0:
+                    # Para piezas manuales, solo registrar en la orden sin afectar inventario
+                    orden_pieza = OrdenPieza(
+                        orden_id=orden.id,
+                        pieza_id=None,  # No hay referencia a pieza real
+                        cantidad=cantidad,
+                        precio_unitario=precio_unitario
+                    )
+                    db.session.add(orden_pieza)
+                    continue
+                
                 pieza = Pieza.query.get(pieza_id)
                 if pieza:
-                    # Descontar del stock
-                    pieza.cantidad -= cantidad
+                    # Descontar del stock SOLO si la orden está pasando a estado final por primera vez
+                    if orden_concluida:
+                        # Descontar del stock
+                        pieza.cantidad -= cantidad
+                        
+                        # Registrar movimiento de salida
+                        movimiento = MovimientoInventario(
+                            pieza_id=pieza.id,
+                            tipo='salida',
+                            cantidad=cantidad,
+                            concepto=f'Usada en orden {orden.numero_orden}',
+                            orden_id=orden.id,
+                            fecha=datetime.now().strftime('%Y-%m-%d')
+                        )
+                        db.session.add(movimiento)
                     
-                    # Registrar movimiento de salida
-                    movimiento = MovimientoInventario(
-                        pieza_id=pieza.id,
-                        tipo='salida',
-                        cantidad=cantidad,
-                        concepto=f'Usada en orden {orden.numero_orden}',
-                        orden_id=orden.id,
-                        fecha=datetime.now().strftime('%Y-%m-%d')
-                    )
-                    db.session.add(movimiento)
-                    
-                    # Agregar a la orden
+                    # Agregar a la orden (siempre, independientemente del estado)
                     orden_pieza = OrdenPieza(
                         orden_id=orden.id,
                         pieza_id=pieza.id,
