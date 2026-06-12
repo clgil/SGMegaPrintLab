@@ -74,19 +74,21 @@ def nuevo():
         )
         
         db.session.add(pieza)
+        # Es necesario hacer commit aquí para que la pieza tenga un ID asignado por la BD
+        # antes de crear el movimiento que lo referencia como clave foránea
+        db.session.commit()
         
         # Registrar movimiento de entrada inicial si hay cantidad
         if cantidad > 0:
             movimiento = MovimientoInventario(
-                pieza_id=pieza.id,
+                pieza_id=pieza.id,  # Ahora pieza.id ya tiene un valor válido
                 tipo='entrada',
                 cantidad=cantidad,
                 concepto='Stock inicial',
                 fecha=datetime.now().strftime('%Y-%m-%d')
             )
             db.session.add(movimiento)
-        
-        db.session.commit()
+            db.session.commit()
         
         flash('Pieza registrada correctamente', 'success')
         return redirect(url_for('inventario.index'))

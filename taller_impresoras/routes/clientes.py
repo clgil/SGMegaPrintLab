@@ -112,3 +112,15 @@ def api_lista():
     
     resultado = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono} for c in clientes]
     return jsonify(resultado)
+
+
+@clientes_bp.route('/api/clientes/<int:cliente_id>/dispositivos')
+@login_required
+def api_dispositivos_cliente(cliente_id):
+    """API para obtener dispositivos de un cliente específico"""
+    from models import Dispositivo
+    
+    dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id, activo=1).all()
+    
+    resultado = [{'id': d.id, 'tipo': d.tipo, 'marca': d.marca, 'modelo': d.modelo, 'serial': d.serial} for d in dispositivos]
+    return jsonify(resultado)
