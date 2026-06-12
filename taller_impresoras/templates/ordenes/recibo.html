@@ -79,17 +79,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% set subtotal_piezas = namespace(total=0) %}
                         {% for pieza in orden.piezas_usadas %}
                         <tr>
                             <td>{{ pieza.pieza.nombre }}</td>
                             <td>{{ pieza.cantidad }}</td>
                             <td>${{ "%.2f"|format(pieza.precio_unitario) }}</td>
                             <td>${{ "%.2f"|format(pieza.cantidad * pieza.precio_unitario) }}</td>
+                            {% set subtotal_piezas.total = subtotal_piezas.total + (pieza.cantidad * pieza.precio_unitario) %}
                         </tr>
                         {% endfor %}
                         <tr>
                             <td colspan="3" class="text-end"><strong>Subtotal Piezas:</strong></td>
-                            <td><strong>${{ "%.2f"|format(orden.piezas_usadas|sum(attribute='cantidad') * 0 + orden.piezas_usadas|map(attribute='precio_unitario')|list|zip(orden.piezas_usadas|map(attribute='cantidad')|list)|map('mul')|sum) }}</strong></td>
+                            <td><strong>${{ "%.2f"|format(subtotal_piezas.total) }}</strong></td>
                         </tr>
                     </tbody>
                 </table>
