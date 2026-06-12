@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Orden de Reparación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-file-medical"></i> {{ accion }} Orden de Reparación</h2>
+                <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al detalle
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('ordenes.editar', id=orden.id) }}">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="cliente_id">Cliente *</label>
+                            <select name="cliente_id" id="cliente_id" class="form-control" required>
+                                <option value="">Seleccione un cliente...</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}" {% if orden.cliente_id == cliente.id %}selected{% endif %}>
+                                    {{ cliente.nombre }} - {{ cliente.telefono }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="dispositivo_id">Dispositivo (Opcional)</label>
+                            <select name="dispositivo_id" id="dispositivo_id" class="form-control">
+                                <option value="">Seleccione un dispositivo...</option>
+                                {% for dispositivo in dispositivos %}
+                                <option value="{{ dispositivo.id }}" {% if orden.dispositivo_id == dispositivo.id %}selected{% endif %}>
+                                    {{ dispositivo.tipo }} - {{ dispositivo.marca }} {{ dispositivo.modelo }} ({{ dispositivo.serial }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Detalles de la Reparación</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="tecnico_id">Técnico Asignado</label>
+                            <select name="tecnico_id" id="tecnico_id" class="form-control">
+                                <option value="">Sin asignar...</option>
+                                {% for tecnico in tecnicos %}
+                                <option value="{{ tecnico.id }}" {% if orden.tecnico_id == tecnico.id %}selected{% endif %}>
+                                    {{ tecnico.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="fecha_prevista">Fecha Prevista de Entrega</label>
+                            <input type="date" name="fecha_prevista" id="fecha_prevista" class="form-control" 
+                                   value="{{ orden.fecha_prevista or '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select name="estado" id="estado" class="form-control" required>
+                                <option value="Recibido" {% if orden.estado == 'Recibido' %}selected{% endif %}>Recibido</option>
+                                <option value="En diagnostico" {% if orden.estado == 'En diagnostico' %}selected{% endif %}>En diagnóstico</option>
+                                <option value="Esperando piezas" {% if orden.estado == 'Esperando piezas' %}selected{% endif %}>Esperando piezas</option>
+                                <option value="En reparacion" {% if orden.estado == 'En reparacion' %}selected{% endif %}>En reparación</option>
+                                <option value="Listo para entregar" {% if orden.estado == 'Listo para entregar' %}selected{% endif %}>Listo para entregar</option>
+                                <option value="Entregado" {% if orden.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
+                                <option value="Cancelado" {% if orden.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="problema_reportado">Problema Reportado *</label>
+                            <textarea name="problema_reportado" id="problema_reportado" class="form-control" rows="3" required>{{ orden.problema_reportado }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="diagnostico">Diagnóstico Técnico</label>
+                            <textarea name="diagnostico" id="diagnostico" class="form-control" rows="3">{{ orden.diagnostico or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="notas_cliente">Notas Adicionales del Cliente</label>
+                            <textarea name="notas_cliente" id="notas_cliente" class="form-control" rows="2">{{ orden.notas_cliente or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-cogs"></i> Piezas Utilizadas</h5>
+            </div>
+            <div class="card-body">
+                <div id="lista-piezas">
+                    <!-- Se llena dinámicamente con JS -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="agregarPieza()">
+                    <i class="fas fa-plus"></i> Agregar Pieza
+                </button>
+                <!-- Campo oculto para enviar las piezas como JSON -->
+                <input type="hidden" name="piezas_usadas" id="piezas_usadas" value='{{ piezas_usadas_json }}'>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-dollar-sign"></i> Mano de Obra</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="mano_obra_desc">Descripción del Trabajo Realizado</label>
+                            <input type="text" name="mano_obra_desc" id="mano_obra_desc" class="form-control" 
+                                   value="{{ orden.mano_obra_desc or '' }}" placeholder="Ej: Limpieza general, reparación de fusor, etc.">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="mano_obra_costo">Costo Mano de Obra ($)</label>
+                            <input type="number" name="mano_obra_costo" id="mano_obra_costo" class="form-control" 
+                                   value="{{ orden.mano_obra_costo or 0 }}" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notas Internas</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <textarea name="notas_internas" id="notas_internas" class="form-control" rows="3" 
+                              placeholder="Notas internas para el taller">{{ orden.notas_internas or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Variables globales para piezas
+let piezasActuales = [];
+
+// Cargar dispositivos cuando se selecciona un cliente
+document.getElementById('cliente_id').addEventListener('change', function() {
+    const clienteId = this.value;
+    const dispositivoSelect = document.getElementById('dispositivo_id');
+    
+    dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
+    
+    if (clienteId) {
+        fetch(`/api/dispositivos/${clienteId}`)
+            .then(response => response.json())
+            .then(data => {
+                dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
+                data.forEach(dispositivo => {
+                    const option = document.createElement('option');
+                    option.value = dispositivo.id;
+                    option.textContent = dispositivo.texto;
+                    dispositivoSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                dispositivoSelect.innerHTML = '<option value="">Error al cargar</option>';
+            });
+    } else {
+        dispositivoSelect.innerHTML = '<option value="">Primero seleccione un cliente</option>';
+    }
+});
+
+// Cargar piezas al iniciar
+window.addEventListener('DOMContentLoaded', function() {
+    try {
+        piezasActuales = JSON.parse(document.getElementById('piezas_usadas').value) || [];
+        renderizarPiezas();
+    } catch (e) {
+        console.error('Error al cargar piezas:', e);
+        piezasActuales = [];
+    }
+});
+
+function renderizarPiezas() {
+    const container = document.getElementById('lista-piezas');
+    
+    if (piezasActuales.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay piezas registradas</p>';
+        return;
+    }
+    
+    let html = '<table class="table table-sm"><thead><tr><th>Pieza</th><th>Unidad</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th></th></tr></thead><tbody>';
+    let totalGeneral = 0;
+    
+    piezasActuales.forEach((pieza, index) => {
+        const total = pieza.cantidad * pieza.precio;
+        totalGeneral += total;
+        html += `<tr>
+            <td>${pieza.nombre}</td>
+            <td>${pieza.unidad}</td>
+            <td>${pieza.cantidad}</td>
+            <td>$${pieza.precio.toFixed(2)}</td>
+            <td>$${total.toFixed(2)}</td>
+            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarPieza(${index})"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+    });
+    
+    html += `</tbody><tfoot><tr><td colspan="4" class="text-right"><strong>Total General:</strong></td><td colspan="2"><strong>$${totalGeneral.toFixed(2)}</strong></td></tr></tfoot></table>`;
+    container.innerHTML = html;
+    
+    // Actualizar campo oculto
+    document.getElementById('piezas_usadas').value = JSON.stringify(piezasActuales);
+}
+
+function agregarPieza() {
+    const busqueda = prompt('Ingrese el nombre de la pieza a buscar:');
+    if (!busqueda) return;
+    
+    fetch(`/api/piezas?q=${encodeURIComponent(busqueda)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                alert('No se encontraron piezas disponibles');
+                return;
+            }
+            
+            // Mostrar opciones simples
+            let opciones = 'Piezas encontradas:\n\n';
+            data.forEach((p, i) => {
+                opciones += `${i + 1}. ${p.texto}\n`;
+            });
+            opciones += '\nIngrese el número de la pieza deseada:';
+            
+            const seleccion = prompt(opciones);
+            if (seleccion && !isNaN(seleccion) && seleccion > 0 && seleccion <= data.length) {
+                const piezaSeleccionada = data[seleccion - 1];
+                
+                const cantidad = prompt('Ingrese la cantidad:', '1');
+                if (cantidad && !isNaN(cantidad) && parseFloat(cantidad) > 0) {
+                    // Verificar si ya existe
+                    const existente = piezasActuales.find(p => p.id === piezaSeleccionada.id);
+                    if (existente) {
+                        existente.cantidad += parseFloat(cantidad);
+                    } else {
+                        piezasActuales.push({
+                            id: piezaSeleccionada.id,
+                            nombre: piezaSeleccionada.texto.split(' (')[0],
+                            cantidad: parseFloat(cantidad),
+                            precio: piezaSeleccionada.precio,
+                            unidad: piezaSeleccionada.unidad
+                        });
+                    }
+                    renderizarPiezas();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al buscar piezas');
+        });
+}
+
+function eliminarPieza(index) {
+    if (confirm('¿Eliminar esta pieza de la orden?')) {
+        piezasActuales.splice(index, 1);
+        renderizarPiezas();
+    }
+}
+</script>
+{% endblock %}
