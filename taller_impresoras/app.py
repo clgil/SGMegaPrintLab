@@ -146,6 +146,12 @@ def api_dispositivos_cliente_global(cliente_id):
 def inject_year():
     return {'current_year': datetime.now().year}
 
+# Agregar el filtro 'zip' a Jinja2 (útil para iterar sobre múltiples listas en templates)
+@app.template_filter('zip')
+def zip_filter(*args):
+    """Filtro para usar zip() en templates Jinja2"""
+    return zip(*args)
+
 def crear_datos_iniciales():
     """Crea datos iniciales si no existen"""
     # Crear usuario administrador por defecto
