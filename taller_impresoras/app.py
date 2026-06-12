@@ -106,6 +106,41 @@ app.register_blueprint(tecnicos_bp, url_prefix='/tecnicos')
 app.register_blueprint(reportes_bp, url_prefix='/reportes')
 app.register_blueprint(backup_bp, url_prefix='/backup')
 
+# Rutas API globales para acceso directo desde cualquier template
+@app.route('/api/piezas')
+@login_required
+def api_piezas_global():
+    """API global para buscar piezas por nombre (usada en formularios de órdenes)"""
+    from models import Pieza
+    from flask import jsonify, request
+    busqueda = request.args.get('q', '')
+    query = Pieza.query
+    
+    if busqueda:
+        query = query.filter(Pieza.nombre.ilike(f'%{busqueda}%'))
+    
+    piezas = query.limit(50).all()
+    
+    resultado = [{
+        'id': p.id, 
+        'texto': f"{p.nombre} ({p.unidad}) - Stock: {p.cantidad}",
+        'precio': p.precio_venta,
+        'unidad': p.unidad,
+        'stock': p.cantidad
+    } for p in piezas]
+    return jsonify(resultado)
+
+
+@app.route('/api/clientes/<int:cliente_id>/dispositivos')
+@login_required
+def api_dispositivos_cliente_global(cliente_id):
+    """API global para obtener dispositivos de un cliente"""
+    from models import Dispositivo
+    from flask import jsonify
+    dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id).all()
+    resultado = [{'id': d.id, 'texto': f'{d.marca} {d.modelo} - {d.tipo}'} for d in dispositivos]
+    return jsonify(resultado)
+
 # Context processor para hacer disponible el año actual en todos los templates
 @app.context_processor
 def inject_year():
