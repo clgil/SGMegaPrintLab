@@ -127,3 +127,12 @@ def por_cliente(cliente_id):
     resultado = [{'id': d.id, 'descripcion': f'{d.marca} {d.modelo} ({d.tipo})'} for d in dispositivos]
     from flask import jsonify
     return jsonify(resultado)
+
+
+@dispositivos_bp.route('/api/dispositivos/<int:cliente_id>')
+@login_required
+def api_dispositivos(cliente_id):
+    """API para obtener dispositivos de un cliente (usada en formulario de órdenes)"""
+    dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id, activo=1).all()
+    resultado = [{'id': d.id, 'texto': f"{d.tipo} - {d.marca} {d.modelo} ({d.serial})"} for d in dispositivos]
+    return jsonify(resultado)

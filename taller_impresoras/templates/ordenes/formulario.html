@@ -181,7 +181,7 @@ document.getElementById('cliente_id').addEventListener('change', function() {
     dispositivoSelect.innerHTML = '<option value="">Cargando...</option>';
     
     if (clienteId) {
-        fetch(`/api/clientes/${clienteId}/dispositivos`)
+        fetch(`/clientes/api/clientes/${clienteId}/dispositivos`)
             .then(response => response.json())
             .then(data => {
                 dispositivoSelect.innerHTML = '<option value="">Seleccione un dispositivo...</option>';
@@ -223,7 +223,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 {% if orden %}
 function cargarPiezas() {
-    fetch(`/api/ordenes/{{ orden.id }}/piezas`)
+    fetch(`/ordenes/api/ordenes/{{ orden.id }}/piezas`)
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById('lista-piezas');
@@ -253,7 +253,7 @@ function cargarPiezas() {
 }
 
 function cargarHistorial() {
-    fetch(`/api/ordenes/{{ orden.id }}/historial`)
+    fetch(`/ordenes/api/ordenes/{{ orden.id }}/historial`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.getElementById('historial-estados');

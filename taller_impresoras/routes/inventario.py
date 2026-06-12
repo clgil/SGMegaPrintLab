@@ -219,7 +219,30 @@ def api_lista():
         'nombre': p.nombre,
         'cantidad': p.cantidad,
         'precio_venta': p.precio_venta,
-        'unidad': p.unidad
+        'unidad': p.unidad,
+        'texto': f"{p.nombre} ({p.unidad}) - ${p.precio_venta:.2f}"
+    } for p in piezas]
+    return jsonify(resultado)
+
+
+@inventario_bp.route('/api/piezas')
+@login_required
+def api_piezas():
+    """API para buscar piezas por nombre (usada en formulario de órdenes)"""
+    busqueda = request.args.get('q', '')
+    query = Pieza.query
+    
+    if busqueda:
+        query = query.filter(Pieza.nombre.ilike(f'%{busqueda}%'))
+    
+    piezas = query.limit(50).all()
+    
+    resultado = [{
+        'id': p.id, 
+        'texto': f"{p.nombre} ({p.unidad}) - Stock: {p.cantidad}",
+        'precio': p.precio_venta,
+        'unidad': p.unidad,
+        'stock': p.cantidad
     } for p in piezas]
     return jsonify(resultado)
 
