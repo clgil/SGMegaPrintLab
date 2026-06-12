@@ -120,7 +120,7 @@ class Pieza(db.Model):
     
     # Relaciones
     movimientos = db.relationship('MovimientoInventario', backref='pieza', lazy=True)
-    orden_piezas = db.relationship('OrdenPieza', backref='pieza', lazy=True)
+    orden_piezas = db.relationship('OrdenPieza', back_populates='pieza_rel', lazy=True)
     
     def __repr__(self):
         return f'<Pieza {self.nombre}>'
@@ -176,7 +176,7 @@ class OrdenPieza(db.Model):
     precio_unitario = db.Column(db.Float, nullable=False)
     
     # Relación con Pieza (puede ser None para piezas manuales)
-    pieza = db.relationship('Pieza', backref=db.backref('orden_piezas_rel', lazy='dynamic'))
+    pieza_rel = db.relationship('Pieza', back_populates='orden_piezas')
     
     def __repr__(self):
         return f'<OrdenPieza Orden:{self.orden_id} Pieza:{self.pieza_id}>'
