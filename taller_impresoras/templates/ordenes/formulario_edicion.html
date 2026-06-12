@@ -288,6 +288,16 @@ window.addEventListener('DOMContentLoaded', function() {
         piezasActuales = JSON.parse(document.getElementById('piezas_usadas').value) || [];
         renderizarPiezas();
         cargarPiezasEnDropdown();
+        
+        // Agregar listener para actualizar totales cuando cambie la mano de obra
+        document.getElementById('mano_obra_costo').addEventListener('input', function() {
+            // Recalcular totales basados en las piezas actuales
+            let totalPiezas = 0;
+            piezasActuales.forEach(pieza => {
+                totalPiezas += pieza.cantidad * pieza.precio;
+            });
+            actualizarTotales(totalPiezas);
+        });
     } catch (e) {
         console.error('Error al cargar piezas:', e);
         piezasActuales = [];
@@ -299,15 +309,16 @@ function renderizarPiezas() {
     
     if (piezasActuales.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay piezas registradas</p>';
+        actualizarTotales();
         return;
     }
     
     let html = '<table class="table table-sm"><thead><tr><th>Pieza</th><th>Unidad</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th></th></tr></thead><tbody>';
-    let totalGeneral = 0;
+    let totalPiezas = 0;
     
     piezasActuales.forEach((pieza, index) => {
         const total = pieza.cantidad * pieza.precio;
-        totalGeneral += total;
+        totalPiezas += total;
         html += `<tr>
             <td>${pieza.nombre}</td>
             <td>${pieza.unidad}</td>
@@ -318,11 +329,23 @@ function renderizarPiezas() {
         </tr>`;
     });
     
-    html += `</tbody><tfoot><tr><td colspan="4" class="text-right"><strong>Total General:</strong></td><td colspan="2"><strong>$${totalGeneral.toFixed(2)}</strong></td></tr></tfoot></table>`;
+    html += `</tbody><tfoot><tr><td colspan="4" class="text-right"><strong>Total Piezas:</strong></td><td colspan="2"><strong>$${totalPiezas.toFixed(2)}</strong></td></tr></tfoot></table>`;
     container.innerHTML = html;
     
     // Actualizar campo oculto
     document.getElementById('piezas_usadas').value = JSON.stringify(piezasActuales);
+    
+    // Actualizar totales en el resumen
+    actualizarTotales(totalPiezas);
+}
+
+function actualizarTotales(totalPiezas = 0) {
+    const manoObra = parseFloat(document.getElementById('mano_obra_costo').value) || 0;
+    const totalGeneral = totalPiezas + manoObra;
+    
+    document.getElementById('total_piezas').textContent = totalPiezas.toFixed(2);
+    document.getElementById('mano_obra_valor').textContent = manoObra.toFixed(2);
+    document.getElementById('total_general').textContent = totalGeneral.toFixed(2);
 }
 
 function agregarPiezaDesdeSelect() {
