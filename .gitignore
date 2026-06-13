@@ -9,7 +9,32 @@ __pycache__/
 .venv/
 venv/
 env/
-.env
-.env.local
-.env.*
+pip-log.txt
+pip-selfcheck.json
+
+# Build artifacts
+build/
+dist/
+*.egg
+*.egg-info/
+*.so
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 ```

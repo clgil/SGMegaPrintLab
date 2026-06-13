@@ -157,19 +157,19 @@ def editar(id):
         estados_finales = ['Entregado', 'Listo para entregar']
         orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
         
-        # Eliminar piezas anteriores y devolver al stock SOLO si la orden ya había sido concluida previamente
+        # Eliminar piezas anteriores de la base de datos y devolver al stock SOLO si la orden ya había sido concluida previamente
         # Esto permite editar órdenes que aún no están en estado final sin afectar el inventario
         if estado_anterior in estados_finales:
-            for op in orden.piezas_usadas:
+            for op in list(orden.piezas_usadas):  # Usar list() para crear una copia y evitar problemas de iteración
                 if op.pieza_id:  # Solo para piezas reales del inventario
                     pieza = Pieza.query.get(op.pieza_id)
                     if pieza:
                         pieza.cantidad += op.cantidad  # Devolver al stock
+                db.session.delete(op)  # Eliminar registro de OrdenPieza
         
-        # Limpiar piezas anteriores
-        orden.piezas_usadas = []
+        db.session.commit()  # Confirmar eliminación de piezas anteriores y devolución de stock si aplica
         
-        # Agregar nuevas piezas y descontar del stock solo si la orden está siendo concluida
+        # Agregar nuevas piezas
         for item in piezas_data:
             pieza_id = item.get('id')
             cantidad = float(item.get('cantidad', 1))
@@ -215,9 +215,10 @@ def editar(id):
                     )
                     db.session.add(orden_pieza)
         
-        # Calcular total
+        # Calcular total después de agregar todas las piezas
         orden.calcular_total()
         
+        # Guardar cambios
         db.session.commit()
         
         flash(f'Orden {orden.numero_orden} actualizada correctamente', 'success')

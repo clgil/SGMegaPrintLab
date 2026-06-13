@@ -176,7 +176,7 @@ class OrdenPieza(db.Model):
     precio_unitario = db.Column(db.Float, nullable=False)
     
     # Relación con Pieza (puede ser None para piezas manuales)
-    pieza_rel = db.relationship('Pieza', back_populates='orden_piezas')
+    pieza_rel = db.relationship('Pieza', back_populates='orden_piezas', foreign_keys=[pieza_id])
     
     def __repr__(self):
         return f'<OrdenPieza Orden:{self.orden_id} Pieza:{self.pieza_id}>'
