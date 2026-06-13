@@ -152,32 +152,33 @@ def editar(id):
         import json
         piezas_data = json.loads(piezas_json)
         
-        # Verificar si la orden está siendo concluida (cambio a estado final)
+        # Verificar si la orden está siendo concluida (cambio a estado final por primera vez)
         estado_anterior = Orden.query.get(orden.id).estado
         estados_finales = ['Entregado', 'Listo para entregar']
         orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
         
-        # Eliminar piezas anteriores de la base de datos y devolver al stock SOLO si la orden ya había sido concluida previamente
-        # Esto permite editar órdenes que aún no están en estado final sin afectar el inventario
-        if estado_anterior in estados_finales:
-            for op in list(orden.piezas_usadas):  # Usar list() para crear una copia y evitar problemas de iteración
-                if op.pieza_id:  # Solo para piezas reales del inventario
-                    pieza = Pieza.query.get(op.pieza_id)
-                    if pieza:
-                        pieza.cantidad += op.cantidad  # Devolver al stock
-                db.session.delete(op)  # Eliminar registro de OrdenPieza
+        # Eliminar piezas anteriores de la base de datos
+        # Si la orden ya estaba en estado final, devolver las piezas al stock
+        for op in list(orden.piezas_usadas):
+            if op.pieza_id and estado_anterior in estados_finales:
+                # Solo devolver al stock si la orden ya estaba concluida
+                pieza = Pieza.query.get(op.pieza_id)
+                if pieza:
+                    pieza.cantidad += op.cantidad  # Devolver al stock
+            db.session.delete(op)  # Eliminar registro de OrdenPieza
         
-        db.session.commit()  # Confirmar eliminación de piezas anteriores y devolución de stock si aplica
+        db.session.flush()  # Confirmar eliminación de piezas anteriores antes de agregar nuevas
         
         # Agregar nuevas piezas
+        total_piezas = 0.0
         for item in piezas_data:
             pieza_id = item.get('id')
             cantidad = float(item.get('cantidad', 1))
             precio_unitario = float(item.get('precio', 0))
             
-            if pieza_id and cantidad > 0:
-                # Ignorar piezas manuales (ID negativo)
-                if pieza_id < 0:
+            if cantidad > 0:
+                # Ignorar piezas manuales (ID negativo o None)
+                if pieza_id is None or pieza_id < 0:
                     # Para piezas manuales, solo registrar en la orden sin afectar inventario
                     orden_pieza = OrdenPieza(
                         orden_id=orden.id,
@@ -186,6 +187,7 @@ def editar(id):
                         precio_unitario=precio_unitario
                     )
                     db.session.add(orden_pieza)
+                    total_piezas += cantidad * precio_unitario
                     continue
                 
                 pieza = Pieza.query.get(pieza_id)
@@ -214,9 +216,11 @@ def editar(id):
                         precio_unitario=precio_unitario
                     )
                     db.session.add(orden_pieza)
+                    total_piezas += cantidad * precio_unitario
         
-        # Calcular total después de agregar todas las piezas
-        orden.calcular_total()
+        # Calcular total: piezas + mano de obra
+        mano_obra = float(orden.mano_obra_costo) if orden.mano_obra_costo else 0.0
+        orden.costo_total = total_piezas + mano_obra
         
         # Guardar cambios
         db.session.commit()

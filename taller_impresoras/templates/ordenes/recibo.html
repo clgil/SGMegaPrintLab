@@ -82,7 +82,7 @@
                         {% set subtotal_piezas = namespace(total=0) %}
                         {% for op in orden.piezas_usadas %}
                         <tr>
-                            <td>{{ op.pieza.nombre if op.pieza else 'Pieza manual' }}</td>
+                            <td>{{ op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual' }}</td>
                             <td>{{ op.cantidad }}</td>
                             <td>${{ "%.2f"|format(op.precio_unitario) }}</td>
                             <td>${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
