@@ -2,9 +2,9 @@
 Rutas de reportes para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 """
-from flask import Blueprint, render_template, request, make_response, jsonify
-from flask_login import login_required
-from models import db, Orden, Pieza, MovimientoInventario, Cliente
+from flask import Blueprint, render_template, request, make_response, jsonify, redirect, url_for, flash
+from flask_login import login_required, current_user
+from models import db, Orden, Pieza, MovimientoInventario, Cliente, Gasto, Configuracion
 from datetime import datetime
 import io
 
@@ -16,6 +16,81 @@ reportes_bp = Blueprint('reportes', __name__, template_folder='../templates')
 def index():
     """Página principal de reportes"""
     return render_template('reportes/index.html')
+
+
+@reportes_bp.route('/gastos', methods=['GET', 'POST'])
+@login_required
+def gastos():
+    """Gestión de gastos operativos"""
+    if request.method == 'POST':
+        # Añadir nuevo gasto
+        descripcion = request.form.get('descripcion')
+        monto = float(request.form.get('monto', 0))
+        fecha = request.form.get('fecha', datetime.now().strftime('%Y-%m-%d'))
+        
+        if not descripcion or monto <= 0:
+            flash('Descripción y monto válido son obligatorios', 'warning')
+            return redirect(url_for('reportes.gastos'))
+        
+        nuevo_gasto = Gasto(descripcion=descripcion, monto=monto, fecha=fecha)
+        db.session.add(nuevo_gasto)
+        db.session.commit()
+        
+        flash('Gasto registrado correctamente', 'success')
+        return redirect(url_for('reportes.gastos'))
+    
+    # Listar gastos (últimos 50)
+    gastos_lista = Gasto.query.order_by(Gasto.fecha.desc()).limit(50).all()
+    total_gastos = sum(g.monto for g in gastos_lista)
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    
+    return render_template('reportes/gastos.html', gastos=gastos_lista, total_gastos=total_gastos, fecha_actual=fecha_actual)
+
+
+@reportes_bp.route('/gastos/eliminar/<int:id>', methods=['POST'])
+@login_required
+def eliminar_gasto(id):
+    """Eliminar un gasto"""
+    gasto = Gasto.query.get_or_404(id)
+    db.session.delete(gasto)
+    db.session.commit()
+    flash('Gasto eliminado correctamente', 'info')
+    return redirect(url_for('reportes.gastos'))
+
+
+@reportes_bp.route('/finanzas/configuracion', methods=['GET', 'POST'])
+@login_required
+def configuracion_financiera():
+    """Configuración de parámetros tributarios"""
+    if request.method == 'POST':
+        # Guardar configuración tributaria
+        config_keys = [
+            'regimen_fiscal', 'cuota_fija_mensual',
+            'tasa_isip_1', 'tasa_isip_2', 'tasa_isip_3', 'tasa_isip_4', 'tasa_isip_5', 'tasa_isip_6',
+            'limite_isip_1', 'limite_isip_2', 'limite_isip_3', 'limite_isip_4', 'limite_isip_5',
+            'seguridad_social_porcentaje', 'seguridad_social_base'
+        ]
+        
+        for clave in config_keys:
+            valor = request.form.get(clave, '')
+            if valor:
+                config = Configuracion.query.filter_by(clave=clave).first()
+                if config:
+                    config.valor = valor
+                else:
+                    config = Configuracion(clave=clave, valor=valor)
+                    db.session.add(config)
+        
+        db.session.commit()
+        flash('Configuración tributaria guardada correctamente', 'success')
+        return redirect(url_for('reportes.configuracion_financiera'))
+    
+    # Cargar configuración actual
+    config = {}
+    for c in Configuracion.query.all():
+        config[c.clave] = c.valor
+    
+    return render_template('reportes/config_financiera.html', config=config)
 
 
 @reportes_bp.route('/ingresos', methods=['GET', 'POST'])

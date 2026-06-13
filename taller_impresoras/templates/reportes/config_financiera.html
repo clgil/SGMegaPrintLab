@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración Financiera - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">⚙️ Configuración Tributaria</h1>
+    
+    <div class="alert alert-info">
+        <strong>Nota:</strong> Estos parámetros se utilizan para calcular los tributos estimados según el régimen de trabajadores por cuenta propia en Cuba.
+        Los cálculos son orientativos y deben verificarse con la normativa oficial vigente.
+    </div>
+    
+    <form method="POST" action="{{ url_for('reportes.configuracion_financiera') }}">
+        <!-- Régimen Fiscal -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Régimen Fiscal</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Régimen:</label>
+                        <select name="regimen_fiscal" class="form-select" id="regimenFiscal" onchange="toggleRegimen()">
+                            <option value="general" {% if config.get('regimen_fiscal') == 'general' %}selected{% endif %}>General (Escala Progresiva)</option>
+                            <option value="simplificado" {% if config.get('regimen_fiscal') == 'simplificado' %}selected{% endif %}>Simplificado (Cuota Fija)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="cuotaFijaDiv" style="display: none;">
+                        <label class="form-label">Cuota Fija Mensual (CUP):</label>
+                        <input type="number" name="cuota_fija_mensual" class="form-control" step="0.01" value="{{ config.get('cuota_fija_mensual', 0) }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Escala Progresiva ISIP -->
+        <div class="card mb-4 shadow-sm" id="escalaISIP">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Escala Progresiva ISIP (Impuesto sobre Ingresos Personales)</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tramo de Ganancia Acumulada (CUP)</th>
+                            <th>Tasa (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hasta ${{ config.get('limite_isip_1', 10000) }}</td>
+                            <td><input type="number" name="tasa_isip_1" class="form-control" step="0.01" value="{{ config.get('tasa_isip_1', 5) }}"></td>
+                        </tr>
+                        <tr>
+                            <td>De ${{ config.get('limite_isip_1', 10000) + 1 }} a ${{ config.get('limite_isip_2', 20000) }}</td>
+                            <td><input type="number" name="tasa_isip_2" class="form-control" step="0.01" value="{{ config.get('tasa_isip_2', 10) }}"></td>
+                        </tr>
+                        <tr>
+                            <td>De ${{ config.get('limite_isip_2', 20000) + 1 }} a ${{ config.get('limite_isip_3', 30000) }}</td>
+                            <td><input type="number" name="tasa_isip_3" class="form-control" step="0.01" value="{{ config.get('tasa_isip_3', 15) }}"></td>
+                        </tr>
+                        <tr>
+                            <td>De ${{ config.get('limite_isip_3', 30000) + 1 }} a ${{ config.get('limite_isip_4', 40000) }}</td>
+                            <td><input type="number" name="tasa_isip_4" class="form-control" step="0.01" value="{{ config.get('tasa_isip_4', 20) }}"></td>
+                        </tr>
+                        <tr>
+                            <td>De ${{ config.get('limite_isip_4', 40000) + 1 }} a ${{ config.get('limite_isip_5', 50000) }}</td>
+                            <td><input type="number" name="tasa_isip_5" class="form-control" step="0.01" value="{{ config.get('tasa_isip_5', 25) }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Más de ${{ config.get('limite_isip_5', 50000) }}</td>
+                            <td><input type="number" name="tasa_isip_6" class="form-control" step="0.01" value="{{ config.get('tasa_isip_6', 30) }}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Seguridad Social -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Seguridad Social</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Porcentaje (%):</label>
+                        <input type="number" name="seguridad_social_porcentaje" class="form-control" step="0.01" value="{{ config.get('seguridad_social_porcentaje', 5) }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Base de Cálculo:</label>
+                        <select name="seguridad_social_base" class="form-select">
+                            <option value="ganancia" {% if config.get('seguridad_social_base') == 'ganancia' %}selected{% endif %}>Ganancia Neta</option>
+                            <option value="ingreso" {% if config.get('seguridad_social_base') == 'ingreso' %}selected{% endif %}>Ingresos Brutos</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 col-md-4 mx-auto">
+            <button type="submit" class="btn btn-primary btn-lg">Guardar Configuración</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleRegimen() {
+    var regimen = document.getElementById('regimenFiscal').value;
+    var cuotaDiv = document.getElementById('cuotaFijaDiv');
+    var escalaDiv = document.getElementById('escalaISIP');
+    
+    if (regimen === 'simplificado') {
+        cuotaDiv.style.display = 'block';
+        escalaDiv.style.display = 'none';
+    } else {
+        cuotaDiv.style.display = 'none';
+        escalaDiv.style.display = 'block';
+    }
+}
+
+// Ejecutar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    toggleRegimen();
+});
+</script>
+{% endblock %}

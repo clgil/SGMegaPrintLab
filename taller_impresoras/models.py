@@ -207,3 +207,16 @@ class Configuracion(db.Model):
     
     def __repr__(self):
         return f'<Configuración {self.clave}={self.valor}>'
+
+
+class Gasto(db.Model):
+    """Tabla de gastos operativos del taller (agua, electricidad, alquiler, etc.)"""
+    __tablename__ = 'gastos'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    descripcion = db.Column(db.Text, nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.Text, nullable=False, default=datetime.now().strftime('%Y-%m-%d'))
+    
+    def __repr__(self):
+        return f'<Gasto {self.descripcion} - ${self.monto}>'

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Gastos Operativos - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">💸 Gastos Operativos</h1>
+    
+    <!-- Formulario para añadir gasto -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Registrar Nuevo Gasto</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('reportes.gastos') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Descripción:</label>
+                    <input type="text" name="descripcion" class="form-control" required placeholder="Ej: Electricidad, Alquiler...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Monto (CUP):</label>
+                    <input type="number" name="monto" class="form-control" step="0.01" min="0.01" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha:</label>
+                    <input type="date" name="fecha" class="form-control" value="{{ fecha_actual }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">Añadir Gasto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de gastos -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Listado de Gastos (últimos 50)</h5>
+            <span class="badge bg-warning text-dark">Total: ${{ "%.2f"|format(total_gastos) }} CUP</span>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Monto (CUP)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gasto in gastos %}
+                    <tr>
+                        <td>{{ gasto.fecha }}</td>
+                        <td>{{ gasto.descripcion }}</td>
+                        <td class="text-danger">${{ "%.2f"|format(gasto.monto) }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('reportes.eliminar_gasto', id=gasto.id) }}" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este gasto?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No hay gastos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
