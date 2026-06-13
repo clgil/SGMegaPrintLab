@@ -49,27 +49,27 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Hasta ${{ config.get('limite_isip_1', 10000) }}</td>
+                            <td>Hasta ${{ config.get('limite_isip_1', 10000) | int }}</td>
                             <td><input type="number" name="tasa_isip_1" class="form-control" step="0.01" value="{{ config.get('tasa_isip_1', 5) }}"></td>
                         </tr>
                         <tr>
-                            <td>De ${{ config.get('limite_isip_1', 10000) + 1 }} a ${{ config.get('limite_isip_2', 20000) }}</td>
+                            <td>De ${{ (config.get('limite_isip_1', 10000) | int) + 1 }} a ${{ config.get('limite_isip_2', 20000) | int }}</td>
                             <td><input type="number" name="tasa_isip_2" class="form-control" step="0.01" value="{{ config.get('tasa_isip_2', 10) }}"></td>
                         </tr>
                         <tr>
-                            <td>De ${{ config.get('limite_isip_2', 20000) + 1 }} a ${{ config.get('limite_isip_3', 30000) }}</td>
+                            <td>De ${{ (config.get('limite_isip_2', 20000) | int) + 1 }} a ${{ config.get('limite_isip_3', 30000) | int }}</td>
                             <td><input type="number" name="tasa_isip_3" class="form-control" step="0.01" value="{{ config.get('tasa_isip_3', 15) }}"></td>
                         </tr>
                         <tr>
-                            <td>De ${{ config.get('limite_isip_3', 30000) + 1 }} a ${{ config.get('limite_isip_4', 40000) }}</td>
+                            <td>De ${{ (config.get('limite_isip_3', 30000) | int) + 1 }} a ${{ config.get('limite_isip_4', 40000) | int }}</td>
                             <td><input type="number" name="tasa_isip_4" class="form-control" step="0.01" value="{{ config.get('tasa_isip_4', 20) }}"></td>
                         </tr>
                         <tr>
-                            <td>De ${{ config.get('limite_isip_4', 40000) + 1 }} a ${{ config.get('limite_isip_5', 50000) }}</td>
+                            <td>De ${{ (config.get('limite_isip_4', 40000) | int) + 1 }} a ${{ config.get('limite_isip_5', 50000) | int }}</td>
                             <td><input type="number" name="tasa_isip_5" class="form-control" step="0.01" value="{{ config.get('tasa_isip_5', 25) }}"></td>
                         </tr>
                         <tr>
-                            <td>Más de ${{ config.get('limite_isip_5', 50000) }}</td>
+                            <td>Más de ${{ config.get('limite_isip_5', 50000) | int }}</td>
                             <td><input type="number" name="tasa_isip_6" class="form-control" step="0.01" value="{{ config.get('tasa_isip_6', 30) }}"></td>
                         </tr>
                     </tbody>
