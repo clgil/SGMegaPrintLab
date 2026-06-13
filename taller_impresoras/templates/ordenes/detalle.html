@@ -5,10 +5,10 @@
 {% block content %}
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>📋 Orden #{{ orden.numero }}</h1>
+        <h1>📋 Orden #{{ orden.numero_orden }}</h1>
         <div>
             <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-info" target="_blank">🖨️ Imprimir</a>
-            <a href="{{ url_for('ordenes.editar', id=orden.id) }} " class="btn btn-warning">✏️ Editar</a>
+            <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-warning">✏️ Editar</a>
             <a href="{{ url_for('ordenes.index') }}" class="btn btn-secondary">← Volver</a>
         </div>
     </div>
@@ -22,7 +22,6 @@
                 <div class="card-body">
                     <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
                     <p><strong>Teléfono:</strong> {{ orden.cliente.telefono }}</p>
-                    <p><strong>Email:</strong> {{ orden.cliente.email or 'N/A' }}</p>
                 </div>
             </div>
         </div>
@@ -37,7 +36,7 @@
                     <p><strong>Tipo:</strong> {{ orden.dispositivo.tipo }}</p>
                     <p><strong>Marca:</strong> {{ orden.dispositivo.marca }}</p>
                     <p><strong>Modelo:</strong> {{ orden.dispositivo.modelo }}</p>
-                    <p><strong>Serie:</strong> {{ orden.dispositivo.serie or 'N/A' }}</p>
+                    <p><strong>Serie:</strong> {{ orden.dispositivo.numero_serie or 'N/A' }}</p>
                     {% else %}
                     <p class="text-muted">Sin dispositivo asociado</p>
                     {% endif %}
@@ -99,8 +98,8 @@
                 <tbody>
                     {% for op in orden.piezas_usadas %}
                     <tr>
-                        <td>{{ op.pieza.nombre if op.pieza else 'Pieza manual' }}</td>
-                        <td>{{ op.cantidad }} {{ op.pieza.unidad if op.pieza else '' }}</td>
+                        <td>{{ op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual' }}</td>
+                        <td>{{ op.cantidad }} {{ op.pieza_rel.unidad if op.pieza_rel else '' }}</td>
                         <td>${{ "%.2f"|format(op.precio_unitario) }}</td>
                         <td>${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
                     </tr>
