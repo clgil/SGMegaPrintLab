@@ -1,12 +1,14 @@
 ```
-# Compiled Python files
-*.pyc
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Database files
-*.db
+# Database
+instance/*.db
 
-# Environment files
+# Environment
 .env
 .env.local
 *.env.*
@@ -17,8 +19,13 @@ __pycache__/
 # Temporary files
 *.tmp
 *.swp
+*.swo
 
 # Editors
 .vscode/
 .idea/
+
+# Dependencies
+venv/
+.venv/
 ```

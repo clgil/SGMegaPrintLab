@@ -6,7 +6,38 @@
 <div class="container-fluid">
     <h1 class="mb-4">📊 Panel de Control</h1>
     
-    <!-- Tarjetas resumen -->
+    <!-- Filtro de período -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📅 Filtro de Período Financiero</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('dashboard') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Período:</label>
+                    <select name="periodo" class="form-select" id="filtroPeriodo" onchange="toggleFechaPersonalizada()">
+                        <option value="hoy" {% if filtro_periodo == 'hoy' %}selected{% endif %}>Hoy</option>
+                        <option value="este_mes" {% if filtro_periodo == 'este_mes' %}selected{% endif %}>Este Mes</option>
+                        <option value="este_anio" {% if filtro_periodo == 'este_anio' %}selected{% endif %}>Este Año</option>
+                        <option value="personalizado" {% if filtro_periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                    <label class="form-label">Fecha Inicio:</label>
+                    <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+                </div>
+                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                    <label class="form-label">Fecha Fin:</label>
+                    <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Aplicar Filtro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tarjetas resumen operativas -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card bg-primary text-white shadow-sm">
@@ -46,16 +77,106 @@
         </div>
     </div>
     
-    <!-- Ingresos del mes -->
+    <!-- Métricas Financieras -->
+    <h4 class="mb-3">💰 Panel Financiero</h4>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Inversión en Piezas</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">${{ "%.2f"|format(inversion_piezas) }} CUP</h3>
+                    <small class="text-muted">Costo de piezas usadas (período)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Valor Inventario</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">${{ "%.2f"|format(valor_inventario) }} CUP</h3>
+                    <small class="text-muted">Existencia × costo (actual)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Ingresos Brutos</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-primary">${{ "%.2f"|format(ingresos_brutos) }} CUP</h3>
+                    <small class="text-muted">Total facturado (período)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">Ganancia Neta</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="{% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</h3>
+                    <small class="text-muted">Ingresos - piezas - gastos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de Tributos -->
+    <h4 class="mb-3">📋 Tributos Estimados (Cuba)</h4>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">ISIP (Impuesto sobre Ingresos Personales)</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-danger">${{ "%.2f"|format(isip_calculado) }} CUP</h4>
+                    <small class="text-muted">Régimen: {{ regimen_fiscal|upper }}</small>
+                    <br>
+                    <small class="text-muted">Ganancia acumulada año: ${{ "%.2f"|format(ganancia_acumulada_anio) }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Seguridad Social (5%)</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-info">${{ "%.2f"|format(seguridad_social) }} CUP</h4>
+                    <small class="text-muted">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">Total a Pagar</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">${{ "%.2f"|format(total_tributos) }} CUP</h3>
+                    <small class="text-muted">*Cálculo estimado, sujeto a verificación oficial</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gastos Operativos e Ingresos Mensuales -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5>💰 Ingresos del Mes</h5>
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💸 Gastos Operativos del Período</h5>
+                    <a href="{{ url_for('reportes.gastos') }}" class="btn btn-sm btn-light">Ver todos</a>
                 </div>
                 <div class="card-body">
-                    <h3 class="text-success">${{ "%.2f"|format(ingresos_mes) }} CUP</h3>
-                    <small>Basado en órdenes entregadas este mes</small>
+                    <h3 class="text-warning">${{ "%.2f"|format(gastos_operativos) }} CUP</h3>
+                    <small>Agua, electricidad, alquiler, etc.</small>
                 </div>
             </div>
         </div>
@@ -154,4 +275,25 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleFechaPersonalizada() {
+    var periodo = document.getElementById('filtroPeriodo').value;
+    var fechaDivs = document.querySelectorAll('.fecha-personalizada');
+    if (periodo === 'personalizado') {
+        fechaDivs.forEach(function(div) {
+            div.style.display = 'block';
+        });
+    } else {
+        fechaDivs.forEach(function(div) {
+            div.style.display = 'none';
+        });
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFechaPersonalizada();
+});
+</script>
 {% endblock %}

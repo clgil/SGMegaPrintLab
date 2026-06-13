@@ -1,12 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Reportes - Taller de Impresoras{% endblock %}
+{% block title %}Reportes y Finanzas - Taller de Impresoras{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="mb-4">📊 Reportes</h1>
+    <h1 class="mb-4">📊 Reportes y Finanzas</h1>
     
     <div class="row">
+        <!-- Panel Financiero -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-success">
+                <div class="card-body text-center">
+                    <h3 class="card-title">💰 Panel Financiero</h3>
+                    <p class="card-text">Métricas financieras, tributos y gastos</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-success">Ver Dashboard</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gastos Operativos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-warning">
+                <div class="card-body text-center">
+                    <h3 class="card-title">💸 Gastos Operativos</h3>
+                    <p class="card-text">Registrar y consultar gastos del taller</p>
+                    <a href="{{ url_for('reportes.gastos') }}" class="btn btn-warning">Gestionar Gastos</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuración Tributaria -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-info">
+                <div class="card-body text-center">
+                    <h3 class="card-title">⚙️ Configuración Tributaria</h3>
+                    <p class="card-text">Parámetros de impuestos cubanos</p>
+                    <a href="{{ url_for('reportes.configuracion_financiera') }}" class="btn btn-info text-white">Configurar</a>
+                </div>
+            </div>
+        </div>
+        
         <!-- Reporte de Ingresos -->
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100">
