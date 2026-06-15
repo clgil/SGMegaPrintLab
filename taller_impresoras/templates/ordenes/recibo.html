@@ -5,6 +5,10 @@
 {% block content %}
 <div class="container-fluid" onload="window.print()">
     <div class="text-center mb-4">
+        {% if config.get('logotipo_taller') %}
+        <img src="{{ url_for('static', filename=config.get('logotipo_taller').replace('static/', '')) }}" 
+             alt="Logotipo del taller" style="max-height: 80px; margin-bottom: 10px;">
+        {% endif %}
         <h2>{{ config.get('nombre_taller', 'Taller de Impresoras') }}</h2>
         {% if config.get('responsable_taller') %}
         <p>Responsable: {{ config.get('responsable_taller') }}</p>

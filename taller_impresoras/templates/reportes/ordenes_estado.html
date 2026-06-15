@@ -4,7 +4,17 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
+    <!-- Encabezado con logotipo para impresión -->
+    <div id="print-header" style="display:none;" class="text-center mb-4">
+        {% if config.get('logotipo_taller') %}
+        <img src="{{ url_for('static', filename=config.get('logotipo_taller').replace('static/', '')) }}" 
+             alt="Logotipo del taller" style="max-height: 80px; margin-bottom: 10px;">
+        {% endif %}
+        <h2>{{ config.get('nombre_taller', 'Taller de Impresoras') }}</h2>
+        <p>{{ config.get('direccion_taller', '') }} | Tel: {{ config.get('telefono_taller', '') }}</p>
+    </div>
+
+    <div class="row mb-4 no-print">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h2><i class="fas fa-tasks"></i> Órdenes por Estado</h2>
@@ -50,13 +60,13 @@
                                         {% elif resultado[0] == 'Cancelado' %}
                                             <span class="badge badge-danger">{{ resultado[0] }}</span>
                                         {% else %}
-                                            {{ resultado[0] }}
+                                            <span class="badge badge-light">{{ resultado[0] }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-right">{{ resultado[1] }}</td>
+                                    <td class="text-right"><strong>{{ resultado[1] }}</strong></td>
                                     <td class="text-right">
                                         {% if total > 0 %}
-                                            {{ ((resultado[1] / total) * 100)|round(1) }}%
+                                            {{ "%.1f"|format((resultado[1] / total) * 100) }}%
                                         {% else %}
                                             0%
                                         {% endif %}
@@ -65,7 +75,7 @@
                                 {% endfor %}
                             </tbody>
                             <tfoot>
-                                <tr class="table-dark">
+                                <tr class="table-primary">
                                     <td><strong>Total</strong></td>
                                     <td class="text-right"><strong>{{ total }}</strong></td>
                                     <td class="text-right"><strong>100%</strong></td>
@@ -74,6 +84,7 @@
                         </table>
                     </div>
                 </div>
+
                 <div class="col-md-6">
                     <canvas id="graficoEstados"></canvas>
                 </div>
@@ -81,15 +92,20 @@
         </div>
     </div>
 
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> 
-        Este reporte muestra la distribución de órdenes según su estado actual.
-    </div>
+    <button onclick="window.print()" class="btn btn-primary no-print">🖨️ Imprimir Reporte</button>
 </div>
+
+<style>
+@media print {
+    .no-print { display: none; }
+    #print-header { display: block !important; }
+    body { font-size: 12pt; }
+    .card { border: none; box-shadow: none; }
+}
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Gráfico de torta con Chart.js
 const ctx = document.getElementById('graficoEstados').getContext('2d');
 const datos = {
     labels: [{% for r in resultados %}'{{ r[0] }}'{% if not loop.last %}, {% endif %}{% endfor %}],

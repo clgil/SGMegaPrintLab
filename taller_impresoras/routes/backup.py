@@ -203,7 +203,7 @@ def eliminar(nombre):
 def configuracion():
     """Configuración de datos del taller para impresiones"""
     if request.method == 'POST':
-        # Actualizar configuración
+        # Actualizar configuración de texto
         config_vals = {
             'nombre_taller': request.form.get('nombre_taller'),
             'direccion_taller': request.form.get('direccion_taller'),
@@ -220,6 +220,35 @@ def configuracion():
                 db.session.add(config)
             else:
                 config.valor = valor
+        
+        # Manejar subida del logotipo
+        if 'logotipo' in request.files:
+            archivo_logotipo = request.files['logotipo']
+            if archivo_logotipo and archivo_logotipo.filename != '':
+                # Verificar que sea una imagen válida
+                if archivo_logotipo.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg')):
+                    # Crear directorio de uploads si no existe
+                    upload_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static', 'uploads')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    
+                    # Guardar el archivo con un nombre único
+                    import uuid
+                    extension = archivo_logotipo.filename.rsplit('.', 1)[1].lower()
+                    nombre_archivo = f'logotipo_taller_{uuid.uuid4().hex}.{extension}'
+                    ruta_archivo = os.path.join(upload_dir, nombre_archivo)
+                    
+                    archivo_logotipo.save(ruta_archivo)
+                    
+                    # Guardar la ruta relativa en la configuración
+                    ruta_relativa = f'static/uploads/{nombre_archivo}'
+                    config_logo = Configuracion.query.get('logotipo_taller')
+                    if not config_logo:
+                        config_logo = Configuracion(clave='logotipo_taller', valor=ruta_relativa)
+                        db.session.add(config_logo)
+                    else:
+                        config_logo.valor = ruta_relativa
+                    
+                    flash(f'Logotipo subido correctamente: {archivo_logotipo.filename}', 'success')
         
         db.session.commit()
         
