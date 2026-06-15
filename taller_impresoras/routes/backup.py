@@ -214,7 +214,7 @@ def configuracion():
         }
         
         for clave, valor in config_vals.items():
-            config = Configuracion.query.get(clave)
+            config = db.session.get(Configuracion, clave)
             if not config:
                 config = Configuracion(clave=clave, valor=valor)
                 db.session.add(config)
@@ -241,7 +241,7 @@ def configuracion():
                     
                     # Guardar la ruta relativa en la configuración
                     ruta_relativa = f'static/uploads/{nombre_archivo}'
-                    config_logo = Configuracion.query.get('logotipo_taller')
+                    config_logo = db.session.get(Configuracion, 'logotipo_taller')
                     if not config_logo:
                         config_logo = Configuracion(clave='logotipo_taller', valor=ruta_relativa)
                         db.session.add(config_logo)

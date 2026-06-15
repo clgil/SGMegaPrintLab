@@ -277,7 +277,7 @@ def dashboard():
                          # Nuevos indicadores
                          reingresos_garantia_mes=reingresos_garantia_mes,
                          ordenes_estancadas=ordenes_estancadas,
-                         garantias_por_vencer=gantias_por_vencer if 'gantias_por_vencer' in dir() else [],
+                         garantias_por_vencer=garantias_por_vencer if 'garantias_por_vencer' in dir() else [],
                          mantenimientos_por_vencer=mantenimientos_por_vencer)
 
 # Importar rutas

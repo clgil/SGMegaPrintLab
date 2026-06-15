@@ -153,7 +153,7 @@ def editar(id):
         piezas_data = json.loads(piezas_json)
         
         # Verificar si la orden está siendo concluida (cambio a estado final por primera vez)
-        estado_anterior = Orden.query.get(orden.id).estado
+        estado_anterior = db.session.get(Orden, orden.id).estado
         estados_finales = ['Entregado', 'Listo para entregar']
         orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
         
@@ -162,7 +162,7 @@ def editar(id):
         for op in list(orden.piezas_usadas):
             if op.pieza_id and estado_anterior in estados_finales:
                 # Solo devolver al stock si la orden ya estaba concluida
-                pieza = Pieza.query.get(op.pieza_id)
+                pieza = db.session.get(Pieza, op.pieza_id)
                 if pieza:
                     pieza.cantidad += op.cantidad  # Devolver al stock
             db.session.delete(op)  # Eliminar registro de OrdenPieza
@@ -190,7 +190,7 @@ def editar(id):
                     total_piezas += cantidad * precio_unitario
                     continue
                 
-                pieza = Pieza.query.get(pieza_id)
+                pieza = db.session.get(Pieza, pieza_id)
                 if pieza:
                     # Descontar del stock SOLO si la orden está pasando a estado final por primera vez
                     if orden_concluida:
@@ -263,7 +263,7 @@ def eliminar(id):
     
     # Devolver piezas al stock si hay
     for op in orden.piezas_usadas:
-        pieza = Pieza.query.get(op.pieza_id)
+        pieza = db.session.get(Pieza, op.pieza_id)
         if pieza:
             pieza.cantidad += op.cantidad
     

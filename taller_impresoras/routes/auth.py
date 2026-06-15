@@ -86,7 +86,7 @@ def configuracion_taller():
         }
         
         for clave, valor in config_vals.items():
-            config = Configuracion.query.get(clave)
+            config = db.session.get(Configuracion, clave)
             if not config:
                 config = Configuracion(clave=clave, valor=valor)
                 db.session.add(config)
