@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}Ayuda - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4 text-center">📚 Guía de Ayuda del Sistema</h1>
+    <p class="lead text-center">¡Bienvenido! Aquí aprenderás a usar cada parte del sistema paso a paso, como si fuera un juego.</p>
+    
+    <hr class="my-5">
+    
+    <!-- Introducción -->
+    <div class="card mb-4 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">🎯 ¿Qué es este sistema?</h3>
+        </div>
+        <div class="card-body">
+            <p>Imagina que tienes un taller donde arreglas impresoras. Este sistema es como tu <strong>cuaderno mágico</strong> donde puedes escribir:</p>
+            <ul>
+                <li>✅ Quiénes son tus clientes</li>
+                <li>✅ Qué impresoras han traído para reparar</li>
+                <li>✅ Qué piezas necesitas para arreglarlas</li>
+                <li>✅ Cuánto dinero ganas y gastas</li>
+                <li>✅ Y muchas cosas más!</li>
+            </ul>
+            <p class="text-muted"><em>Consejo: Siempre cierra sesión cuando termines de usar el sistema, especialmente si otras personas pueden usar tu computadora.</em></p>
+        </div>
+    </div>
+
+    <!-- Menú de Navegación Rápida -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">🗺️ Mapa del Sistema (Menú Lateral)</h3>
+        </div>
+        <div class="card-body">
+            <p>A la izquierda de tu pantalla verás un menú con muchos botones. Cada uno te lleva a una parte diferente del sistema. ¡Vamos a conocerlos todos!</p>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Sección 1: Panel de Control -->
+    <div class="card mb-4 shadow-sm border-info">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">📊 1. Panel de Control (Dashboard)</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Es como el <strong>tablero de un coche</strong>. Desde aquí puedes ver rápidamente lo más importante de tu taller sin tener que buscar en ningún lado.</p>
+            
+            <h4>¿Qué ves aquí?</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul>
+                        <li><strong>Órdenes Activas:</strong> Cuántos trabajos estás haciendo ahora mismo</li>
+                        <li><strong>Pendientes Diagnóstico:</strong> Impresoras que aún no sabes qué tienen</li>
+                        <li><strong>Listas para Entregar:</strong> Impresoras ya reparadas, esperando que el cliente venga</li>
+                        <li><strong>Stock Bajo:</strong> Piezas que se están acabando y necesitas comprar más</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>💰 Panel Financiero:</h5>
+                    <ul>
+                        <li><strong>Inversión en Piezas:</strong> Dinero que gastaste en piezas este mes</li>
+                        <li><strong>Valor Inventario:</strong> Cuánto valen todas las piezas que tienes guardadas</li>
+                        <li><strong>Ingresos Brutos:</strong> Todo el dinero que entró por reparaciones</li>
+                        <li><strong>Ganancia Neta:</strong> Lo que realmente ganaste (después de restar gastos)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h4>¿Cómo usarlo?</h4>
+            <ol>
+                <li>Entra haciendo clic en <strong>"📊 Panel de Control"</strong> en el menú lateral</li>
+                <li>Mira los números grandes de colores - cada uno te dice algo importante</li>
+                <li>Si quieres ver otro período (no este mes), usa el filtro de arriba que dice <strong>"Período"</strong></li>
+                <li>Puedes elegir: Hoy, Este Mes, Este Año, o fechas personalizadas</li>
+                <li>Después de elegir, presiona <strong>"Aplicar Filtro"</strong></li>
+            </ol>
+            
+            <div class="alert alert-success mt-3">
+                <strong>💡 Tip:</strong> Revisa este panel todos los días al empezar a trabajar. ¡Así sabrás qué urgente atender!
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 2: Órdenes -->
+    <div class="card mb-4 shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="mb-0">📋 2. Órdenes de Reparación</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Cuando un cliente trae una impresora para reparar, creas una <strong>"orden"</strong>. Es como un <strong>ticket</strong> que sigue a la impresora durante toda su reparación.</p>
+            
+            <h4>¿Qué puedes hacer aquí?</h4>
+            <ul>
+                <li><strong>Ver todas las órdenes:</strong> Una lista con todos los trabajos</li>
+                <li><strong>Crear nueva orden:</strong> Cuando llega un cliente nuevo</li>
+                <li><strong>Editar orden:</strong> Para actualizar qué le estás haciendo a la impresora</li>
+                <li><strong>Ver detalle:</strong> Toda la información de una orden específica</li>
+                <li><strong>Imprimir recibo:</strong> Para darle al cliente un comprobante</li>
+            </ul>
+            
+            <h4>Estados de una orden (el viaje de la impresora):</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th>¿Qué significa?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge bg-secondary">Recibido</span></td>
+                            <td>La impresora acaba de llegar. Aún no la has tocado.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-warning">En diagnóstico</span></td>
+                            <td>Estás revisando qué tiene malo la impresora.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-info">Esperando piezas</span></td>
+                            <td>Sabes qué tiene, pero necesitas comprar piezas para arreglarla.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-primary">En reparación</span></td>
+                            <td>Ya tienes las piezas y estás trabajando en ella.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-success">Listo para entregar</span></td>
+                            <td>¡Terminaste! Solo falta que el cliente venga a buscarla.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-success">Entregado</span></td>
+                            <td>El cliente ya recogió su impresora y pagó.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-danger">Cancelado</span></td>
+                            <td>El cliente no quiso repararla o pasó mucho tiempo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h4>¿Cómo crear una orden nueva? (Paso a paso)</h4>
+            <ol>
+                <li>Haz clic en <strong>"📋 Órdenes"</strong> en el menú lateral</li>
+                <li>Presiona el botón verde que dice <strong>"Nueva Orden"</strong></li>
+                <li>Llena los datos:
+                    <ul>
+                        <li><strong>Cliente:</strong> Elige de la lista (si no está, primero regístralo en Clientes)</li>
+                        <li><strong>Dispositivo:</strong> Si el cliente ya ha venido antes, aparecerá su impresora. Si no, déjalo vacío</li>
+                        <li><strong>Problema reportado:</strong> Escribe lo que el cliente dice que tiene la impresora (ej: "imprime borroso")</li>
+                        <li><strong>Técnico:</strong> ¿Quién va a trabajar en esto? (puedes ser tú u otra persona)</li>
+                        <li><strong>Fecha prevista:</strong> ¿Cuándo esperas terminarla?</li>
+                        <li><strong>Notas del cliente:</strong> Algo importante que el cliente quiera que sepas</li>
+                    </ul>
+                </li>
+                <li>Presiona <strong>"Crear"</strong></li>
+                <li>¡Listo! Ahora puedes agregarle piezas y mano de obra</li>
+            </ol>
+            
+            <h4>¿Cómo editar una orden y agregar piezas?</h4>
+            <ol>
+                <li>Busca la orden en la lista y haz clic en el botón <strong>"Editar"</strong> (lápiz)</li>
+                <li>Actualiza el <strong>estado</strong> según en qué punto esté la reparación</li>
+                <li>Escribe el <strong>diagnóstico</strong>: qué problema encontraste realmente</li>
+                <li><strong>Agregar piezas:</strong>
+                    <ul>
+                        <li>Escribe el nombre de la pieza que usaste</li>
+                        <li>El sistema te sugerirá piezas de tu inventario</li>
+                        <li>Elige la correcta y pon la cantidad</li>
+                        <li>El precio aparece automáticamente</li>
+                    </ul>
+                </li>
+                <li><strong>Mano de obra:</strong> Escribe cuánto cobras por tu trabajo (sin las piezas)</li>
+                <li>El <strong>total</strong> se calcula solo (piezas + mano de obra)</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+            </ol>
+            
+            <div class="alert alert-warning mt-3">
+                <strong>⚠️ Importante:</strong> Cuando cambies el estado a <strong>"Entregado"</strong> por primera vez, las piezas que usaste se descuentan automáticamente del inventario. ¡Asegúrate de haber puesto las correctas!
+            </div>
+            
+            <h4>¿Cómo imprimir un recibo?</h4>
+            <ol>
+                <li>Abre la orden que quieres imprimir</li>
+                <li>Haz clic en el botón <strong>"Imprimir Recibo"</strong></li>
+                <li>Se abrirá una ventana nueva lista para imprimir</li>
+                <li>Usa Ctrl+P o el botón de imprimir de tu navegador</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Sección 3: Clientes -->
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">👥 3. Clientes</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Aquí guardas la información de las <strong>personas que te traen impresoras</strong> para reparar. Así la próxima vez que vengan, ya tendrás sus datos.</p>
+            
+            <h4>¿Qué información guardas?</h4>
+            <ul>
+                <li><strong>Nombre:</strong> Cómo se llama el cliente</li>
+                <li><strong>Teléfono:</strong> Para llamarle cuando su impresora esté lista</li>
+                <li><strong>Dirección:</strong> Dónde vive (opcional)</li>
+                <li><strong>Tipo de cliente:</strong> Si es una persona normal ("Particular") o una empresa</li>
+            </ul>
+            
+            <h4>¿Cómo registrar un cliente nuevo?</h4>
+            <ol>
+                <li>Haz clic en <strong>"👥 Clientes"</strong> en el menú lateral</li>
+                <li>Presiona el botón <strong>"Nuevo Cliente"</strong></li>
+                <li>Llena al menos el <strong>nombre</strong> (es obligatorio)</li>
+                <li>Agrega teléfono y dirección si los tienes</li>
+                <li>Elige si es "Particular" o "Empresa"</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+            </ol>
+            
+            <h4>¿Cómo buscar un cliente?</h4>
+            <p>Arriba de la lista hay una <strong>caja de búsqueda</strong>. Escribe el nombre o teléfono del cliente y presiona Enter. El sistema mostrará solo los que coincidan.</p>
+            
+            <h4>¿Cómo editar o eliminar?</h4>
+            <ul>
+                <li><strong>Editar:</strong> Haz clic en el botón con forma de lápiz ✏️ junto al cliente</li>
+                <li><strong>Eliminar:</strong> Haz clic en el botón rojo 🗑️. 
+                    <br><small>Nota: En realidad no se borra, solo se "oculta" para no perder el historial.</small>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sección 4: Dispositivos -->
+    <div class="card mb-4 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">🖨️ 4. Dispositivos (Impresoras)</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Aquí registras las <strong>impresoras específicas</strong> de cada cliente. Es útil porque algunas impresoras tienen problemas que se repiten, y así lo recuerdas.</p>
+            
+            <h4>¿Qué información guardas?</h4>
+            <ul>
+                <li><strong>Cliente:</strong> De quién es esta impresora</li>
+                <li><strong>Marca:</strong> HP, Canon, Epson, etc.</li>
+                <li><strong>Modelo:</strong> El número o nombre del modelo</li>
+                <li><strong>Número de serie:</strong> Un código único que tiene cada impresora</li>
+                <li><strong>Tipo:</strong> Láser, inyección de tinta, matricial o multifuncional</li>
+                <li><strong>Problema frecuente:</strong> Si esta impresora siempre falla con lo mismo</li>
+                <li><strong>Observaciones:</strong> Cualquier otra cosa importante</li>
+            </ul>
+            
+            <h4>¿Cómo registrar un dispositivo?</h4>
+            <ol>
+                <li>Haz clic en <strong>"🖨️ Dispositivos"</strong> en el menú lateral</li>
+                <li>Presiona <strong>"Nuevo Dispositivo"</strong></li>
+                <li>Elige el <strong>cliente</strong> dueño de la impresora</li>
+                <li>Llena marca, modelo y tipo (obligatorios)</li>
+                <li>Completa el resto si tienes la información</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+            </ol>
+            
+            <div class="alert alert-info mt-3">
+                <strong>💡 Tip:</strong> No es obligatorio registrar dispositivos. Puedes crear órdenes sin ellos. Pero si un cliente viene siempre con la misma impresora, ¡vale la pena registrarla!
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 5: Inventario -->
+    <div class="card mb-4 shadow-sm border-danger">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">📦 5. Inventario de Piezas</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Es como tu <strong>almacén virtual</strong>. Aquí anotas todas las piezas que tienes para reparar impresoras: cartuchos, rodillos, chips, etc.</p>
+            
+            <h4>¿Por qué es importante?</h4>
+            <ul>
+                <li>Sabes qué piezas te quedan antes de empezar un trabajo</li>
+                <li>El sistema te avisa cuando se está acabando algo</li>
+                <li>Puedes calcular cuánto ganas realmente</li>
+                <li>Cuando usas una pieza en una orden, se resta automáticamente</li>
+            </ul>
+            
+            <h4>¿Qué información guardas de cada pieza?</h4>
+            <ul>
+                <li><strong>Nombre:</strong> Qué es (ej: "Rodillo de alimentación HP 1100")</li>
+                <li><strong>Categoría:</strong> Tipo de pieza (Cartucho, Tóner, Rodillo, etc.)</li>
+                <li><strong>Código interno:</strong> Un código tuyo para encontrarla rápido (opcional)</li>
+                <li><strong>Modelos compatibles:</strong> En qué impresoras sirve</li>
+                <li><strong>Cantidad:</strong> Cuántas tienes</li>
+                <li><strong>Cantidad mínima:</strong> Cuándo debes comprar más (ej: si llega a 2, compra)</li>
+                <li><strong>Unidad:</strong> En qué se mide (unidad, juego, metros, etc.)</li>
+                <li><strong>Precio costo:</strong> Cuánto pagaste por ella</li>
+                <li><strong>Precio venta:</strong> Cuánto cobras al cliente</li>
+                <li><strong>Proveedor:</strong> Dónde la compraste</li>
+            </ul>
+            
+            <h4>¿Cómo agregar una pieza nueva?</h4>
+            <ol>
+                <li>Haz clic en <strong>"📦 Inventario"</strong> en el menú lateral</li>
+                <li>Presiona <strong>"Nueva Pieza"</strong></li>
+                <li>Llena todos los datos (los más importantes: nombre, cantidad, precios)</li>
+                <li>Si es la primera vez que la registras y ya tienes algunas, pon la cantidad inicial</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+            </ol>
+            
+            <h4>¿Cómo registrar cuando compras más piezas?</h4>
+            <p>¡No edites la cantidad directamente! Usa la función <strong>"Entrada"</strong>:</p>
+            <ol>
+                <li>Busca la pieza en el inventario</li>
+                <li>Haz clic en <strong>"Ver"</strong> (ojo 👁️)</li>
+                <li>Presiona <strong>"Registrar Entrada"</strong></li>
+                <li>Pon cuántas piezas llegaron y cuánto pagaste</li>
+                <li>El sistema suma automáticamente y guarda el historial</li>
+            </ol>
+            
+            <h4>¿Qué es el stock bajo?</h4>
+            <p>Cuando la cantidad de una pieza llega al mínimo que pusiste, el sistema te avisa. En el Panel de Control verás un número rojo que dice <strong>"Stock Bajo"</strong>.</p>
+            
+            <h4>¿Cómo ver el historial de una pieza?</h4>
+            <ol>
+                <li>Busca la pieza en el inventario</li>
+                <li>Haz clic en <strong>"Ver"</strong> (ojo 👁️)</li>
+                <li>Verás una tabla con todas las entradas y salidas de esa pieza</li>
+                <li>Así sabes cuándo compraste y cuándo usaste cada una</li>
+            </ol>
+            
+            <h4>Categorías de piezas</h4>
+            <p>Puedes organizar tus piezas por categorías para encontrarlas más fácil:</p>
+            <ul>
+                <li>Ve a la pestaña <strong>"Categorías"</strong> dentro de Inventario</li>
+                <li>Agrega categorías nuevas como: "Cartuchos", "Tóner", "Rodillos", "Chips", etc.</li>
+                <li>No puedes borrar una categoría si tiene piezas asignadas</li>
+            </ul>
+            
+            <div class="alert alert-danger mt-3">
+                <strong>⚠️ Muy importante:</strong> Nunca edites la cantidad de una pieza manualmente. Siempre usa "Entrada" para agregar y deja que el sistema reste cuando se usan en órdenes. ¡Si no, tu inventario no será confiable!
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 6: Técnicos -->
+    <div class="card mb-4 shadow-sm border-secondary">
+        <div class="card-header bg-secondary text-white">
+            <h2 class="mb-0">🔧 6. Técnicos</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Si trabajas con más personas en el taller, aquí las registras. Así sabes <strong>quién está trabajando en cada reparación</strong>.</p>
+            
+            <h4>¿Qué información guardas?</h4>
+            <ul>
+                <li><strong>Nombre:</strong> Cómo se llama el técnico</li>
+                <li><strong>Especialidad:</strong> En qué es experto (ej: "Láser", "Inyección de tinta")</li>
+                <li><strong>Activo:</strong> Si todavía trabaja contigo (puedes desactivarlo si se va)</li>
+            </ul>
+            
+            <h4>¿Cómo registrar un técnico?</h4>
+            <ol>
+                <li>Haz clic en <strong>"🔧 Técnicos"</strong> en el menú lateral</li>
+                <li>Presiona <strong>"Nuevo Técnico"</strong></li>
+                <li>Llena nombre y especialidad</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+            </ol>
+            
+            <div class="alert alert-info mt-3">
+                <strong>💡 Tip:</strong> Si eres el único que trabaja, igual puedes registrarte a ti mismo. Te ayudará a llevar estadísticas de cuánto trabajas.
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 7: Reportes y Finanzas -->
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">📈 7. Reportes y Finanzas</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Esta sección es como tu <strong>libro de contabilidad</strong>. Aquí ves cómo está el dinero de tu taller y generas reportes útiles.</p>
+            
+            <h4>Opciones disponibles:</h4>
+            
+            <h5>💰 Panel Financiero</h5>
+            <p>Te lleva al Dashboard principal donde ves ingresos, gastos y ganancias.</p>
+            
+            <h5>💸 Gastos Operativos</h5>
+            <p><strong>¿Qué es?</strong> Aquí anotas todos los gastos del taller que no son piezas: luz, agua, alquiler, internet, etc.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Haz clic en "Gastos Operativos"</li>
+                <li>Llena: descripción (ej: "Pago de electricidad marzo"), monto y fecha</li>
+                <li>Presiona "Agregar Gasto"</li>
+                <li>Abajo verás la lista de todos los gastos recientes</li>
+                <li>Puedes eliminar uno si te equivocaste (botón rojo)</li>
+            </ol>
+            
+            <h5>⚙️ Configuración Tributaria</h5>
+            <p><strong>¿Qué es?</strong> Aquí configuras cómo se calculan los impuestos cubanos (ISIP y Seguridad Social).</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Elige tu régimen fiscal: "General" (pagas según lo que ganas) o "Simplificado" (pagas una cuota fija)</li>
+                <li>Si es simplificado, pon el monto de la cuota mensual</li>
+                <li>Si es general, configura los porcentajes de cada nivel de ganancias</li>
+                <li>Configura la Seguridad Social (porcentaje y si se calcula sobre ganancia o ingreso)</li>
+                <li>Presiona "Guardar"</li>
+            </ol>
+            <p class="text-muted"><em>Nota: Esto es complejo. Si no entiendes, pide ayuda a un contador o déjalo como está por defecto.</em></p>
+            
+            <h5>💰 Ingresos</h5>
+            <p><strong>¿Qué es?</strong> Un reporte de todo el dinero que entró en un período.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Elige fecha inicio y fecha fin</li>
+                <li>Presiona "Generar Reporte"</li>
+                <li>Verás todas las órdenes entregadas en ese período</li>
+                <li>Al final verás el total ingresado</li>
+                <li>Puedes exportar a Excel (CSV) si quieres</li>
+            </ol>
+            
+            <h5>📋 Órdenes por Estado</h5>
+            <p><strong>¿Qué es?</strong> Muestra cuántas órdenes hay en cada estado (recibido, en reparación, entregado, etc.)</p>
+            <p><strong>¿Cómo usar?</strong> Solo haz clic y verás el reporte automático.</p>
+            
+            <h5>🔧 Piezas Utilizadas</h5>
+            <p><strong>¿Qué es?</strong> Te dice qué piezas usaste más en un período. ¡Útil para saber qué comprar!</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Elige fecha inicio y fecha fin</li>
+                <li>Presiona "Generar Reporte"</li>
+                <li>Verás las piezas más usadas, de mayor a menor</li>
+                <li>Puedes exportar a Excel (CSV)</li>
+            </ol>
+            
+            <h5>👥 Clientes Activos</h5>
+            <p><strong>¿Qué es?</strong> Muestra qué clientes te han traído más trabajos.</p>
+            <p><strong>¿Cómo usar?</strong> Solo haz clic y verás el ranking de clientes.</p>
+        </div>
+    </div>
+
+    <!-- Sección 8: Respaldo -->
+    <div class="card mb-4 shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="mb-0">💾 8. Respaldo (Backup)</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Esta es la sección <strong>MÁS IMPORTANTE</strong> para proteger tu información. El respaldo es como hacer una <strong>fotocopia de seguridad</strong> de todos tus datos.</p>
+            
+            <h4>¿Por qué es tan importante?</h4>
+            <ul>
+                <li>Si tu computadora se rompe, no pierdes nada</li>
+                <li>Si alguien borra algo por error, puedes recuperar</li>
+                <li>Puedes guardar copias en una memoria USB y tenerlas en otro lugar</li>
+            </ul>
+            
+            <h4>Opciones disponibles:</h4>
+            
+            <h5>📥 Crear Respaldo</h5>
+            <p><strong>¿Qué hace?</strong> Copia toda tu base de datos (clientes, órdenes, inventario, todo) en un archivo.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Haz clic en <strong>"💾 Respaldo"</strong> en el menú lateral</li>
+                <li>Presiona el botón <strong>"Crear Respaldo Ahora"</strong></li>
+                <li>El sistema creará un archivo con la fecha y hora</li>
+                <li>El archivo se guarda en la carpeta "backup" de tu sistema</li>
+                <li>¡Listo! Ya tienes tu copia de seguridad</li>
+            </ol>
+            
+            <h5>📤 Descargar Respaldo</h5>
+            <p><strong>¿Qué hace?</strong> Te permite bajar el último respaldo a tu computadora para guardarlo en una USB o enviarlo por correo.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>En la página de Respaldo, presiona <strong>"Descargar Último Respaldo"</strong></li>
+                <li>El navegador te preguntará dónde guardarlo</li>
+                <li>Guárdalo en tu USB o en una carpeta segura</li>
+            </ol>
+            
+            <h5>📂 Ver Respaldos Existentes</h5>
+            <p><strong>¿Qué hace?</strong> Muestra todos los respaldos que has creado antes.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Haz clic en <strong>"Ver Respaldos Guardados"</strong></li>
+                <li>Verás una lista con fecha, tamaño y nombre de cada respaldo</li>
+                <li>Puedes eliminar los viejos para ahorrar espacio (botón rojo)</li>
+            </ol>
+            
+            <h5>⬆️ Restaurar Respaldo</h5>
+            <p><strong>¿Qué hace?</strong> Recupera los datos desde un respaldo. ¡Úsalo solo si perdiste información!</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Consigue el archivo de respaldo (.db) que quieres restaurar</li>
+                <li>En la página de Respaldo, busca "Restaurar desde Archivo"</li>
+                <li>Presiona "Seleccionar Archivo" y elige tu respaldo</li>
+                <li>Presiona <strong>"Restaurar"</strong></li>
+                <li>⚠️ <strong>¡CUIDADO!</strong> Esto reemplaza TODOS los datos actuales con los del respaldo</li>
+                <li>El sistema crea un respaldo automático antes de restaurar, por si te arrepientes</li>
+            </ol>
+            
+            <h5>⚙️ Configuración del Taller</h5>
+            <p><strong>¿Qué es?</strong> Aquí pones los datos de tu taller para que aparezcan en los recibos impresos.</p>
+            <p><strong>¿Cómo usar?</strong></p>
+            <ol>
+                <li>Nombre del taller (ej: "Taller Juan Pérez")</li>
+                <li>Dirección, teléfono, email</li>
+                <li>NIT (si tienes)</li>
+                <li>Responsable (tu nombre)</li>
+                <li>Puedes subir un logotipo (imagen de tu taller)</li>
+                <li>Presiona "Guardar"</li>
+            </ol>
+            
+            <div class="alert alert-success mt-3">
+                <strong>✅ Recomendación:</strong> Crea un respaldo TODOS LOS DÍAS al cerrar el taller. Guárdalo en una USB y llévala a tu casa. ¡Así nunca perderás tu trabajo!
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 9: Configuración del Taller -->
+    <div class="card mb-4 shadow-sm border-info">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">⚙️ 9. Configuración del Taller</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Es un acceso rápido para poner los <strong>datos de tu taller</strong> que aparecen en los recibos que imprimes para los clientes.</p>
+            
+            <h4>¿Qué datos configuras?</h4>
+            <ul>
+                <li>Nombre del taller</li>
+                <li>Dirección</li>
+                <li>Teléfono</li>
+                <li>Email (correo electrónico)</li>
+                <li>NIT (número de identificación tributaria)</li>
+                <li>Nombre del responsable</li>
+            </ul>
+            
+            <h4>¿Cómo usar?</h4>
+            <ol>
+                <li>Haz clic en <strong>"⚙️ Configuración Taller"</strong> en el menú lateral</li>
+                <li>Llena todos los campos con tus datos reales</li>
+                <li>Si quieres, sube un logotipo (la imagen de tu taller)</li>
+                <li>Presiona <strong>"Guardar"</strong></li>
+                <li>¡Listo! Ahora tus recibos tendrán esta información</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Sección 10: Cambiar Contraseña -->
+    <div class="card mb-4 shadow-sm border-secondary">
+        <div class="card-header bg-secondary text-white">
+            <h2 class="mb-0">🔑 10. Cambiar Contraseña</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Para cambiar tu contraseña de acceso al sistema. ¡Es importante hacerlo de vez en cuando por seguridad!</p>
+            
+            <h4>¿Cómo cambiar tu contraseña?</h4>
+            <ol>
+                <li>Haz clic en <strong>"🔑 Cambiar Clave"</strong> en el menú lateral</li>
+                <li>Escribe tu contraseña actual (la que usas ahora)</li>
+                <li>Escribe tu nueva contraseña</li>
+                <li>Repite la nueva contraseña para confirmar</li>
+                <li>Presiona <strong>"Cambiar Contraseña"</strong></li>
+            </ol>
+            
+            <div class="alert alert-warning mt-3">
+                <strong>⚠️ Consejos de seguridad:</strong>
+                <ul>
+                    <li>Usa al menos 6 caracteres</li>
+                    <li>Mezcla letras, números y símbolos si puedes</li>
+                    <li>No uses "1234" o "admin"</li>
+                    <li>¡No se la digas a nadie!</li>
+                    <li>Si la olvidas, solo el administrador puede recuperarla</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 11: Cerrar Sesión -->
+    <div class="card mb-4 shadow-sm border-danger">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">🚪 11. Cerrar Sesión</h2>
+        </div>
+        <div class="card-body">
+            <h4>¿Para qué sirve?</h4>
+            <p>Para salir del sistema de forma segura. ¡Úsalo siempre cuando termines de trabajar!</p>
+            
+            <h4>¿Cómo usar?</h4>
+            <ol>
+                <li>Haz clic en <strong>"🚪 Cerrar Sesión"</strong> al final del menú lateral</li>
+                <li>El sistema te sacará a la pantalla de login</li>
+                <li>Ahora otra persona puede entrar con su usuario y contraseña</li>
+            </ol>
+            
+            <div class="alert alert-danger mt-3">
+                <strong>⚠️ Importante:</strong> Si no cierras sesión, cualquiera que use tu computadora podrá ver y modificar todos los datos del taller. ¡No lo olvides!
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Consejos Finales -->
+    <div class="card mb-4 shadow-sm border-success">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">🌟 Consejos de Oro para Usar el Sistema</h3>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li><strong>Orden ante todo:</strong> Registra cada orden apenas llegue el cliente. No lo dejes para después.</li>
+                <li><strong>Inventario actualizado:</strong> Cada vez que compres piezas, regístralas inmediatamente.</li>
+                <li><strong>Respaldo diario:</strong> Crea un backup todos los días. ¡Es tu seguro de vida!</li>
+                <li><strong>Estados correctos:</strong> Actualiza el estado de las órdenes conforme avanzas. Así siempre sabes en qué estás.</li>
+                <li><strong>Revisa el dashboard:</strong> Míralo cada mañana para saber qué tienes pendiente.</li>
+                <li><strong>Clientes felices:</strong> Llama a los clientes cuando sus impresoras estén listas. ¡Les encantará!</li>
+                <li><strong>No tengas miedo:</strong> Si te equivocas, la mayoría de las cosas se pueden editar. Y si no, siempre tienes el respaldo.</li>
+            </ol>
+            
+            <div class="text-center mt-4">
+                <h4>🎉 ¡Felicidades! Ahora eres un experto en el sistema.</h4>
+                <p class="lead">Si tienes dudas, vuelve a esta guía cuando quieras.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Volver al Panel de Control</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

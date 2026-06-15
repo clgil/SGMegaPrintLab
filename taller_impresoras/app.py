@@ -240,6 +240,7 @@ from routes.inventario import inventario_bp
 from routes.tecnicos import tecnicos_bp
 from routes.reportes import reportes_bp
 from routes.backup import backup_bp
+from routes.ayuda.ayuda import ayuda_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(clientes_bp, url_prefix='/clientes')
@@ -249,6 +250,7 @@ app.register_blueprint(inventario_bp, url_prefix='/inventario')
 app.register_blueprint(tecnicos_bp, url_prefix='/tecnicos')
 app.register_blueprint(reportes_bp, url_prefix='/reportes')
 app.register_blueprint(backup_bp, url_prefix='/backup')
+app.register_blueprint(ayuda_bp, url_prefix='/ayuda')
 
 # Rutas API globales para acceso directo desde cualquier template
 @app.route('/api/piezas')
