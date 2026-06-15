@@ -4,7 +4,17 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Encabezado con logotipo para impresión -->
+    <div id="print-header" style="display:none;" class="text-center mb-4">
+        {% if config.get('logotipo_taller') %}
+        <img src="{{ url_for('static', filename=config.get('logotipo_taller').replace('static/', '')) }}" 
+             alt="Logotipo del taller" style="max-height: 80px; margin-bottom: 10px;">
+        {% endif %}
+        <h2>{{ config.get('nombre_taller', 'Taller de Impresoras') }}</h2>
+        <p>{{ config.get('direccion_taller', '') }} | Tel: {{ config.get('telefono_taller', '') }}</p>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <h1>📊 Reporte de Piezas Más Utilizadas</h1>
         <a href="{{ url_for('reportes.index') }}" class="btn btn-secondary">← Volver</a>
     </div>
@@ -29,13 +39,14 @@
         </div>
     </div>
     {% else %}
-    <div class="card mb-3">
+    <div class="card mb-3 no-print">
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h5>Período: {{ fecha_inicio }} al {{ fecha_fin }}</h5>
                 </div>
                 <div class="col-md-4 text-end">
+                    <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir</button>
                     <a href="{{ url_for('reportes.exportar_csv', tipo='piezas', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" class="btn btn-success">📥 Exportar CSV</a>
                 </div>
             </div>
@@ -67,11 +78,20 @@
         </div>
     </div>
 
-    <div class="mt-3">
+    <div class="mt-3 no-print">
         <form method="GET" action="{{ url_for('reportes.piezas_utilizadas') }}">
             <button type="submit" class="btn btn-secondary">🔄 Nuevo Reporte</button>
         </form>
     </div>
     {% endif %}
 </div>
+
+<style>
+@media print {
+    .no-print { display: none; }
+    #print-header { display: block !important; }
+    body { font-size: 12pt; }
+    .card { border: none; box-shadow: none; }
+}
+</style>
 {% endblock %}
