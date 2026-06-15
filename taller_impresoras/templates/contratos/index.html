@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Contratos de Mantenimiento - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📋 Contratos de Mantenimiento</h1>
+        <a href="{{ url_for('contratos.nuevo') }}" class="btn btn-primary">➕ Nuevo Contrato</a>
+    </div>
+
+    <!-- Listado -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Descripción</th>
+                        <th>Frecuencia</th>
+                        <th>Inicio</th>
+                        <th>Próxima Visita</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contrato in contratos.items %}
+                    <tr>
+                        <td>{{ contrato.cliente.nombre }}</td>
+                        <td>{{ contrato.descripcion or '-' }}</td>
+                        <td>
+                            {% if contrato.frecuencia == 'semanal' %}Semanal
+                            {% elif contrato.frecuencia == 'quincenal' %}Quincenal
+                            {% elif contrato.frecuencia == 'mensual' %}Mensual
+                            {% elif contrato.frecuencia == 'trimestral' %}Trimestral
+                            {% elif contrato.frecuencia == 'semestral' %}Semestral
+                            {% else %}Anual{% endif %}
+                        </td>
+                        <td>{{ contrato.fecha_inicio }}</td>
+                        <td>{{ contrato.calcular_proxima_visita() or 'N/A' }}</td>
+                        <td>${{ "%.2f"|format(contrato.precio_mantenimiento) }}</td>
+                        <td>
+                            {% if contrato.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('contratos.ver', id=contrato.id) }}" class="btn btn-sm btn-info">👁️ Ver</a>
+                            <a href="{{ url_for('contratos.editar', id=contrato.id) }}" class="btn btn-sm btn-warning">✏️</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">No hay contratos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Paginación -->
+            {% if contratos.pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if contratos.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="?pagina={{ contratos.prev_num }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in range(1, contratos.pages + 1) %}
+                    <li class="page-item {% if page == pagina_actual %}active{% endif %}">
+                        <a class="page-link" href="?pagina={{ page }}">{{ page }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if contratos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?pagina={{ contratos.next_num }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Contrato - {{ contrato.cliente.nombre }} - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📋 Contrato de Mantenimiento</h1>
+        <div>
+            <a href="{{ url_for('contratos.editar', id=contrato.id) }}" class="btn btn-warning">✏️ Editar</a>
+            <a href="{{ url_for('contratos.index') }}" class="btn btn-secondary">← Volver</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Información del Contrato</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cliente:</strong> {{ contrato.cliente.nombre }}</p>
+                    <p><strong>Descripción:</strong> {{ contrato.descripcion or 'N/A' }}</p>
+                    <p><strong>Frecuencia:</strong> 
+                        {% if contrato.frecuencia == 'semanal' %}Semanal
+                        {% elif contrato.frecuencia == 'quincenal' %}Quincenal
+                        {% elif contrato.frecuencia == 'mensual' %}Mensual
+                        {% elif contrato.frecuencia == 'trimestral' %}Trimestral
+                        {% elif contrato.frecuencia == 'semestral' %}Semestral
+                        {% else %}Anual{% endif %}
+                    </p>
+                    <p><strong>Fecha Inicio:</strong> {{ contrato.fecha_inicio }}</p>
+                    <p><strong>Fecha Fin:</strong> {{ contrato.fecha_fin or 'Indefinido' }}</p>
+                    <p><strong>Precio Mantenimiento:</strong> ${{ "%.2f"|format(contrato.precio_mantenimiento) }} CUP</p>
+                    <p><strong>Dispositivos Cubiertos:</strong> {{ contrato.dispositivos_cubiertos }}</p>
+                    <p><strong>Estado:</strong> 
+                        {% if contrato.activo %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Próxima Visita</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center">{{ proxima_visita or 'No programada' }}</h3>
+                    <p class="text-muted text-center">
+                        {% if contrato.ultima_visita %}
+                            Última visita: {{ contrato.ultima_visita }}
+                        {% else %}
+                            Sin visitas registradas
+                        {% endif %}
+                    </p>
+                    
+                    <form method="POST" action="{{ url_for('contratos.registrar_visita', id=contrato.id) }}" class="mt-3">
+                        <div class="input-group">
+                            <input type="date" name="fecha_visita" class="form-control" value="{{ now() }}" required>
+                            <button type="submit" class="btn btn-success">Registrar Visita</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function now() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+</script>
+{% endblock %}
