@@ -27,7 +27,7 @@ login_manager.login_message = 'Por favor, inicie sesión para acceder.'
 login_manager.login_message_category = 'warning'
 
 # Importar modelos después de inicializar db
-from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto
+from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto, Proveedor, Contrato, OrdenNota
 
 # Cargar usuario para Flask-Login
 @login_manager.user_loader
@@ -80,6 +80,50 @@ def dashboard():
     ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
     ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
     piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
+    
+    # ===== NUEVOS INDICADORES =====
+    # Reingresos en garantía este mes
+    reingresos_garantia_mes = Orden.query.filter(
+        Orden.es_reingreso == 1,
+        Orden.tipo_orden == 'garantia',
+        Orden.fecha_entrada >= fecha_inicio,
+        Orden.fecha_entrada <= fecha_fin
+    ).count()
+    
+    # Órdenes estancadas (más de 3 días en mismo estado)
+    dias_estancia = 3
+    fecha_limite = (ahora - timedelta(days=dias_estancia)).strftime('%Y-%m-%d')
+    ordenes_estancadas = Orden.query.filter(
+        Orden.estado.in_(['Recibido', 'En diagnostico']),
+        Orden.fecha_entrada < fecha_limite
+    ).all()
+    
+    # Garantías próximas a vencer (próximos 7 días)
+    fecha_proxima_vencimiento = (ahora + timedelta(days=7)).strftime('%Y-%m-%d')
+    garantias_por_vencer = Orden.query.filter(
+        Orden.fecha_fin_garantia != None,
+        Orden.fecha_fin_garantia <= fecha_proxima_vencimiento,
+        Orden.fecha_fin_garantia >= ahora.strftime('%Y-%m-%d'),
+        Orden.es_reingreso == 0
+    ).all()
+    
+    # Mantenimientos por vencer esta semana
+    from models import Contrato
+    contratos_activos = Contrato.query.filter_by(activo=1).all()
+    mantenimientos_por_vencer = []
+    for contrato in contratos_activos:
+        proxima = contrato.calcular_proxima_visita()
+        if proxima:
+            try:
+                proxima_dt = datetime.strptime(proxima, '%Y-%m-%d')
+                if proxima_dt <= ahora + timedelta(days=7):
+                    mantenimientos_por_vencer.append({
+                        'cliente': contrato.cliente.nombre,
+                        'proxima_visita': proxima,
+                        'frecuencia': contrato.frecuencia
+                    })
+            except:
+                pass
     
     # Últimas 5 órdenes actualizadas
     ultimas_ordenes = Orden.query.order_by(Orden.fecha_entrada.desc()).limit(5).all()
@@ -229,7 +273,12 @@ def dashboard():
                          # Filtros
                          filtro_periodo=filtro_periodo,
                          fecha_inicio=fecha_inicio,
-                         fecha_fin=fecha_fin)
+                         fecha_fin=fecha_fin,
+                         # Nuevos indicadores
+                         reingresos_garantia_mes=reingresos_garantia_mes,
+                         ordenes_estancadas=ordenes_estancadas,
+                         garantias_por_vencer=gantias_por_vencer if 'gantias_por_vencer' in dir() else [],
+                         mantenimientos_por_vencer=mantenimientos_por_vencer)
 
 # Importar rutas
 from routes.auth import auth_bp
@@ -241,6 +290,8 @@ from routes.tecnicos import tecnicos_bp
 from routes.reportes import reportes_bp
 from routes.backup import backup_bp
 from routes.ayuda.ayuda import ayuda_bp
+from routes.proveedores import proveedores_bp
+from routes.contratos import contratos_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(clientes_bp, url_prefix='/clientes')
@@ -251,6 +302,8 @@ app.register_blueprint(tecnicos_bp, url_prefix='/tecnicos')
 app.register_blueprint(reportes_bp, url_prefix='/reportes')
 app.register_blueprint(backup_bp, url_prefix='/backup')
 app.register_blueprint(ayuda_bp, url_prefix='/ayuda')
+app.register_blueprint(proveedores_bp, url_prefix='/proveedores')
+app.register_blueprint(contratos_bp, url_prefix='/contratos')
 
 # Rutas API globales para acceso directo desde cualquier template
 @app.route('/api/piezas')

@@ -80,6 +80,7 @@ class Tecnico(db.Model):
     nombre = db.Column(db.Text, nullable=False)
     especialidad = db.Column(db.Text)
     activo = db.Column(db.Integer, default=1)
+    costo_hora = db.Column(db.Float, default=0)  # Costo por hora para cálculo de productividad
     
     # Relaciones
     ordenes = db.relationship('Orden', backref='tecnico', lazy=True)
@@ -116,7 +117,8 @@ class Pieza(db.Model):
     unidad = db.Column(db.Text, default='unidad')
     precio_costo = db.Column(db.Float, default=0)
     precio_venta = db.Column(db.Float, default=0)
-    proveedor = db.Column(db.Text)
+    proveedor = db.Column(db.Text)  # Campo de texto legacy (respaldo)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'))  # Nueva relación
     
     # Relaciones
     movimientos = db.relationship('MovimientoInventario', backref='pieza', lazy=True)
@@ -129,6 +131,13 @@ class Pieza(db.Model):
     def stock_bajo(self):
         """Indica si la pieza está por debajo del stock mínimo"""
         return self.cantidad <= self.cantidad_minima
+    
+    @property
+    def proveedor_nombre(self):
+        """Obtiene el nombre del proveedor (de la relación o del campo texto)"""
+        if self.proveedor_rel:
+            return self.proveedor_rel.nombre
+        return self.proveedor or 'N/A'
 
 
 class Orden(db.Model):
@@ -152,8 +161,21 @@ class Orden(db.Model):
     notas_internas = db.Column(db.Text)
     notas_cliente = db.Column(db.Text)
     
+    # Campos de garantía
+    garantia_meses = db.Column(db.Integer, default=0)  # Duración de garantía en meses
+    fecha_fin_garantia = db.Column(db.Text)  # Fecha calculada de fin de garantía
+    orden_original_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'))  # Para reingresos
+    es_reingreso = db.Column(db.Integer, default=0)  # Indica si es reingreso por garantía
+    tipo_orden = db.Column(db.Text, default='reparacion')  # reparacion, mantenimiento, garantia
+    
+    # Campos de tiempo de reparación
+    fecha_inicio_reparacion = db.Column(db.Text)  # Cuando pasa a "En reparación"
+    fecha_fin_reparacion = db.Column(db.Text)  # Cuando pasa a "Listo para entregar" o "Entregado"
+    
     # Relaciones
     piezas_usadas = db.relationship('OrdenPieza', backref='orden', lazy=True, cascade='all, delete-orphan')
+    notas = db.relationship('OrdenNota', backref='orden', lazy=True, order_by='OrdenNota.fecha_hora.desc()')
+    orden_original = db.relationship('Orden', remote_side=[id], backref='reingresos')
     
     def __repr__(self):
         return f'<Orden {self.numero_orden}>'
@@ -163,6 +185,30 @@ class Orden(db.Model):
         total_piezas = sum(op.cantidad * op.precio_unitario for op in self.piezas_usadas)
         self.costo_total = total_piezas + (self.mano_obra_costo or 0)
         return self.costo_total
+    
+    @property
+    def tiempo_reparacion_horas(self):
+        """Calcula el tiempo de reparación en horas (decimal)"""
+        if not self.fecha_inicio_reparacion or not self.fecha_fin_reparacion:
+            return None
+        try:
+            inicio = datetime.strptime(self.fecha_inicio_reparacion, '%Y-%m-%d %H:%M:%S')
+            fin = datetime.strptime(self.fecha_fin_reparacion, '%Y-%m-%d %H:%M:%S')
+            delta = fin - inicio
+            return round(delta.total_seconds() / 3600, 2)
+        except:
+            return None
+    
+    @property
+    def garantia_vigente(self):
+        """Verifica si la orden tiene garantía vigente"""
+        if not self.fecha_fin_garantia:
+            return False
+        try:
+            fin_garantia = datetime.strptime(self.fecha_fin_garantia, '%Y-%m-%d')
+            return datetime.now() <= fin_garantia
+        except:
+            return False
 
 
 class OrdenPieza(db.Model):
@@ -193,6 +239,7 @@ class MovimientoInventario(db.Model):
     fecha = db.Column(db.Text, nullable=False, default=datetime.now().strftime('%Y-%m-%d'))
     concepto = db.Column(db.Text)
     orden_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'))
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'))  # Proveedor de la entrada
     
     def __repr__(self):
         return f'<Movimiento {self.tipo} {self.cantidad} {self.pieza_id}>'
@@ -220,3 +267,85 @@ class Gasto(db.Model):
     
     def __repr__(self):
         return f'<Gasto {self.descripcion} - ${self.monto}>'
+
+
+class Proveedor(db.Model):
+    """Tabla de proveedores de piezas y consumibles"""
+    __tablename__ = 'proveedores'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.Text, nullable=False)
+    contacto = db.Column(db.Text)
+    telefono = db.Column(db.Text)
+    tipo = db.Column(db.Text, default='informal', server_default='informal')  # formal o informal
+    activo = db.Column(db.Integer, default=1)
+    fecha_creacion = db.Column(db.Text, default=datetime.now().strftime('%Y-%m-%d'))
+    
+    # Relaciones
+    piezas = db.relationship('Pieza', backref='proveedor_rel', lazy=True)
+    movimientos = db.relationship('MovimientoInventario', backref='proveedor_rel', lazy=True)
+    
+    def __repr__(self):
+        return f'<Proveedor {self.nombre}>'
+
+
+class Contrato(db.Model):
+    """Tabla de contratos de mantenimiento periódico con clientes"""
+    __tablename__ = 'contratos'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
+    descripcion = db.Column(db.Text)
+    frecuencia = db.Column(db.Text, nullable=False)  # semanal, quincenal, mensual, trimestral, semestral, anual
+    fecha_inicio = db.Column(db.Text, nullable=False)
+    fecha_fin = db.Column(db.Text)
+    activo = db.Column(db.Integer, default=1)
+    precio_mantenimiento = db.Column(db.Float, default=0)
+    dispositivos_cubiertos = db.Column(db.Integer, default=1)
+    ultima_visita = db.Column(db.Text)
+    
+    # Relación con cliente
+    cliente = db.relationship('Cliente', backref='contratos')
+    
+    def __repr__(self):
+        return f'<Contrato Cliente:{self.cliente_id} Frecuencia:{self.frecuencia}>'
+    
+    def calcular_proxima_visita(self):
+        """Calcula la fecha de la próxima visita según la frecuencia"""
+        from datetime import timedelta
+        if not self.ultima_visita:
+            return self.fecha_inicio
+        
+        try:
+            ultima = datetime.strptime(self.ultima_visita, '%Y-%m-%d')
+        except:
+            return self.fecha_inicio
+        
+        dias = {
+            'semanal': 7,
+            'quincenal': 15,
+            'mensual': 30,
+            'trimestral': 90,
+            'semestral': 180,
+            'anual': 365
+        }.get(self.frecuencia, 30)
+        
+        proxima = ultima + timedelta(days=dias)
+        return proxima.strftime('%Y-%m-%d')
+
+
+class OrdenNota(db.Model):
+    """Tabla de notas internas en órdenes de reparación"""
+    __tablename__ = 'orden_notas'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    orden_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'), nullable=False)
+    texto = db.Column(db.Text, nullable=False)
+    fecha_hora = db.Column(db.Text, nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    
+    # Relación con usuario
+    usuario = db.relationship('Usuario', backref='notas')
+    
+    def __repr__(self):
+        return f'<Nota Orden:{self.orden_id} {self.fecha_hora}>'
