@@ -10,12 +10,13 @@ from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, current_app
 from flask_login import login_required
 from models import db, Configuracion
+from routes.decorators import rol_requerido
 
 backup_bp = Blueprint('backup', __name__, template_folder='../templates')
 
 
 @backup_bp.route('/')
-@login_required
+@rol_requerido(['administrador'])
 def index():
     """Página principal de respaldo y restauración"""
     # Obtener ruta de la base de datos
@@ -28,7 +29,7 @@ def index():
 
 
 @backup_bp.route('/crear', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def crear():
     """Crear copia de seguridad de la base de datos"""
     try:
@@ -62,7 +63,7 @@ def crear():
 
 
 @backup_bp.route('/descargar')
-@login_required
+@rol_requerido(['administrador'])
 def descargar():
     """Descargar copia de seguridad reciente"""
     try:
@@ -95,7 +96,7 @@ def descargar():
 
 
 @backup_bp.route('/restaurar', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def restaurar():
     """Restaurar base de datos desde un respaldo"""
     try:
@@ -146,7 +147,7 @@ def restaurar():
 
 
 @backup_bp.route('/listar')
-@login_required
+@rol_requerido(['administrador'])
 def listar():
     """Listar respaldos disponibles"""
     try:
@@ -178,7 +179,7 @@ def listar():
 
 
 @backup_bp.route('/eliminar/<nombre>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(nombre):
     """Eliminar un respaldo específico"""
     try:
@@ -199,7 +200,7 @@ def eliminar(nombre):
 
 
 @backup_bp.route('/configuracion', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def configuracion():
     """Configuración de datos del taller para impresiones"""
     if request.method == 'POST':

@@ -6,6 +6,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db, Usuario
 from werkzeug.security import generate_password_hash
+from routes.decorators import rol_requerido
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
 
@@ -69,7 +70,7 @@ def cambiar_password():
 
 
 @auth_bp.route('/configuracion_taller', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def configuracion_taller():
     """Configuración de datos del taller (acceso directo para el administrador)"""
     from models import Configuracion

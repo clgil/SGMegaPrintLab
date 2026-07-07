@@ -6,12 +6,13 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required
 from models import db, Pieza, CategoriaPieza, MovimientoInventario
 from datetime import datetime
+from routes.decorators import rol_requerido
 
 inventario_bp = Blueprint('inventario', __name__, template_folder='../templates')
 
 
 @inventario_bp.route('/')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def index():
     """Listado de piezas con filtro por categoría y alertas de stock bajo"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -41,7 +42,7 @@ def index():
 
 
 @inventario_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def nuevo():
     """Crear nueva pieza"""
     if request.method == 'POST':
@@ -104,7 +105,7 @@ def nuevo():
 
 
 @inventario_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def editar(id):
     """Editar pieza existente"""
     pieza = Pieza.query.get_or_404(id)
@@ -137,7 +138,7 @@ def editar(id):
 
 
 @inventario_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(id):
     """Eliminar pieza (solo si no tiene movimientos)"""
     pieza = Pieza.query.get_or_404(id)
@@ -154,7 +155,7 @@ def eliminar(id):
 
 
 @inventario_bp.route('/entrada/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def entrada(id):
     """Registrar entrada de pieza al inventario"""
     pieza = Pieza.query.get_or_404(id)
@@ -193,7 +194,7 @@ def entrada(id):
 
 
 @inventario_bp.route('/ver/<int:id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def ver(id):
     """Ver detalle de una pieza con su historial de movimientos"""
     pieza = Pieza.query.get_or_404(id)
@@ -203,7 +204,7 @@ def ver(id):
 
 
 @inventario_bp.route('/api/lista')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_lista():
     """API para obtener lista de piezas (usada en selects dinámicos de órdenes)"""
     busqueda = request.args.get('q', '')
@@ -226,7 +227,7 @@ def api_lista():
 
 
 @inventario_bp.route('/api/piezas')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_piezas():
     """API para buscar piezas por nombre (usada en formulario de órdenes)"""
     busqueda = request.args.get('q', '')
@@ -248,7 +249,7 @@ def api_piezas():
 
 
 @inventario_bp.route('/categorias')
-@login_required
+@rol_requerido(['administrador'])
 def categorias():
     """Gestión de categorías de piezas"""
     categorias = CategoriaPieza.query.order_by(CategoriaPieza.nombre).all()
@@ -256,7 +257,7 @@ def categorias():
 
 
 @inventario_bp.route('/categorias/nuevo', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def categorias_nuevo():
     """Crear nueva categoría"""
     nombre = request.form.get('nombre')
@@ -274,7 +275,7 @@ def categorias_nuevo():
 
 
 @inventario_bp.route('/categorias/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def categorias_eliminar(id):
     """Eliminar categoría"""
     categoria = CategoriaPieza.query.get_or_404(id)

@@ -5,12 +5,13 @@ Adaptado a la realidad cubana - Junio 2026
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from models import db, Cliente
+from routes.decorators import rol_requerido
 
 clientes_bp = Blueprint('clientes', __name__, template_folder='../templates')
 
 
 @clientes_bp.route('/')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def index():
     """Listado de clientes con paginación y búsqueda"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -35,7 +36,7 @@ def index():
 
 
 @clientes_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def nuevo():
     """Crear nuevo cliente"""
     if request.method == 'POST':
@@ -66,7 +67,7 @@ def nuevo():
 
 
 @clientes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def editar(id):
     """Editar cliente existente"""
     cliente = Cliente.query.get_or_404(id)
@@ -86,7 +87,7 @@ def editar(id):
 
 
 @clientes_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(id):
     """Eliminación lógica de cliente (desactivar)"""
     cliente = Cliente.query.get_or_404(id)
@@ -99,7 +100,7 @@ def eliminar(id):
 
 
 @clientes_bp.route('/api/lista')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_lista():
     """API para obtener lista de clientes (usada en selects dinámicos)"""
     busqueda = request.args.get('q', '')
@@ -115,7 +116,7 @@ def api_lista():
 
 
 @clientes_bp.route('/api/clientes/<int:cliente_id>/dispositivos')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_dispositivos_cliente(cliente_id):
     """API para obtener dispositivos de un cliente específico"""
     from models import Dispositivo

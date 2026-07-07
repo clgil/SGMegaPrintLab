@@ -6,12 +6,13 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required
 from models import db, Proveedor, Pieza, MovimientoInventario
 from datetime import datetime
+from routes.decorators import rol_requerido
 
 proveedores_bp = Blueprint('proveedores', __name__, template_folder='../templates')
 
 
 @proveedores_bp.route('/')
-@login_required
+@rol_requerido(['administrador'])
 def index():
     """Listado de proveedores activos"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -32,7 +33,7 @@ def index():
 
 
 @proveedores_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def nuevo():
     """Crear nuevo proveedor"""
     if request.method == 'POST':
@@ -63,7 +64,7 @@ def nuevo():
 
 
 @proveedores_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def editar(id):
     """Editar proveedor existente"""
     proveedor = Proveedor.query.get_or_404(id)
@@ -83,7 +84,7 @@ def editar(id):
 
 
 @proveedores_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(id):
     """Eliminar proveedor (baja lógica)"""
     proveedor = Proveedor.query.get_or_404(id)
@@ -102,7 +103,7 @@ def eliminar(id):
 
 
 @proveedores_bp.route('/ver/<int:id>')
-@login_required
+@rol_requerido(['administrador'])
 def ver(id):
     """Ver detalle de proveedor con sus piezas"""
     proveedor = Proveedor.query.get_or_404(id)
@@ -121,7 +122,7 @@ def ver(id):
 
 
 @proveedores_bp.route('/api/lista')
-@login_required
+@rol_requerido(['administrador'])
 def api_lista():
     """API para obtener lista de proveedores (usada en selects dinámicos)"""
     busqueda = request.args.get('q', '')
