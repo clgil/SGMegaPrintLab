@@ -71,8 +71,11 @@ class Cliente(db.Model):
     nombre = db.Column(db.Text, nullable=False)
     telefono = db.Column(db.Text)
     direccion = db.Column(db.Text)
-    tipo_cliente = db.Column(db.Text, default='Particular')
+    tipo_cliente = db.Column(db.Text, nullable=False, default='Persona natural')
     activo = db.Column(db.Integer, default=1)
+    
+    # Valores válidos para tipo_cliente
+    TIPOS_CLIENTE_VALIDOS = ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural']
     
     # Relaciones
     dispositivos = db.relationship('Dispositivo', backref='cliente', lazy=True)
@@ -80,6 +83,11 @@ class Cliente(db.Model):
     
     def __repr__(self):
         return f'<Cliente {self.nombre}>'
+    
+    @classmethod
+    def es_tipo_valido(cls, tipo):
+        """Verifica si un tipo de cliente es válido"""
+        return tipo in cls.TIPOS_CLIENTE_VALIDOS
 
 
 class Dispositivo(db.Model):

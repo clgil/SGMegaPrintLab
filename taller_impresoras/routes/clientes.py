@@ -45,15 +45,21 @@ def nuevo():
         direccion = request.form.get('direccion')
         tipo_cliente = request.form.get('tipo_cliente')
         
+        # Validaciones
         if not nombre:
             flash('El nombre es obligatorio', 'warning')
+            return redirect(url_for('clientes.nuevo'))
+        
+        # Validar que el tipo de cliente sea válido
+        if not Cliente.es_tipo_valido(tipo_cliente):
+            flash('Tipo de cliente no válido. Seleccione una opción válida.', 'warning')
             return redirect(url_for('clientes.nuevo'))
         
         cliente = Cliente(
             nombre=nombre,
             telefono=telefono,
             direccion=direccion,
-            tipo_cliente=tipo_cliente or 'Particular',
+            tipo_cliente=tipo_cliente or 'Persona natural',
             activo=1
         )
         
@@ -63,7 +69,7 @@ def nuevo():
         flash('Cliente registrado correctamente', 'success')
         return redirect(url_for('clientes.index'))
     
-    return render_template('clientes/formulario.html', cliente=None, accion='Crear')
+    return render_template('clientes/formulario.html', cliente=None, accion='Crear', tipos_cliente=Cliente.TIPOS_CLIENTE_VALIDOS)
 
 
 @clientes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
@@ -73,17 +79,32 @@ def editar(id):
     cliente = Cliente.query.get_or_404(id)
     
     if request.method == 'POST':
-        cliente.nombre = request.form.get('nombre')
-        cliente.telefono = request.form.get('telefono')
-        cliente.direccion = request.form.get('direccion')
-        cliente.tipo_cliente = request.form.get('tipo_cliente')
+        nombre = request.form.get('nombre')
+        telefono = request.form.get('telefono')
+        direccion = request.form.get('direccion')
+        tipo_cliente = request.form.get('tipo_cliente')
+        
+        # Validaciones
+        if not nombre:
+            flash('El nombre es obligatorio', 'warning')
+            return redirect(url_for('clientes.editar', id=id))
+        
+        # Validar que el tipo de cliente sea válido
+        if not Cliente.es_tipo_valido(tipo_cliente):
+            flash('Tipo de cliente no válido. Seleccione una opción válida.', 'warning')
+            return redirect(url_for('clientes.editar', id=id))
+        
+        cliente.nombre = nombre
+        cliente.telefono = telefono
+        cliente.direccion = direccion
+        cliente.tipo_cliente = tipo_cliente or 'Persona natural'
         
         db.session.commit()
         
         flash('Cliente actualizado correctamente', 'success')
         return redirect(url_for('clientes.index'))
     
-    return render_template('clientes/formulario.html', cliente=cliente, accion='Editar')
+    return render_template('clientes/formulario.html', cliente=cliente, accion='Editar', tipos_cliente=Cliente.TIPOS_CLIENTE_VALIDOS)
 
 
 @clientes_bp.route('/eliminar/<int:id>', methods=['POST'])

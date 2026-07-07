@@ -1,39 +1,43 @@
 ```
-# Python
+# Compiled Python files
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 
-# Database
-taller_impresoras/instance/*.db
+# Database files
+*.db
 
-# Logs
-*.log
-
-# Environment
+# Environment files
 .env
 .env.local
 *.env.*
 
-# Dependencies
-.venv/
-venv/
-node_modules/
+# Logs
+*.log
 
-# Editors
+# Temporary files
+*.tmp
+*.swp
+
+# IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# Coverage
+# Coverage reports
 .coverage
 coverage/
 htmlcov/
 
-# Build artifacts
+# Python cache
+.mypy_cache/
+.pytest_cache/
+
+# Build directories
 dist/
 build/
 target/
+
+# Virtual environments
+venv/
+.venv/
 ```

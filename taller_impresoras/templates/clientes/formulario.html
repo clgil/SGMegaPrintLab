@@ -28,11 +28,12 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="tipo_cliente" class="form-label">Tipo de Cliente</label>
-                            <select class="form-select" id="tipo_cliente" name="tipo_cliente">
-                                <option value="Particular" {% if cliente and cliente.tipo_cliente == 'Particular' %}selected{% endif %}>Particular</option>
-                                <option value="Empresa estatal" {% if cliente and cliente.tipo_cliente == 'Empresa estatal' %}selected{% endif %}>Empresa estatal</option>
-                                <option value="Cuentapropista" {% if cliente and cliente.tipo_cliente == 'Cuentapropista' %}selected{% endif %}>Cuentapropista</option>
+                            <label for="tipo_cliente" class="form-label">Tipo de Cliente *</label>
+                            <select class="form-select" id="tipo_cliente" name="tipo_cliente" required>
+                                {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
+                                {% for tipo in tipos %}
+                                <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         
