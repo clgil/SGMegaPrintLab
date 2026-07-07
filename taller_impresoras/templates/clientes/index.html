@@ -46,10 +46,12 @@
                         <td>{{ cliente.telefono or '-' }}</td>
                         <td>{{ cliente.direccion or '-' }}</td>
                         <td>
-                            {% if cliente.tipo_cliente == 'Empresa estatal' %}
+                            {% if cliente.tipo_cliente == 'Empresa Estatal' %}
                                 <span class="badge bg-info">{{ cliente.tipo_cliente }}</span>
-                            {% elif cliente.tipo_cliente == 'Cuentapropista' %}
-                                <span class="badge bg-warning">{{ cliente.tipo_cliente }}</span>
+                            {% elif cliente.tipo_cliente == 'TCP' or cliente.tipo_cliente == 'Mypyme' %}
+                                <span class="badge bg-success">{{ cliente.tipo_cliente }}</span>
+                            {% elif cliente.tipo_cliente == 'PDL' or cliente.tipo_cliente == 'CNA' or cliente.tipo_cliente == 'CPA' %}
+                                <span class="badge bg-warning text-dark">{{ cliente.tipo_cliente }}</span>
                             {% else %}
                                 <span class="badge bg-secondary">{{ cliente.tipo_cliente }}</span>
                             {% endif %}
