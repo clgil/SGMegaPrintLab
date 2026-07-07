@@ -40,7 +40,7 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def dashboard():
-    """Panel de control con indicadores básicos y financieros"""
+    """Panel de control con indicadores básicos y financieros - Filtrado por rol"""
     from datetime import datetime, timedelta
     
     # Obtener parámetros de filtro temporal
@@ -76,189 +76,264 @@ def dashboard():
         fecha_inicio = fecha_inicio_dt.strftime('%Y-%m-%d')
         fecha_fin = ahora.strftime('%Y-%m-%d')
     
-    # Contadores generales
-    total_ordenes_activas = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
-    ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
-    ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
-    piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
+    # ==========================================
+    # ESTADÍSTICAS SEGÚN ROL DEL USUARIO
+    # ==========================================
+    rol = current_user.rol
     
-    # ===== ESTADÍSTICAS DE USUARIOS =====
-    total_usuarios = Usuario.query.count()
-    usuarios_por_rol = {
-        'administrador': Usuario.query.filter_by(rol='administrador', activo=1).count(),
-        'tecnico': Usuario.query.filter_by(rol='tecnico', activo=1).count(),
-        'proveedor': Usuario.query.filter_by(rol='proveedor', activo=1).count(),
-        'cliente': Usuario.query.filter_by(rol='cliente', activo=1).count()
-    }
-    
-    # ===== NUEVOS INDICADORES =====
-    # Reingresos en garantía este mes
-    reingresos_garantia_mes = Orden.query.filter(
-        Orden.es_reingreso == 1,
-        Orden.tipo_orden == 'garantia',
-        Orden.fecha_entrada >= fecha_inicio,
-        Orden.fecha_entrada <= fecha_fin
-    ).count()
-    
-    # Órdenes estancadas (más de 3 días en mismo estado)
-    dias_estancia = 3
-    fecha_limite = (ahora - timedelta(days=dias_estancia)).strftime('%Y-%m-%d')
-    ordenes_estancadas = Orden.query.filter(
-        Orden.estado.in_(['Recibido', 'En diagnostico']),
-        Orden.fecha_entrada < fecha_limite
-    ).all()
-    
-    # Garantías próximas a vencer (próximos 7 días)
-    fecha_proxima_vencimiento = (ahora + timedelta(days=7)).strftime('%Y-%m-%d')
-    garantias_por_vencer = Orden.query.filter(
-        Orden.fecha_fin_garantia != None,
-        Orden.fecha_fin_garantia <= fecha_proxima_vencimiento,
-        Orden.fecha_fin_garantia >= ahora.strftime('%Y-%m-%d'),
-        Orden.es_reingreso == 0
-    ).all()
-    
-    # Mantenimientos por vencer esta semana
-    from models import Contrato
-    contratos_activos = Contrato.query.filter_by(activo=1).all()
-    mantenimientos_por_vencer = []
-    for contrato in contratos_activos:
-        proxima = contrato.calcular_proxima_visita()
-        if proxima:
-            try:
-                proxima_dt = datetime.strptime(proxima, '%Y-%m-%d')
-                if proxima_dt <= ahora + timedelta(days=7):
-                    mantenimientos_por_vencer.append({
-                        'cliente': contrato.cliente.nombre,
-                        'proxima_visita': proxima,
-                        'frecuencia': contrato.frecuencia
-                    })
-            except:
-                pass
-    
-    # Últimas 5 órdenes actualizadas
-    ultimas_ordenes = Orden.query.order_by(Orden.fecha_entrada.desc()).limit(5).all()
-    
-    # ========== MÉTRICAS FINANCIERAS ==========
-    # Órdenes entregadas en el período
-    ordenes_entregadas = Orden.query.filter(
-        Orden.estado == 'Entregado',
-        Orden.fecha_entrega >= fecha_inicio,
-        Orden.fecha_entrega <= fecha_fin
-    ).all()
-    
-    # Ingresos brutos del período (suma de costo_total de órdenes entregadas)
-    ingresos_brutos = sum(o.costo_total for o in ordenes_entregadas) or 0
-    
-    # Inversión total en piezas (costo de ventas) - suma del precio de costo de piezas usadas en órdenes entregadas
+    # Inicializar contexto base
+    total_ordenes_activas = 0
+    ordenes_pendientes_diagnostico = 0
+    ordenes_listas_entregar = 0
+    piezas_stock_bajo = 0
+    total_usuarios = 0
+    usuarios_por_rol = {}
+    ingresos_brutos = 0
     inversion_piezas = 0
-    for orden in ordenes_entregadas:
-        for op in orden.piezas_usadas:
-            if op.pieza_rel:  # Si tiene pieza relacionada
-                inversion_piezas += op.cantidad * op.pieza_rel.precio_costo
-    
-    # Valor real del inventario (a fecha actual)
-    valor_inventario = sum(p.cantidad * p.precio_costo for p in Pieza.query.all()) or 0
-    
-    # Gastos operativos del período
-    gastos_operativos = db.session.query(db.func.sum(Gasto.monto)).filter(
-        Gasto.fecha >= fecha_inicio,
-        Gasto.fecha <= fecha_fin
-    ).scalar() or 0
-    
-    # Ganancia neta = ingresos brutos - inversión en piezas - gastos operativos
-    ganancia_neta = ingresos_brutos - inversion_piezas - gastos_operativos
-    
-    # ========== CÁLCULO DE TRIBUTOS ==========
-    # Obtener configuración tributaria
-    config = {}
-    for c in Configuracion.query.all():
-        config[c.clave] = c.valor
-    
-    regimen_fiscal = config.get('regimen_fiscal', 'general')
-    
-    # Calcular ganancia acumulada del año (para ISIP)
-    inicio_anio = ahora.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d')
-    ordenes_anio = Orden.query.filter(
-        Orden.estado == 'Entregado',
-        Orden.fecha_entrega >= inicio_anio,
-        Orden.fecha_entrega <= ahora.strftime('%Y-%m-%d')
-    ).all()
-    
-    ingresos_anio = sum(o.costo_total for o in ordenes_anio) or 0
-    inversion_piezas_anio = 0
-    for orden in ordenes_anio:
-        for op in orden.piezas_usadas:
-            if op.pieza_rel:
-                inversion_piezas_anio += op.cantidad * op.pieza_rel.precio_costo
-    
-    gastos_anio = db.session.query(db.func.sum(Gasto.monto)).filter(
-        Gasto.fecha >= inicio_anio,
-        Gasto.fecha <= ahora.strftime('%Y-%m-%d')
-    ).scalar() or 0
-    
-    ganancia_acumulada_anio = ingresos_anio - inversion_piezas_anio - gastos_anio
-    
-    # Calcular tributos
+    valor_inventario = 0
+    ganancia_neta = 0
+    gastos_operativos = 0
     isip_calculado = 0
     seguridad_social = 0
-    
-    if regimen_fiscal == 'simplificado':
-        cuota_fija = float(config.get('cuota_fija_mensual', 0))
-        # Calcular meses del período
-        dias_periodo = (fecha_fin_dt - fecha_inicio_dt).days + 1
-        meses_periodo = max(1, dias_periodo / 30)
-        isip_calculado = cuota_fija * meses_periodo
-    else:
-        # Régimen general - escala progresiva
-        tasas = [
-            (float(config.get('limite_isip_1', 10000)), float(config.get('tasa_isip_1', 5))),
-            (float(config.get('limite_isip_2', 20000)), float(config.get('tasa_isip_2', 10))),
-            (float(config.get('limite_isip_3', 30000)), float(config.get('tasa_isip_3', 15))),
-            (float(config.get('limite_isip_4', 40000)), float(config.get('tasa_isip_4', 20))),
-            (float(config.get('limite_isip_5', 50000)), float(config.get('tasa_isip_5', 25))),
-            (float('inf'), float(config.get('tasa_isip_6', 30)))
-        ]
-        
-        ganancia_restante = ganancia_acumulada_anio
-        limite_anterior = 0
-        
-        for limite, tasa in tasas:
-            if ganancia_restante <= 0:
-                break
-            tramo = min(ganancia_restante, limite - limite_anterior)
-            if tramo > 0:
-                isip_calculado += tramo * (tasa / 100)
-            ganancia_restante -= tramo
-            limite_anterior = limite
-    
-    # Seguridad Social
-    ss_porcentaje = float(config.get('seguridad_social_porcentaje', 5))
-    ss_base = config.get('seguridad_social_base', 'ganancia')
-    base_ss = ganancia_neta if ss_base == 'ganancia' else ingresos_brutos
-    seguridad_social = base_ss * (ss_porcentaje / 100) if base_ss > 0 else 0
-    
-    total_tributos = isip_calculado + seguridad_social
-    
-    # Ingresos por mes (últimos 6 meses) - para gráfico
+    total_tributos = 0
+    ganancia_acumulada_anio = 0
+    regimen_fiscal = 'general'
     ingresos_mensuales = []
-    for i in range(5, -1, -1):
-        mes = ahora.month - i
-        anio = ahora.year
-        if mes <= 0:
-            mes += 12
-            anio -= 1
-        inicio = f"{anio}-{mes:02d}-01"
-        if mes == 12:
-            fin = f"{anio+1}-01-01"
-        else:
-            fin = f"{anio}-{mes+1:02d}-01"
-        ingreso = db.session.query(db.func.sum(Orden.costo_total)).filter(
+    ultimas_ordenes = []
+    reingresos_garantia_mes = 0
+    ordenes_estancadas = []
+    garantias_por_vencer = []
+    mantenimientos_por_vencer = []
+    total_clientes = 0
+    total_dispositivos = 0
+    total_tecnicos = 0
+    total_piezas = 0
+    
+    # Variables específicas para cliente
+    mis_ordenes = []
+    total_ordenes_cliente = 0
+    total_dispositivos_cliente = 0
+    ordenes_pendientes_cliente = 0
+    ordenes_reparacion_cliente = 0
+    ordenes_completadas_cliente = 0
+    
+    if rol == 'administrador':
+        # ===== ADMINISTRADOR: Todo sin restricciones =====
+        total_ordenes_activas = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
+        ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
+        ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
+        piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
+        
+        # Estadísticas de usuarios
+        total_usuarios = Usuario.query.count()
+        usuarios_por_rol = {
+            'administrador': Usuario.query.filter_by(rol='administrador', activo=1).count(),
+            'tecnico': Usuario.query.filter_by(rol='tecnico', activo=1).count(),
+            'proveedor': Usuario.query.filter_by(rol='proveedor', activo=1).count(),
+            'cliente': Usuario.query.filter_by(rol='cliente', activo=1).count()
+        }
+        
+        total_clientes = Cliente.query.count()
+        total_dispositivos = Dispositivo.query.count()
+        total_tecnicos = Tecnico.query.count()
+        total_piezas = Pieza.query.count()
+        
+        # Métricas financieras
+        ordenes_entregadas = Orden.query.filter(
             Orden.estado == 'Entregado',
-            Orden.fecha_entrega >= inicio,
-            Orden.fecha_entrega < fin
+            Orden.fecha_entrega >= fecha_inicio,
+            Orden.fecha_entrega <= fecha_fin
+        ).all()
+        
+        ingresos_brutos = sum(o.costo_total for o in ordenes_entregadas) or 0
+        
+        inversion_piezas = 0
+        for orden in ordenes_entregadas:
+            for op in orden.piezas_usadas:
+                if op.pieza_rel:
+                    inversion_piezas += op.cantidad * op.pieza_rel.precio_costo
+        
+        valor_inventario = sum(p.cantidad * p.precio_costo for p in Pieza.query.all()) or 0
+        
+        gastos_operativos = db.session.query(db.func.sum(Gasto.monto)).filter(
+            Gasto.fecha >= fecha_inicio,
+            Gasto.fecha <= fecha_fin
         ).scalar() or 0
-        nombres_meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-        ingresos_mensuales.append({'mes': nombres_meses[mes-1], 'ingreso': ingreso})
+        
+        ganancia_neta = ingresos_brutos - inversion_piezas - gastos_operativos
+        
+        # Cálculo de tributos
+        config = {}
+        for c in Configuracion.query.all():
+            config[c.clave] = c.valor
+        
+        regimen_fiscal = config.get('regimen_fiscal', 'general')
+        
+        inicio_anio = ahora.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d')
+        ordenes_anio = Orden.query.filter(
+            Orden.estado == 'Entregado',
+            Orden.fecha_entrega >= inicio_anio,
+            Orden.fecha_entrega <= ahora.strftime('%Y-%m-%d')
+        ).all()
+        
+        ingresos_anio = sum(o.costo_total for o in ordenes_anio) or 0
+        inversion_piezas_anio = 0
+        for orden in ordenes_anio:
+            for op in orden.piezas_usadas:
+                if op.pieza_rel:
+                    inversion_piezas_anio += op.cantidad * op.pieza_rel.precio_costo
+        
+        gastos_anio = db.session.query(db.func.sum(Gasto.monto)).filter(
+            Gasto.fecha >= inicio_anio,
+            Gasto.fecha <= ahora.strftime('%Y-%m-%d')
+        ).scalar() or 0
+        
+        ganancia_acumulada_anio = ingresos_anio - inversion_piezas_anio - gastos_anio
+        
+        if regimen_fiscal == 'simplificado':
+            cuota_fija = float(config.get('cuota_fija_mensual', 0))
+            dias_periodo = (fecha_fin_dt - fecha_inicio_dt).days + 1
+            meses_periodo = max(1, dias_periodo / 30)
+            isip_calculado = cuota_fija * meses_periodo
+        else:
+            tasas = [
+                (float(config.get('limite_isip_1', 10000)), float(config.get('tasa_isip_1', 5))),
+                (float(config.get('limite_isip_2', 20000)), float(config.get('tasa_isip_2', 10))),
+                (float(config.get('limite_isip_3', 30000)), float(config.get('tasa_isip_3', 15))),
+                (float(config.get('limite_isip_4', 40000)), float(config.get('tasa_isip_4', 20))),
+                (float(config.get('limite_isip_5', 50000)), float(config.get('tasa_isip_5', 25))),
+                (float('inf'), float(config.get('tasa_isip_6', 30)))
+            ]
+            
+            ganancia_restante = ganancia_acumulada_anio
+            limite_anterior = 0
+            
+            for limite, tasa in tasas:
+                if ganancia_restante <= 0:
+                    break
+                tramo = min(ganancia_restante, limite - limite_anterior)
+                if tramo > 0:
+                    isip_calculado += tramo * (tasa / 100)
+                ganancia_restante -= tramo
+                limite_anterior = limite
+        
+        ss_porcentaje = float(config.get('seguridad_social_porcentaje', 5))
+        ss_base = config.get('seguridad_social_base', 'ganancia')
+        base_ss = ganancia_neta if ss_base == 'ganancia' else ingresos_brutos
+        seguridad_social = base_ss * (ss_porcentaje / 100) if base_ss > 0 else 0
+        
+        total_tributos = isip_calculado + seguridad_social
+        
+        # Ingresos mensuales
+        ingresos_mensuales = []
+        for i in range(5, -1, -1):
+            mes = ahora.month - i
+            anio = ahora.year
+            if mes <= 0:
+                mes += 12
+                anio -= 1
+            inicio = f"{anio}-{mes:02d}-01"
+            if mes == 12:
+                fin = f"{anio+1}-01-01"
+            else:
+                fin = f"{anio}-{mes+1:02d}-01"
+            ingreso = db.session.query(db.func.sum(Orden.costo_total)).filter(
+                Orden.estado == 'Entregado',
+                Orden.fecha_entrega >= inicio,
+                Orden.fecha_entrega < fin
+            ).scalar() or 0
+            nombres_meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            ingresos_mensuales.append({'mes': nombres_meses[mes-1], 'ingreso': ingreso})
+        
+        # Últimas órdenes y otros indicadores
+        ultimas_ordenes = Orden.query.order_by(Orden.fecha_entrada.desc()).limit(5).all()
+        
+        reingresos_garantia_mes = Orden.query.filter(
+            Orden.es_reingreso == 1,
+            Orden.tipo_orden == 'garantia',
+            Orden.fecha_entrada >= fecha_inicio,
+            Orden.fecha_entrada <= fecha_fin
+        ).count()
+        
+        dias_estancia = 3
+        fecha_limite = (ahora - timedelta(days=dias_estancia)).strftime('%Y-%m-%d')
+        ordenes_estancadas = Orden.query.filter(
+            Orden.estado.in_(['Recibido', 'En diagnostico']),
+            Orden.fecha_entrada < fecha_limite
+        ).all()
+        
+        fecha_proxima_vencimiento = (ahora + timedelta(days=7)).strftime('%Y-%m-%d')
+        garantias_por_vencer = Orden.query.filter(
+            Orden.fecha_fin_garantia != None,
+            Orden.fecha_fin_garantia <= fecha_proxima_vencimiento,
+            Orden.fecha_fin_garantia >= ahora.strftime('%Y-%m-%d'),
+            Orden.es_reingreso == 0
+        ).all()
+        
+        contratos_activos = Contrato.query.filter_by(activo=1).all()
+        mantenimientos_por_vencer = []
+        for contrato in contratos_activos:
+            proxima = contrato.calcular_proxima_visita()
+            if proxima:
+                try:
+                    proxima_dt = datetime.strptime(proxima, '%Y-%m-%d')
+                    if proxima_dt <= ahora + timedelta(days=7):
+                        mantenimientos_por_vencer.append({
+                            'cliente': contrato.cliente.nombre,
+                            'proxima_visita': proxima,
+                            'frecuencia': contrato.frecuencia
+                        })
+                except:
+                    pass
+    
+    elif rol == 'tecnico':
+        # ===== TÉCNICO: Solo reparaciones y dispositivos =====
+        total_ordenes_activas = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
+        ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
+        ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
+        piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
+        total_dispositivos = Dispositivo.query.count()
+        total_piezas = Pieza.query.count()
+        
+        # Últimas órdenes (para ver el flujo de trabajo)
+        ultimas_ordenes = Orden.query.order_by(Orden.fecha_entrada.desc()).limit(5).all()
+        
+        # NO incluye: financiero, tributos, usuarios, clientes
+    
+    elif rol == 'proveedor':
+        # ===== PROVEEDOR: Solo inventario =====
+        total_piezas = Pieza.query.count()
+        piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
+        valor_inventario = sum(p.cantidad * p.precio_costo for p in Pieza.query.all()) or 0
+        
+        # NO incluye: órdenes, clientes, dispositivos, financiero, usuarios
+    
+    elif rol == 'cliente':
+        # ===== CLIENTE: EXCLUSIVAMENTE sus propios datos =====
+        # FILTRO CRÍTICO: solo sus datos usando current_user.cliente_id
+        if current_user.cliente_id:
+            mis_ordenes = Orden.query.filter_by(cliente_id=current_user.cliente_id).order_by(Orden.fecha_entrada.desc()).limit(5).all()
+            total_ordenes_cliente = Orden.query.filter_by(cliente_id=current_user.cliente_id).count()
+            total_dispositivos_cliente = Dispositivo.query.filter_by(cliente_id=current_user.cliente_id).count()
+            ordenes_pendientes_cliente = Orden.query.filter_by(cliente_id=current_user.cliente_id, estado='Pendiente').count()
+            ordenes_reparacion_cliente = Orden.query.filter_by(cliente_id=current_user.cliente_id, estado='En reparación').count()
+            ordenes_completadas_cliente = Orden.query.filter_by(cliente_id=current_user.cliente_id, estado='Entregado').count()
+            
+            # Contar órdenes activas del cliente
+            total_ordenes_activas = Orden.query.filter_by(cliente_id=current_user.cliente_id).filter(
+                Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])
+            ).count()
+        else:
+            # Si no tiene cliente_id asociado, mostrar ceros
+            mis_ordenes = []
+            total_ordenes_cliente = 0
+            total_dispositivos_cliente = 0
+            ordenes_pendientes_cliente = 0
+            ordenes_reparacion_cliente = 0
+            ordenes_completadas_cliente = 0
+            total_ordenes_activas = 0
+        
+        # NO incluye: nada global, financiero, tributos, usuarios, otros clientes
     
     return render_template('dashboard.html', 
                          total_ordenes_activas=total_ordenes_activas,
@@ -290,8 +365,20 @@ def dashboard():
                          # Nuevos indicadores
                          reingresos_garantia_mes=reingresos_garantia_mes,
                          ordenes_estancadas=ordenes_estancadas,
-                         garantias_por_vencer=garantias_por_vencer if 'garantias_por_vencer' in dir() else [],
-                         mantenimientos_por_vencer=mantenimientos_por_vencer)
+                         garantias_por_vencer=garantias_por_vencer,
+                         mantenimientos_por_vencer=mantenimientos_por_vencer,
+                         # Datos específicos por rol
+                         total_clientes=total_clientes,
+                         total_dispositivos=total_dispositivos,
+                         total_tecnicos=total_tecnicos,
+                         total_piezas=total_piezas,
+                         # Datos específicos para cliente
+                         mis_ordenes=mis_ordenes,
+                         total_ordenes_cliente=total_ordenes_cliente,
+                         total_dispositivos_cliente=total_dispositivos_cliente,
+                         ordenes_pendientes_cliente=ordenes_pendientes_cliente,
+                         ordenes_reparacion_cliente=ordenes_reparacion_cliente,
+                         ordenes_completadas_cliente=ordenes_completadas_cliente)
 
 # Importar rutas
 from routes.auth import auth_bp

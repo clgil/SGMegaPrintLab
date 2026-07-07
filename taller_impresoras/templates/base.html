@@ -29,54 +29,56 @@
                     📊 Panel de Control
                 </a>
             </li>
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('ordenes.index') }}">
                     📋 Órdenes
                 </a>
             </li>
-            {% if current_user.es_administrador() or current_user.rol == 'tecnico' %}
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('clientes.index') }}">
                     👥 Clientes
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() or current_user.rol == 'tecnico' %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('dispositivos.index') }}">
                     🖨️ Dispositivos
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('inventario.index') }}">
                     📦 Inventario
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() or current_user.rol == 'tecnico' %}
+            {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('tecnicos.index') }}">
                     🔧 Técnicos
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() %}
+            {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('reportes.index') }}">
                     📈 Reportes y Finanzas
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() %}
+            {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('backup.index') }}">
                     💾 Respaldo
                 </a>
             </li>
             {% endif %}
-            {% if current_user.es_administrador() %}
+            {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('auth.configuracion_taller') }}">
                     ⚙️ Configuración Taller
@@ -93,7 +95,7 @@
                     📚 Ayuda
                 </a>
             </li>
-            {% if current_user.es_administrador() %}
+            {% if current_user.rol == 'administrador' %}
             <!-- Submenú Administración -->
             <li class="nav-item mt-3">
                 <div class="text-white px-3 mb-1" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.7;">Administración</div>
