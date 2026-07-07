@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Usuario - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4>{{ accion }} Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% if usuario %}{{ url_for('usuarios.editar', id=usuario.id) }}{% else %}{{ url_for('usuarios.nuevo') }}{% endif %}" id="usuarioForm">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" value="{{ usuario.nombre if usuario else '' }}" required autofocus>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Nombre de Usuario *</label>
+                            <input type="text" class="form-control form-control-lg" id="usuario" name="usuario" value="{{ usuario.usuario if usuario else '' }}" required>
+                            <div id="usuarioHelp" class="form-text">Este será el nombre de usuario para iniciar sesión.</div>
+                            <div id="usuarioError" class="text-danger" style="display: none;">El nombre de usuario ya está en uso.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña {% if not usuario %}*{% endif %}</label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" {% if not usuario %}required{% endif %}>
+                            <div id="passwordHelp" class="form-text">{% if usuario %}Deje en blanco para mantener la contraseña actual.{% else %}Mínimo 6 caracteres.{% endif %}</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol *</label>
+                            <select class="form-select form-select-lg" id="rol" name="rol" required onchange="toggleClienteField()">
+                                <option value="">Seleccione un rol...</option>
+                                <option value="administrador" {% if usuario and usuario.rol == 'administrador' %}selected{% endif %}>Administrador</option>
+                                <option value="tecnico" {% if usuario and usuario.rol == 'tecnico' %}selected{% endif %}>Técnico</option>
+                                <option value="proveedor" {% if usuario and usuario.rol == 'proveedor' %}selected{% endif %}>Proveedor</option>
+                                <option value="cliente" {% if usuario and usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="clienteField" style="display: none;">
+                            <label for="cliente_id" class="form-label">Cliente Asociado *</label>
+                            <select class="form-select" id="cliente_id" name="cliente_id">
+                                <option value="">Seleccione un cliente...</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}" {% if usuario and usuario.cliente_id == cliente.id %}selected{% endif %}>{{ cliente.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">El usuario cliente podrá ver solo sus propias órdenes y dispositivos.</div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="activo" name="activo" {% if not usuario or usuario.activo == 1 %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">Usuario Activo</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnGuardar">💾 Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mostrar/ocultar campo de cliente según el rol
+function toggleClienteField() {
+    const rol = document.getElementById('rol').value;
+    const clienteField = document.getElementById('clienteField');
+    const clienteSelect = document.getElementById('cliente_id');
+    
+    if (rol === 'cliente') {
+        clienteField.style.display = 'block';
+        clienteSelect.required = true;
+    } else {
+        clienteField.style.display = 'none';
+        clienteSelect.required = false;
+        clienteSelect.value = '';
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    toggleClienteField();
+});
+
+// Validar que el nombre de usuario sea único antes de enviar el formulario
+const usuarioInput = document.getElementById('usuario');
+const usuarioError = document.getElementById('usuarioError');
+const btnGuardar = document.getElementById('btnGuardar');
+let usuarioValido = true;
+
+// Verificar mientras se escribe (con debounce)
+let timeoutId;
+usuarioInput.addEventListener('input', function() {
+    clearTimeout(timeoutId);
+    const valor = this.value.trim();
+    const excluirId = "{{ usuario.id if usuario else '' }}";
+    
+    if (valor.length > 0) {
+        timeoutId = setTimeout(async () => {
+            try {
+                const url = `/usuarios/api/verificar_usuario?usuario=${encodeURIComponent(valor)}${excluirId ? `&excluir_id=${excluirId}` : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.existe) {
+                    usuarioError.style.display = 'block';
+                    usuarioInput.classList.add('is-invalid');
+                    usuarioValido = false;
+                } else {
+                    usuarioError.style.display = 'none';
+                    usuarioInput.classList.remove('is-invalid');
+                    usuarioValido = true;
+                }
+            } catch (error) {
+                console.error('Error al verificar usuario:', error);
+            }
+        }, 500);
+    } else {
+        usuarioError.style.display = 'none';
+        usuarioInput.classList.remove('is-invalid');
+        usuarioValido = true;
+    }
+});
+
+// Validar antes de enviar el formulario
+document.getElementById('usuarioForm').addEventListener('submit', function(e) {
+    if (!usuarioValido) {
+        e.preventDefault();
+        alert('El nombre de usuario ya está en uso. Por favor, elija otro.');
+    }
+});
+</script>
+{% endblock %}

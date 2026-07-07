@@ -5,27 +5,20 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Dependencies
-venv/
-.venv/
-.env
-.env.local
-*.env.*
+# Database
+instance/
 
 # Logs
 *.log
 
-# Coverage
-.coverage
-coverage/
-htmlcov/
+# Environment
+.env
+.env.local
+.env.*
 
-# IDE
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
 # OS
 .DS_Store

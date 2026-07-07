@@ -292,6 +292,7 @@ from routes.backup import backup_bp
 from routes.ayuda.ayuda import ayuda_bp
 from routes.proveedores import proveedores_bp
 from routes.contratos import contratos_bp
+from routes.usuarios import usuarios_bp
 
 # Importar decorador de roles
 from routes.decorators import rol_requerido
@@ -307,6 +308,7 @@ app.register_blueprint(backup_bp, url_prefix='/backup')
 app.register_blueprint(ayuda_bp, url_prefix='/ayuda')
 app.register_blueprint(proveedores_bp, url_prefix='/proveedores')
 app.register_blueprint(contratos_bp, url_prefix='/contratos')
+app.register_blueprint(usuarios_bp, url_prefix='/usuarios')
 
 # Rutas API globales para acceso directo desde cualquier template
 @app.route('/api/piezas')
