@@ -26,11 +26,37 @@ class Usuario(UserMixin, db.Model):
     rol = db.Column(db.Text, default='admin')
     activo = db.Column(db.Integer, default=1)
     
+    # Roles válidos en el sistema
+    ROLES_VALIDOS = ['administrador', 'tecnico', 'proveedor', 'cliente']
+    
+    # Mapeo de roles a permisos
+    PERMISOS_POR_ROL = {
+        'administrador': ['ver_dashboard', 'gestionar_ordenes', 'gestionar_clientes', 
+                          'gestionar_inventario', 'gestionar_tecnicos', 'gestionar_proveedores',
+                          'gestionar_contratos', 'ver_reportes', 'gestionar_usuarios',
+                          'gestionar_configuracion', 'gestionar_backup'],
+        'tecnico': ['ver_dashboard', 'gestionar_ordenes', 'ver_clientes', 
+                    'ver_inventario', 'ver_reportes'],
+        'proveedor': ['ver_dashboard', 'ver_ordenes', 'gestionar_productos'],
+        'cliente': ['ver_dashboard', 'ver_ordenes_propias', 'ver_dispositivos_propios']
+    }
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def tiene_permiso(self, permiso):
+        """Verifica si el usuario tiene un permiso específico según su rol"""
+        if not self.rol or self.rol not in self.PERMISOS_POR_ROL:
+            return False
+        permisos_usuario = self.PERMISOS_POR_ROL.get(self.rol, [])
+        return permiso in permisos_usuario
+    
+    def es_administrador(self):
+        """Verifica si el usuario tiene rol de administrador"""
+        return self.rol == 'administrador'
 
 
 class Cliente(db.Model):
