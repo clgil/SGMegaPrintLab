@@ -22,6 +22,9 @@ def login():
         
         if user and user.activo == 1 and user.check_password(password):
             login_user(user)
+            # Guardar el rol del usuario en la sesión para usarlo en las plantillas
+            from flask import session
+            session['user_rol'] = user.rol
             next_page = request.args.get('next')
             flash('¡Bienvenido!', 'success')
             return redirect(next_page if next_page else url_for('dashboard'))

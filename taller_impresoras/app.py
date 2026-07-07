@@ -5,6 +5,7 @@ Adaptado a la realidad cubana - Junio 2026
 Punto de entrada de la aplicación Flask
 """
 import os
+import click
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -376,7 +377,7 @@ def crear_datos_iniciales():
             nombre='Administrador',
             usuario='admin',
             password_hash=generate_password_hash('Taller2026'),
-            rol='admin',
+            rol='administrador',
             activo=1
         )
         db.session.add(admin)
@@ -429,3 +430,72 @@ if __name__ == '__main__':
         crear_datos_iniciales()
     # Ejecutar en localhost:5000
     app.run(host='127.0.0.1', port=5000, debug=False)
+
+
+# Comando CLI para crear usuarios desde consola
+@app.cli.command('crear-usuario')
+@click.option('--nombre', prompt='Nombre del usuario', help='Nombre completo del usuario')
+@click.option('--usuario', prompt='Nombre de usuario (login)', help='Nombre de usuario para iniciar sesión')
+@click.option('--password', prompt='Contraseña', hide_input=True, confirmation_prompt=True, help='Contraseña del usuario')
+@click.option('--rol', default='tecnico', type=click.Choice(['administrador', 'tecnico', 'proveedor', 'cliente']), help='Rol del usuario')
+@click.option('--activo', default=True, type=bool, help='Estado activo del usuario')
+def crear_usuario(nombre, usuario, password, rol, activo):
+    """Crea un nuevo usuario desde la línea de comandos."""
+    from models import Usuario
+    
+    # Verificar si el usuario ya existe
+    if Usuario.query.filter_by(usuario=usuario).first():
+        click.echo(click.style(f'Error: El usuario "{usuario}" ya existe.', fg='red'))
+        return
+    
+    # Crear el nuevo usuario
+    nuevo_usuario = Usuario(
+        nombre=nombre,
+        usuario=usuario,
+        rol=rol,
+        activo=1 if activo else 0
+    )
+    nuevo_usuario.set_password(password)
+    
+    db.session.add(nuevo_usuario)
+    db.session.commit()
+    
+    click.echo(click.style(f'Usuario "{usuario}" creado exitosamente con rol "{rol}".', fg='green'))
+
+
+# Función auxiliar para crear usuarios programáticamente (para usar con python -c)
+def crear_usuario_console(nombre, usuario, password, rol='tecnico', activo=True):
+    """
+    Crea un usuario desde la consola de Python.
+    
+    Uso: python -c "from app import app, crear_usuario_console; app.app_context().push(); crear_usuario_console('Juan Perez', 'juan', 'password123', 'tecnico')"
+    
+    Args:
+        nombre: Nombre completo del usuario
+        usuario: Nombre de usuario para login
+        password: Contraseña del usuario
+        rol: Rol del usuario ('administrador', 'tecnico', 'proveedor', 'cliente')
+        activo: Estado activo del usuario (True/False)
+    """
+    from models import Usuario
+    
+    with app.app_context():
+        # Verificar si el usuario ya existe
+        if Usuario.query.filter_by(usuario=usuario).first():
+            print(f'Error: El usuario "{usuario}" ya existe.')
+            return None
+        
+        # Crear el nuevo usuario
+        nuevo_usuario = Usuario(
+            nombre=nombre,
+            usuario=usuario,
+            rol=rol,
+            activo=1 if activo else 0
+        )
+        nuevo_usuario.set_password(password)
+        
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+        
+        print(f'Usuario "{usuario}" creado exitosamente con rol "{rol}".')
+        return nuevo_usuario
