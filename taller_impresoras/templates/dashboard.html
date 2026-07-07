@@ -6,7 +6,8 @@
 <div class="container-fluid">
     <h1 class="mb-4">📊 Panel de Control</h1>
     
-    <!-- Filtro de período -->
+    <!-- Filtro de período - SOLO para administrador -->
+    {% if current_user.rol == 'administrador' %}
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-dark text-white">
             <h5 class="mb-0">📅 Filtro de Período Financiero</h5>
@@ -36,8 +37,177 @@
             </form>
         </div>
     </div>
+    {% endif %}
     
-    <!-- Tarjetas resumen operativas -->
+    <!-- ========================================== -->
+    <!-- VISTA PARA CLIENTE -->
+    <!-- ========================================== -->
+    {% if current_user.rol == 'cliente' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Aquí puedes ver el estado de tus órdenes y dispositivos registrados.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para cliente -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Mis Órdenes Totales</h5>
+                    <h2 class="display-4">{{ total_ordenes_cliente }}</h2>
+                    <p class="card-text">Órdenes registradas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes Pendientes</h5>
+                    <h2 class="display-4">{{ ordenes_pendientes_cliente }}</h2>
+                    <p class="card-text">En espera</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">En Reparación</h5>
+                    <h2 class="display-4">{{ ordenes_reparacion_cliente }}</h2>
+                    <p class="card-text">En proceso</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Completadas</h5>
+                    <h2 class="display-4">{{ ordenes_completadas_cliente }}</h2>
+                    <p class="card-text">Entregadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mis Dispositivos -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">🖨️ Mis Dispositivos</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-secondary">{{ total_dispositivos_cliente }}</h3>
+                    <small class="text-muted">Dispositivos registrados</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas órdenes del cliente -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5>📋 Mis Últimas Órdenes</h5>
+                </div>
+                <div class="card-body">
+                    {% if mis_ordenes %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Dispositivo</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in mis_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.dispositivo.marca }} {{ orden.dispositivo.modelo if orden.dispositivo else 'N/A' }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center">No tienes órdenes registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA PROVEEDOR -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'proveedor' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control de inventario.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para proveedor -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Piezas</h5>
+                    <h2 class="display-4">{{ total_piezas }}</h2>
+                    <p class="card-text">En inventario</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
+                    <p class="card-text">Piezas por reponer</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Valor Inventario</h5>
+                    <h2 class="display-4">${{ "%.2f"|format(valor_inventario) }} CUP</h2>
+                    <p class="card-text">Valor total a costo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA TÉCNICO -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'tecnico' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control de reparaciones.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para técnico -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card bg-primary text-white shadow-sm">
@@ -77,27 +247,89 @@
         </div>
     </div>
     
-    <!-- Estadísticas de Usuarios -->
-    <h4 class="mb-3">👥 Usuarios del Sistema</h4>
+    <!-- Resumen de dispositivos y piezas -->
     <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="card shadow-sm border-secondary">
-                <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0">Total Usuarios</h6>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">🖨️ Dispositivos</h6>
                 </div>
                 <div class="card-body">
-                    <h3 class="text-secondary">{{ total_usuarios }}</h3>
-                    <small class="text-muted">Registrados</small>
+                    <h3 class="text-info">{{ total_dispositivos }}</h3>
+                    <small class="text-muted">Registrados en el sistema</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card shadow-sm border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h6 class="mb-0">Administradores</h6>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">📦 Piezas en Inventario</h6>
                 </div>
                 <div class="card-body">
-                    <h3 class="text-danger">{{ usuarios_por_rol.administrador }}</h3>
+                    <h3 class="text-success">{{ total_piezas }}</h3>
+                    <small class="text-muted">Disponibles</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas órdenes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5>📋 Últimas Órdenes</h5>
+                </div>
+                <div class="card-body">
+                    {% if ultimas_ordenes %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in ultimas_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.cliente.nombre }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center">No hay órdenes registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA ADMINISTRADOR (completa) -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'administrador' %}
                     <small class="text-muted">Activos</small>
                 </div>
             </div>
@@ -334,6 +566,8 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    <!-- Fin vista administrador -->
 </div>
 
 <script>
