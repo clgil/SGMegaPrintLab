@@ -4,7 +4,7 @@ Adaptado a la realidad cubana - Junio 2026
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from models import db, Usuario
+from models import db, Usuario, Cliente
 from werkzeug.security import generate_password_hash
 from routes.decorators import rol_requerido
 
@@ -32,6 +32,74 @@ def login():
             flash('Usuario o contraseña incorrectos', 'danger')
     
     return render_template('login.html')
+
+
+@auth_bp.route('/registro', methods=['GET', 'POST'])
+def registro():
+    """Formulario de registro de nuevos clientes"""
+    if request.method == 'POST':
+        usuario_nombre = request.form.get('usuario')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+        nombre_completo = request.form.get('nombre_completo')
+        telefono = request.form.get('telefono')
+        direccion = request.form.get('direccion')
+        tipo_cliente = request.form.get('tipo_cliente')
+        
+        # Validaciones
+        if not usuario_nombre:
+            flash('El nombre de usuario es obligatorio', 'warning')
+            return redirect(url_for('auth.registro'))
+        
+        if not password:
+            flash('La contraseña es obligatoria', 'warning')
+            return redirect(url_for('auth.registro'))
+        
+        if password != password_confirm:
+            flash('Las contraseñas no coinciden', 'danger')
+            return redirect(url_for('auth.registro'))
+        
+        if len(password) < 4:
+            flash('La contraseña debe tener al menos 4 caracteres', 'warning')
+            return redirect(url_for('auth.registro'))
+        
+        if not nombre_completo:
+            flash('El nombre completo es obligatorio', 'warning')
+            return redirect(url_for('auth.registro'))
+        
+        # Verificar que el usuario no exista
+        usuario_existente = Usuario.query.filter_by(usuario=usuario_nombre).first()
+        if usuario_existente:
+            flash('El nombre de usuario ya está en uso. Por favor, elija otro.', 'danger')
+            return redirect(url_for('auth.registro'))
+        
+        # Crear el cliente primero
+        cliente = Cliente(
+            nombre=nombre_completo,
+            telefono=telefono or '',
+            direccion=direccion or '',
+            tipo_cliente=tipo_cliente or 'Particular',
+            activo=1
+        )
+        db.session.add(cliente)
+        db.session.flush()  # Para obtener el ID del cliente
+        
+        # Crear el usuario vinculado al cliente
+        nuevo_usuario = Usuario(
+            nombre=nombre_completo,
+            usuario=usuario_nombre,
+            rol='cliente',
+            activo=1,
+            cliente_id=cliente.id
+        )
+        nuevo_usuario.set_password(password)
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+        
+        flash('Registro completado exitosamente. Ahora puede iniciar sesión.', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/registro.html')
 
 
 @auth_bp.route('/logout')

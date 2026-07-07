@@ -5,14 +5,21 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Logs and temp files
+# Database
+taller_impresoras/instance/*.db
+
+# Logs
 *.log
-*.tmp
 
 # Environment
 .env
 .env.local
 *.env.*
+
+# Dependencies
+.venv/
+venv/
+node_modules/
 
 # Editors
 .vscode/
@@ -20,10 +27,10 @@ __pycache__/
 *.swp
 *.swo
 
-# Dependencies
-.venv/
-venv/
-node_modules/
+# Coverage
+.coverage
+coverage/
+htmlcov/
 
 # Build artifacts
 dist/
