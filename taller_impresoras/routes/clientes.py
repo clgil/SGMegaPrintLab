@@ -11,20 +11,29 @@ clientes_bp = Blueprint('clientes', __name__, template_folder='../templates')
 
 
 @clientes_bp.route('/')
-@rol_requerido(['administrador', 'tecnico'])
+@rol_requerido(['administrador', 'tecnico', 'cliente'])
 def index():
     """Listado de clientes con paginación y búsqueda"""
     pagina = request.args.get('pagina', 1, type=int)
     busqueda = request.args.get('busqueda', '')
     
-    query = Cliente.query.filter_by(activo=1)
-    
-    if busqueda:
-        # Búsqueda por nombre o teléfono
-        query = query.filter(
-            (Cliente.nombre.ilike(f'%{busqueda}%')) | 
-            (Cliente.telefono.ilike(f'%{busqueda}%'))
-        )
+    # Si el usuario es cliente, solo puede ver su propio registro de cliente
+    if current_user.rol == 'cliente':
+        if current_user.cliente_id:
+            query = Cliente.query.filter_by(id=current_user.cliente_id, activo=1)
+        else:
+            # Cliente sin cliente_id asociado, no debería ver ningún cliente
+            query = Cliente.query.filter(Cliente.id == -1)  # Query vacía
+    else:
+        # Para administradores y técnicos, aplicar filtros normales
+        query = Cliente.query.filter_by(activo=1)
+        
+        if busqueda:
+            # Búsqueda por nombre o teléfono
+            query = query.filter(
+                (Cliente.nombre.ilike(f'%{busqueda}%')) | 
+                (Cliente.telefono.ilike(f'%{busqueda}%'))
+            )
     
     # Paginación de 20 registros
     clientes_pagina = query.order_by(Cliente.nombre).paginate(page=pagina, per_page=20, error_out=False)
@@ -36,9 +45,17 @@ def index():
 
 
 @clientes_bp.route('/nuevo', methods=['GET', 'POST'])
-@rol_requerido(['administrador'])
 def nuevo():
-    """Crear nuevo cliente"""
+    """Crear nuevo cliente - solo administradores pueden crear clientes"""
+    # Los clientes no pueden crear nuevos clientes
+    if current_user.rol == 'cliente':
+        flash('Los clientes no pueden crear nuevos clientes', 'error')
+        return redirect(url_for('clientes.index'))
+    
+    if current_user.rol != 'administrador':
+        flash('No tiene permisos suficientes para crear clientes', 'error')
+        return redirect(url_for('clientes.index'))
+    
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         telefono = request.form.get('telefono')
@@ -67,9 +84,17 @@ def nuevo():
 
 
 @clientes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@rol_requerido(['administrador'])
 def editar(id):
-    """Editar cliente existente"""
+    """Editar cliente existente - solo administradores pueden editar clientes"""
+    # Los clientes no pueden editar clientes
+    if current_user.rol == 'cliente':
+        flash('Los clientes no pueden editar clientes', 'error')
+        return redirect(url_for('clientes.index'))
+    
+    if current_user.rol != 'administrador':
+        flash('No tiene permisos suficientes para editar clientes', 'error')
+        return redirect(url_for('clientes.index'))
+    
     cliente = Cliente.query.get_or_404(id)
     
     if request.method == 'POST':

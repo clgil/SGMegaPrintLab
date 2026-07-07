@@ -3,7 +3,7 @@ Rutas de gestión de dispositivos (impresoras) para el Sistema de Gestión de Ta
 Adaptado a la realidad cubana - Junio 2026
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from models import db, Dispositivo, Cliente
 from routes.decorators import rol_requerido
 
@@ -11,7 +11,7 @@ dispositivos_bp = Blueprint('dispositivos', __name__, template_folder='../templa
 
 
 @dispositivos_bp.route('/')
-@rol_requerido(['administrador', 'tecnico'])
+@rol_requerido(['administrador', 'tecnico', 'cliente'])
 def index():
     """Listado de dispositivos con filtro por cliente"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -19,8 +19,17 @@ def index():
     
     query = Dispositivo.query
     
-    if cliente_id:
-        query = query.filter_by(cliente_id=cliente_id)
+    # Si el usuario es cliente, solo puede ver los dispositivos de su propio cliente
+    if current_user.rol == 'cliente':
+        if current_user.cliente_id:
+            query = query.filter_by(cliente_id=current_user.cliente_id)
+        else:
+            # Cliente sin cliente_id asociado, no debería tener dispositivos
+            query = query.filter(Dispositivo.id == -1)  # Query vacía
+    else:
+        # Para administradores y técnicos, aplicar filtros normales
+        if cliente_id:
+            query = query.filter_by(cliente_id=cliente_id)
     
     # Paginación de 20 registros
     dispositivos_pagina = query.order_by(Dispositivo.marca).paginate(page=pagina, per_page=20, error_out=False)

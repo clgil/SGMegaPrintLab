@@ -31,7 +31,7 @@ def generar_numero_orden():
 
 
 @ordenes_bp.route('/')
-@rol_requerido(['administrador', 'tecnico'])
+@rol_requerido(['administrador', 'tecnico', 'cliente'])
 def index():
     """Listado de órdenes con filtros por estado"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -41,11 +41,20 @@ def index():
     
     query = Orden.query
     
-    if estado:
-        query = query.filter_by(estado=estado)
-    
-    if cliente_id:
-        query = query.filter_by(cliente_id=cliente_id)
+    # Si el usuario es cliente, solo puede ver sus propias órdenes
+    if current_user.rol == 'cliente':
+        if current_user.cliente_id:
+            query = query.filter_by(cliente_id=current_user.cliente_id)
+        else:
+            # Cliente sin cliente_id asociado, no debería tener órdenes
+            query = query.filter(Orden.id == -1)  # Query vacía
+    else:
+        # Para administradores y técnicos, aplicar filtros normales
+        if estado:
+            query = query.filter_by(estado=estado)
+        
+        if cliente_id:
+            query = query.filter_by(cliente_id=cliente_id)
     
     if busqueda:
         # Búsqueda por número de orden o nombre de cliente
@@ -71,11 +80,16 @@ def index():
 
 
 @ordenes_bp.route('/nuevo', methods=['GET', 'POST'])
-@rol_requerido(['administrador', 'tecnico'])
+@rol_requerido(['administrador', 'tecnico', 'cliente'])
 def nuevo():
     """Crear nueva orden de reparación"""
     if request.method == 'POST':
-        cliente_id = request.form.get('cliente_id')
+        # Si el usuario es cliente, forzar que el cliente_id sea el suyo propio
+        if current_user.rol == 'cliente':
+            cliente_id = current_user.cliente_id if current_user.cliente_id else None
+        else:
+            cliente_id = request.form.get('cliente_id')
+        
         dispositivo_id = request.form.get('dispositivo_id') if request.form.get('dispositivo_id') else None
         problema_reportado = request.form.get('problema_reportado')
         tecnico_id = request.form.get('tecnico_id') if request.form.get('tecnico_id') else None
@@ -106,7 +120,15 @@ def nuevo():
         flash(f'Orden {numero_orden} creada correctamente', 'success')
         return redirect(url_for('ordenes.editar', id=orden.id))
     
-    clientes = Cliente.query.filter_by(activo=1).order_by(Cliente.nombre).all()
+    # Si el usuario es cliente, solo mostrar su propio cliente
+    if current_user.rol == 'cliente':
+        if current_user.cliente_id:
+            clientes = Cliente.query.filter_by(id=current_user.cliente_id, activo=1).all()
+        else:
+            clientes = []
+    else:
+        clientes = Cliente.query.filter_by(activo=1).order_by(Cliente.nombre).all()
+    
     tecnicos = Tecnico.query.filter_by(activo=1).order_by(Tecnico.nombre).all()
     
     return render_template('ordenes/formulario.html', 

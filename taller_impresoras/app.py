@@ -76,10 +76,26 @@ def dashboard():
         fecha_inicio = fecha_inicio_dt.strftime('%Y-%m-%d')
         fecha_fin = ahora.strftime('%Y-%m-%d')
     
-    # Contadores generales
-    total_ordenes_activas = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
-    ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
-    ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
+    # ===== FILTROS SEGÚN ROL DEL USUARIO =====
+    # Si el usuario es cliente, filtrar datos por su cliente_id
+    if current_user.rol == 'cliente':
+        cliente_id_filtro = current_user.cliente_id if current_user.cliente_id else -1
+    else:
+        cliente_id_filtro = None  # Sin filtro para otros roles
+    
+    # Contadores generales (filtrados si el usuario es cliente)
+    if cliente_id_filtro:
+        total_ordenes_activas = Orden.query.filter(
+            Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar']),
+            Orden.cliente_id == cliente_id_filtro
+        ).count()
+        ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico', cliente_id=cliente_id_filtro).count()
+        ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar', cliente_id=cliente_id_filtro).count()
+    else:
+        total_ordenes_activas = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
+        ordenes_pendientes_diagnostico = Orden.query.filter_by(estado='En diagnostico').count()
+        ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
+    
     piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
     
     # ===== ESTADÍSTICAS DE USUARIOS =====
@@ -92,34 +108,46 @@ def dashboard():
     }
     
     # ===== NUEVOS INDICADORES =====
-    # Reingresos en garantía este mes
-    reingresos_garantia_mes = Orden.query.filter(
+    # Reingresos en garantía este mes (filtrados si es cliente)
+    reingresos_garantia_mes_query = Orden.query.filter(
         Orden.es_reingreso == 1,
         Orden.tipo_orden == 'garantia',
         Orden.fecha_entrada >= fecha_inicio,
         Orden.fecha_entrada <= fecha_fin
-    ).count()
+    )
+    if cliente_id_filtro:
+        reingresos_garantia_mes_query = reingresos_garantia_mes_query.filter(Orden.cliente_id == cliente_id_filtro)
+    reingresos_garantia_mes = reingresos_garantia_mes_query.count()
     
     # Órdenes estancadas (más de 3 días en mismo estado)
     dias_estancia = 3
     fecha_limite = (ahora - timedelta(days=dias_estancia)).strftime('%Y-%m-%d')
-    ordenes_estancadas = Orden.query.filter(
+    ordenes_estancadas_query = Orden.query.filter(
         Orden.estado.in_(['Recibido', 'En diagnostico']),
         Orden.fecha_entrada < fecha_limite
-    ).all()
+    )
+    if cliente_id_filtro:
+        ordenes_estancadas_query = ordenes_estancadas_query.filter(Orden.cliente_id == cliente_id_filtro)
+    ordenes_estancadas = ordenes_estancadas_query.all()
     
     # Garantías próximas a vencer (próximos 7 días)
     fecha_proxima_vencimiento = (ahora + timedelta(days=7)).strftime('%Y-%m-%d')
-    garantias_por_vencer = Orden.query.filter(
+    garantias_por_vencer_query = Orden.query.filter(
         Orden.fecha_fin_garantia != None,
         Orden.fecha_fin_garantia <= fecha_proxima_vencimiento,
         Orden.fecha_fin_garantia >= ahora.strftime('%Y-%m-%d'),
         Orden.es_reingreso == 0
-    ).all()
+    )
+    if cliente_id_filtro:
+        garantias_por_vencer_query = garantias_por_vencer_query.filter(Orden.cliente_id == cliente_id_filtro)
+    garantias_por_vencer = garantias_por_vencer_query.all()
     
-    # Mantenimientos por vencer esta semana
+    # Mantenimientos por vencer esta semana (filtrados si es cliente)
     from models import Contrato
-    contratos_activos = Contrato.query.filter_by(activo=1).all()
+    contratos_activos_query = Contrato.query.filter_by(activo=1)
+    if cliente_id_filtro:
+        contratos_activos_query = contratos_activos_query.filter_by(cliente_id=cliente_id_filtro)
+    contratos_activos = contratos_activos_query.all()
     mantenimientos_por_vencer = []
     for contrato in contratos_activos:
         proxima = contrato.calcular_proxima_visita()
@@ -135,16 +163,22 @@ def dashboard():
             except:
                 pass
     
-    # Últimas 5 órdenes actualizadas
-    ultimas_ordenes = Orden.query.order_by(Orden.fecha_entrada.desc()).limit(5).all()
+    # Últimas 5 órdenes actualizadas (filtradas si es cliente)
+    ultimas_ordenes_query = Orden.query.order_by(Orden.fecha_entrada.desc())
+    if cliente_id_filtro:
+        ultimas_ordenes_query = ultimas_ordenes_query.filter(Orden.cliente_id == cliente_id_filtro)
+    ultimas_ordenes = ultimas_ordenes_query.limit(5).all()
     
     # ========== MÉTRICAS FINANCIERAS ==========
-    # Órdenes entregadas en el período
-    ordenes_entregadas = Orden.query.filter(
+    # Órdenes entregadas en el período (filtradas si es cliente)
+    ordenes_entregadas_query = Orden.query.filter(
         Orden.estado == 'Entregado',
         Orden.fecha_entrega >= fecha_inicio,
         Orden.fecha_entrega <= fecha_fin
-    ).all()
+    )
+    if cliente_id_filtro:
+        ordenes_entregadas_query = ordenes_entregadas_query.filter(Orden.cliente_id == cliente_id_filtro)
+    ordenes_entregadas = ordenes_entregadas_query.all()
     
     # Ingresos brutos del período (suma de costo_total de órdenes entregadas)
     ingresos_brutos = sum(o.costo_total for o in ordenes_entregadas) or 0
