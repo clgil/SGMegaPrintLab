@@ -7,19 +7,20 @@ from flask_login import login_required, current_user
 from models import db, Orden, Pieza, MovimientoInventario, Cliente, Gasto, Configuracion
 from datetime import datetime
 import io
+from routes.decorators import rol_requerido
 
 reportes_bp = Blueprint('reportes', __name__, template_folder='../templates')
 
 
 @reportes_bp.route('/')
-@login_required
+@rol_requerido(['administrador'])
 def index():
     """Página principal de reportes"""
     return render_template('reportes/index.html')
 
 
 @reportes_bp.route('/gastos', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def gastos():
     """Gestión de gastos operativos"""
     if request.method == 'POST':
@@ -48,7 +49,7 @@ def gastos():
 
 
 @reportes_bp.route('/gastos/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar_gasto(id):
     """Eliminar un gasto"""
     gasto = Gasto.query.get_or_404(id)
@@ -59,7 +60,7 @@ def eliminar_gasto(id):
 
 
 @reportes_bp.route('/finanzas/configuracion', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def configuracion_financiera():
     """Configuración de parámetros tributarios"""
     if request.method == 'POST':
@@ -94,7 +95,7 @@ def configuracion_financiera():
 
 
 @reportes_bp.route('/ingresos', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def ingresos():
     """Reporte de ingresos por rango de fechas"""
     if request.method == 'POST':
@@ -124,7 +125,7 @@ def ingresos():
 
 
 @reportes_bp.route('/ordenes_estado')
-@login_required
+@rol_requerido(['administrador'])
 def ordenes_estado():
     """Reporte de órdenes agrupadas por estado"""
     from sqlalchemy import func
@@ -141,7 +142,7 @@ def ordenes_estado():
 
 
 @reportes_bp.route('/piezas_utilizadas', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def piezas_utilizadas():
     """Reporte de piezas más utilizadas en un período"""
     if request.method == 'POST':
@@ -174,7 +175,7 @@ def piezas_utilizadas():
 
 
 @reportes_bp.route('/clientes_activos')
-@login_required
+@rol_requerido(['administrador'])
 def clientes_activos():
     """Reporte de clientes con más órdenes"""
     from sqlalchemy import func
@@ -189,7 +190,7 @@ def clientes_activos():
 
 
 @reportes_bp.route('/exportar_csv/<tipo>')
-@login_required
+@rol_requerido(['administrador'])
 def exportar_csv(tipo):
     """Exportar reporte a CSV"""
     from sqlalchemy import func

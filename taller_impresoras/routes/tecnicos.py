@@ -2,15 +2,16 @@
 Rutas de gestión de técnicos para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required
 from models import db, Tecnico
+from routes.decorators import rol_requerido
 
 tecnicos_bp = Blueprint('tecnicos', __name__, template_folder='../templates')
 
 
 @tecnicos_bp.route('/')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def index():
     """Listado de técnicos"""
     tecnicos = Tecnico.query.order_by(Tecnico.nombre).all()
@@ -18,7 +19,7 @@ def index():
 
 
 @tecnicos_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def nuevo():
     """Crear nuevo técnico"""
     if request.method == 'POST':
@@ -45,7 +46,7 @@ def nuevo():
 
 
 @tecnicos_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def editar(id):
     """Editar técnico existente"""
     tecnico = Tecnico.query.get_or_404(id)
@@ -64,7 +65,7 @@ def editar(id):
 
 
 @tecnicos_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(id):
     """Eliminar técnico (solo si no tiene órdenes asociadas)"""
     tecnico = Tecnico.query.get_or_404(id)
@@ -82,10 +83,9 @@ def eliminar(id):
 
 
 @tecnicos_bp.route('/api/lista')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_lista():
     """API para obtener lista de técnicos activos (usada en selects dinámicos)"""
     tecnicos = Tecnico.query.filter_by(activo=1).order_by(Tecnico.nombre).all()
-    from flask import jsonify
     resultado = [{'id': t.id, 'nombre': t.nombre} for t in tecnicos]
     return jsonify(resultado)

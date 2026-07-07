@@ -2,15 +2,16 @@
 Rutas de gestión de dispositivos (impresoras) para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required
 from models import db, Dispositivo, Cliente
+from routes.decorators import rol_requerido
 
 dispositivos_bp = Blueprint('dispositivos', __name__, template_folder='../templates')
 
 
 @dispositivos_bp.route('/')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def index():
     """Listado de dispositivos con filtro por cliente"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -34,7 +35,7 @@ def index():
 
 
 @dispositivos_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def nuevo():
     """Crear nuevo dispositivo"""
     if request.method == 'POST':
@@ -77,7 +78,7 @@ def nuevo():
 
 
 @dispositivos_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def editar(id):
     """Editar dispositivo existente"""
     dispositivo = Dispositivo.query.get_or_404(id)
@@ -107,7 +108,7 @@ def editar(id):
 
 
 @dispositivos_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def eliminar(id):
     """Eliminar dispositivo"""
     dispositivo = Dispositivo.query.get_or_404(id)
@@ -120,17 +121,16 @@ def eliminar(id):
 
 
 @dispositivos_bp.route('/por_cliente/<int:cliente_id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def por_cliente(cliente_id):
     """Obtener dispositivos de un cliente específico (para AJAX)"""
     dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id).all()
     resultado = [{'id': d.id, 'descripcion': f'{d.marca} {d.modelo} ({d.tipo})'} for d in dispositivos]
-    from flask import jsonify
     return jsonify(resultado)
 
 
 @dispositivos_bp.route('/api/dispositivos/<int:cliente_id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_dispositivos(cliente_id):
     """API para obtener dispositivos de un cliente (usada en formulario de órdenes)"""
     dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id, activo=1).all()

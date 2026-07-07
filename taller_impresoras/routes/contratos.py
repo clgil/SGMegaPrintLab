@@ -6,12 +6,13 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required
 from models import db, Contrato, Cliente
 from datetime import datetime
+from routes.decorators import rol_requerido
 
 contratos_bp = Blueprint('contratos', __name__, template_folder='../templates')
 
 
 @contratos_bp.route('/')
-@login_required
+@rol_requerido(['administrador'])
 def index():
     """Listado de contratos activos"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -32,7 +33,7 @@ def index():
 
 
 @contratos_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def nuevo():
     """Crear nuevo contrato de mantenimiento"""
     if request.method == 'POST':
@@ -76,7 +77,7 @@ def nuevo():
 
 
 @contratos_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador'])
 def editar(id):
     """Editar contrato existente"""
     contrato = Contrato.query.get_or_404(id)
@@ -106,7 +107,7 @@ def editar(id):
 
 
 @contratos_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def eliminar(id):
     """Eliminar contrato (baja lógica)"""
     contrato = Contrato.query.get_or_404(id)
@@ -120,7 +121,7 @@ def eliminar(id):
 
 
 @contratos_bp.route('/ver/<int:id>')
-@login_required
+@rol_requerido(['administrador'])
 def ver(id):
     """Ver detalle de contrato"""
     contrato = Contrato.query.get_or_404(id)
@@ -132,7 +133,7 @@ def ver(id):
 
 
 @contratos_bp.route('/registrar_visita/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador'])
 def registrar_visita(id):
     """Registrar visita de mantenimiento realizada"""
     contrato = Contrato.query.get_or_404(id)
@@ -146,7 +147,7 @@ def registrar_visita(id):
 
 
 @contratos_bp.route('/api/cliente/<int:cliente_id>')
-@login_required
+@rol_requerido(['administrador'])
 def api_cliente(cliente_id):
     """API para obtener contratos activos de un cliente"""
     contratos = Contrato.query.filter_by(cliente_id=cliente_id, activo=1).all()

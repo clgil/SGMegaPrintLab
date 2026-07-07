@@ -8,6 +8,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from models import db, Orden, Cliente, Dispositivo, Tecnico, Pieza, OrdenPieza, MovimientoInventario
 from datetime import datetime
+from routes.decorators import rol_requerido
 
 ordenes_bp = Blueprint('ordenes', __name__, template_folder='../templates')
 
@@ -30,7 +31,7 @@ def generar_numero_orden():
 
 
 @ordenes_bp.route('/')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def index():
     """Listado de órdenes con filtros por estado"""
     pagina = request.args.get('pagina', 1, type=int)
@@ -70,7 +71,7 @@ def index():
 
 
 @ordenes_bp.route('/nuevo', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def nuevo():
     """Crear nueva orden de reparación"""
     if request.method == 'POST':
@@ -116,7 +117,7 @@ def nuevo():
 
 
 @ordenes_bp.route('/ver/<int:id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def ver(id):
     """Ver detalle completo de una orden"""
     orden = Orden.query.get_or_404(id)
@@ -124,7 +125,7 @@ def ver(id):
 
 
 @ordenes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def editar(id):
     """Editar orden de reparación - formulario completo con piezas y mano de obra"""
     orden = Orden.query.get_or_404(id)
@@ -252,7 +253,7 @@ def editar(id):
 
 
 @ordenes_bp.route('/eliminar/<int:id>', methods=['POST'])
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def eliminar(id):
     """Eliminar orden (solo si está en estado inicial)"""
     orden = Orden.query.get_or_404(id)
@@ -275,7 +276,7 @@ def eliminar(id):
 
 
 @ordenes_bp.route('/imprimir/<int:id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def imprimir(id):
     """Vista para impresión de recibo/comprobante"""
     orden = Orden.query.get_or_404(id)
@@ -290,7 +291,7 @@ def imprimir(id):
 
 
 @ordenes_bp.route('/api/dispositivos/<int:cliente_id>')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_dispositivos(cliente_id):
     """API para obtener dispositivos de un cliente"""
     dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id).all()
@@ -299,7 +300,7 @@ def api_dispositivos(cliente_id):
 
 
 @ordenes_bp.route('/api/piezas')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_piezas():
     """API para buscar piezas disponibles"""
     busqueda = request.args.get('q', '')
@@ -320,7 +321,7 @@ def api_piezas():
 
 
 @ordenes_bp.route('/api/ordenes/<int:orden_id>/piezas')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_orden_piezas(orden_id):
     # API para obtener las piezas de una orden
     orden = Orden.query.get_or_404(orden_id)
@@ -335,7 +336,7 @@ def api_orden_piezas(orden_id):
 
 
 @ordenes_bp.route('/api/ordenes/<int:orden_id>/historial')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_orden_historial(orden_id):
     """API para obtener el historial de estados de una orden"""
     # Nota: El modelo HistorialOrden no existe en models.py
@@ -344,7 +345,7 @@ def api_orden_historial(orden_id):
 
 
 @ordenes_bp.route('/estadisticas')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def estadisticas():
     """Reporte de estadísticas de órdenes"""
     from sqlalchemy import func
