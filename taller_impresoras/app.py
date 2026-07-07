@@ -293,6 +293,9 @@ from routes.ayuda.ayuda import ayuda_bp
 from routes.proveedores import proveedores_bp
 from routes.contratos import contratos_bp
 
+# Importar decorador de roles
+from routes.decorators import rol_requerido
+
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(clientes_bp, url_prefix='/clientes')
 app.register_blueprint(dispositivos_bp, url_prefix='/dispositivos')
