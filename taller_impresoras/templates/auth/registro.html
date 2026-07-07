@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Cliente - Taller de Impresoras{% endblock %}
+
+{% block content_no_auth %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white text-center">
+                <h3>🖨️ Registro de Cliente</h3>
+                <small>Complete el formulario para crear su cuenta</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.registro') }}">
+                    <!-- Datos de acceso -->
+                    <h5 class="text-primary mb-3">📋 Datos de Acceso</h5>
+                    
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Nombre de Usuario *</label>
+                        <input type="text" class="form-control form-control-lg" id="usuario" name="usuario" required autofocus placeholder="Ej: juanperez">
+                        <div class="form-text">Este será su nombre de usuario para iniciar sesión.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña *</label>
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required minlength="4" placeholder="Mínimo 4 caracteres">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">Confirmar Contraseña *</label>
+                        <input type="password" class="form-control form-control-lg" id="password_confirm" name="password_confirm" required minlength="4" placeholder="Repita la contraseña">
+                    </div>
+                    
+                    <!-- Datos personales -->
+                    <h5 class="text-primary mb-3 mt-4">👤 Datos Personales</h5>
+                    
+                    <div class="mb-3">
+                        <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+                        <input type="text" class="form-control form-control-lg" id="nombre_completo" name="nombre_completo" required placeholder="Su nombre completo o razón social">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Ej: 51234567">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <textarea class="form-control" id="direccion" name="direccion" rows="2" placeholder="Su dirección completa"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo_cliente" class="form-label">Tipo de Cliente</label>
+                        <select class="form-select" id="tipo_cliente" name="tipo_cliente">
+                            <option value="Particular">Particular</option>
+                            <option value="Empresa estatal">Empresa estatal</option>
+                            <option value="Cuentapropista">Cuentapropista</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-4">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">← Volver al Login</a>
+                        <button type="submit" class="btn btn-success btn-lg">✅ Registrarse</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted text-center">
+                <small>¿Ya tiene cuenta? <a href="{{ url_for('auth.login') }}">Inicie sesión aquí</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
