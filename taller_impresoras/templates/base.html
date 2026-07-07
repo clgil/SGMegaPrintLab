@@ -76,6 +76,13 @@
                     📚 Ayuda
                 </a>
             </li>
+            {% if current_user.es_administrador() %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('usuarios.index') }}">
+                    👤 Usuarios
+                </a>
+            </li>
+            {% endif %}
             <li class="nav-item mt-3">
                 <a class="nav-link" href="{{ url_for('auth.logout') }}">
                     🚪 Cerrar Sesión

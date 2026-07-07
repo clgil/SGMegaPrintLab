@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👤 Usuarios del Sistema</h1>
+        <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-primary btn-lg">➕ Nuevo Usuario</a>
+    </div>
+    
+    <!-- Formulario de búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('usuarios.index') }}" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" class="form-control form-control-lg" name="busqueda" placeholder="Buscar por nombre o usuario..." value="{{ busqueda }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">🔍 Buscar</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('usuarios.index') }}" class="btn btn-secondary w-100">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listado de usuarios -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Cliente Asociado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios.items %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td><strong>{{ usuario.nombre }}</strong></td>
+                        <td>{{ usuario.usuario }}</td>
+                        <td>
+                            {% if usuario.rol == 'administrador' %}
+                                <span class="badge bg-danger">{{ usuario.rol | capitalize }}</span>
+                            {% elif usuario.rol == 'tecnico' %}
+                                <span class="badge bg-info">{{ usuario.rol | capitalize }}</span>
+                            {% elif usuario.rol == 'proveedor' %}
+                                <span class="badge bg-warning">{{ usuario.rol | capitalize }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ usuario.rol | capitalize }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.activo == 1 %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.cliente %}
+                                {{ usuario.cliente.nombre }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('usuarios.editar', id=usuario.id) }}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                            <form action="{{ url_for('usuarios.cambiar_estado', id=usuario.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm {% if usuario.activo == 1 %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+                                    {% if usuario.activo == 1 %}⏸️ Desactivar{% else %}▶️ Activar{% endif %}
+                                </button>
+                            </form>
+                            <form action="{{ url_for('usuarios.eliminar', id=usuario.id) }}" method="POST" class="d-inline delete-form">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">No hay usuarios registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if usuarios.pages > 1 %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if usuarios.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('usuarios.index', pagina=usuarios.prev_num, busqueda=busqueda) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in usuarios.iter_pages() %}
+                        {% if page %}
+                            {% if page != usuarios.page %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('usuarios.index', pagina=page, busqueda=busqueda) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if usuarios.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('usuarios.index', pagina=usuarios.next_num, busqueda=busqueda) }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.delete-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (confirm('¿Está seguro de que desea eliminar este usuario? Esta acción lo desactivará del sistema.')) {
+            this.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

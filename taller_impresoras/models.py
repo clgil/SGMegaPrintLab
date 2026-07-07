@@ -25,6 +25,10 @@ class Usuario(UserMixin, db.Model):
     password_hash = db.Column(db.Text, nullable=False)
     rol = db.Column(db.Text, default='admin')
     activo = db.Column(db.Integer, default=1)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True)
+    
+    # Relación con Cliente (solo para usuarios con rol 'cliente')
+    cliente = db.relationship('Cliente', backref='usuario')
     
     # Roles válidos en el sistema
     ROLES_VALIDOS = ['administrador', 'tecnico', 'proveedor', 'cliente']
