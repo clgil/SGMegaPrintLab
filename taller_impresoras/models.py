@@ -23,7 +23,7 @@ class Usuario(UserMixin, db.Model):
     nombre = db.Column(db.Text, nullable=False)
     usuario = db.Column(db.Text, unique=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
-    rol = db.Column(db.Text, default='admin')
+    rol = db.Column(db.Text, default='administrador')
     activo = db.Column(db.Integer, default=1)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True)
     
