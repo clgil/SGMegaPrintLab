@@ -81,6 +81,15 @@ def dashboard():
     ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
     piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
     
+    # ===== ESTADÍSTICAS DE USUARIOS =====
+    total_usuarios = Usuario.query.count()
+    usuarios_por_rol = {
+        'administrador': Usuario.query.filter_by(rol='administrador', activo=1).count(),
+        'tecnico': Usuario.query.filter_by(rol='tecnico', activo=1).count(),
+        'proveedor': Usuario.query.filter_by(rol='proveedor', activo=1).count(),
+        'cliente': Usuario.query.filter_by(rol='cliente', activo=1).count()
+    }
+    
     # ===== NUEVOS INDICADORES =====
     # Reingresos en garantía este mes
     reingresos_garantia_mes = Orden.query.filter(
@@ -255,6 +264,9 @@ def dashboard():
                          ordenes_pendientes_diagnostico=ordenes_pendientes_diagnostico,
                          ordenes_listas_entregar=ordenes_listas_entregar,
                          piezas_stock_bajo=piezas_stock_bajo,
+                         # Estadísticas de usuarios
+                         total_usuarios=total_usuarios,
+                         usuarios_por_rol=usuarios_por_rol,
                          ultimas_ordenes=ultimas_ordenes,
                          ingresos_mes=ingresos_brutos,
                          ingresos_mensuales=ingresos_mensuales,
