@@ -133,17 +133,72 @@ body {
 }
 
 @media (max-width: 768px) {
+    /* Botón hamburguesa visible solo en móvil */
+    .btn-menu-mobile {
+        display: block;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1001;
+        background-color: #2c3e50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-menu-mobile:hover {
+        background-color: #34495e;
+    }
+    
+    /* Sidebar oculto por defecto en móvil */
     .sidebar {
         transform: translateX(-100%);
-        transition: transform 0.3s;
+        transition: transform 0.3s ease-in-out;
+        width: 250px;
     }
     
     .sidebar.show {
         transform: translateX(0);
     }
     
+    /* Overlay oscuro cuando el menú está abierto */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+    
     .main-content {
         margin-left: 0;
+        padding: 20px;
+        padding-top: 70px; /* Espacio para el botón hamburguesa */
+    }
+}
+
+/* Ocultar botón hamburguesa en desktop */
+@media (min-width: 769px) {
+    .btn-menu-mobile {
+        display: none !important;
+    }
+    
+    .sidebar-overlay {
+        display: none !important;
     }
 }
 
