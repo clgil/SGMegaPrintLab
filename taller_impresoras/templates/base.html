@@ -25,19 +25,21 @@
     <!-- Barra de navegación lateral -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h4>
+            <div class="taller-brand">
                 {% if config_taller.get('logotipo_taller') %}
                     <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                         alt="Logotipo del taller" style="max-height: 40px; max-width: 100%; object-fit: contain;">
+                         alt="Logotipo del taller" class="taller-logo">
                 {% else %}
-                    🖨️
+                    <div class="taller-icon">🖨️</div>
                 {% endif %}
-                {% if config_taller.get('nombre_taller') %}
-                    {{ config_taller.get('nombre_taller') }}
-                {% else %}
-                    Taller
-                {% endif %}
-            </h4>
+                <h4 class="taller-name">
+                    {% if config_taller.get('nombre_taller') %}
+                        {{ config_taller.get('nombre_taller') }}
+                    {% else %}
+                        Taller
+                    {% endif %}
+                </h4>
+            </div>
             <small>{{ current_user.nombre }}</small>
             {% if current_user.rol %}
             <br><span class="badge bg-info" style="font-size: 0.7rem;">{{ current_user.rol | capitalize }}</span>
