@@ -1,50 +1,174 @@
-/* JavaScript personalizado para el Taller de Impresoras */
-/* Adaptado a la realidad cubana - Junio 2026 */
+/* ============================================
+   MegaPrint Lab v2.0 - Modern UI/UX System
+   JavaScript personalizado con funcionalidades modernas
+   ============================================ */
 
 // Esperar a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Funcionalidad del menú hamburguesa en móvil
-    const btnMenuMobile = document.getElementById('btnMenuMobile');
+    // ========================================
+    // SIDEBAR COLAPSABLE
+    // ========================================
     const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarToggleTop = document.getElementById('sidebarToggleTop');
     
-    if (btnMenuMobile && sidebar) {
-        // Abrir menú al hacer click en el botón hamburguesa
-        btnMenuMobile.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sidebar.classList.toggle('show');
-            btnMenuMobile.classList.toggle('hide-on-open');
-            if (sidebarOverlay) {
-                sidebarOverlay.classList.toggle('show');
+    // Cargar estado del sidebar desde localStorage
+    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (sidebar && sidebarCollapsed) {
+        sidebar.classList.add('collapsed');
+        if (sidebarToggle) sidebarToggle.innerHTML = '▶';
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            if (sidebarToggle) {
+                sidebarToggle.innerHTML = isCollapsed ? '▶' : '◀';
             }
-        });
-        
-        // Cerrar menú al hacer click en el overlay
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                btnMenuMobile.classList.remove('hide-on-open');
-                sidebarOverlay.classList.remove('show');
-            });
         }
-        
-        // Cerrar menú al hacer click fuera del sidebar
-        document.addEventListener('click', function(e) {
-            if (!sidebar.contains(e.target) && !btnMenuMobile.contains(e.target)) {
-                sidebar.classList.remove('show');
-                btnMenuMobile.classList.remove('hide-on-open');
-                if (sidebarOverlay) {
-                    sidebarOverlay.classList.remove('show');
-                }
-            }
-        });
-        
-        // Prevenir que clicks dentro del sidebar cierren el menú
-        sidebar.addEventListener('click', function(e) {
-            e.stopPropagation();
+    }
+    
+    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+    if (sidebarToggleTop) sidebarToggleTop.addEventListener('click', toggleSidebar);
+    
+    // ========================================
+    // MODO OSCURO
+    // ========================================
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // Cargar tema preferido
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+    
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            if (themeToggle) themeToggle.innerHTML = '☀️';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (themeToggle) themeToggle.innerHTML = '🌙';
+        }
+        localStorage.setItem('theme', theme);
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
         });
     }
+    
+    // ========================================
+    // COMMAND PALETTE (Ctrl + K)
+    // ========================================
+    const commandPalette = document.getElementById('commandPalette');
+    const commandInput = document.getElementById('commandInput');
+    const commandResults = document.getElementById('commandResults');
+    const searchGlobal = document.getElementById('searchGlobal');
+    
+    // Comandos disponibles
+    const commands = [
+        { id: 'dashboard', title: 'Ir al Dashboard', subtitle: 'Panel principal', icon: '📊', url: '/dashboard' },
+        { id: 'ordenes', title: 'Órdenes', subtitle: 'Gestionar órdenes de servicio', icon: '📋', url: '/ordenes' },
+        { id: 'clientes', title: 'Clientes', subtitle: 'Administrar clientes', icon: '👥', url: '/clientes' },
+        { id: 'dispositivos', title: 'Dispositivos', subtitle: 'Equipos registrados', icon: '🖨️', url: '/dispositivos' },
+        { id: 'inventario', title: 'Inventario', subtitle: 'Piezas y repuestos', icon: '📦', url: '/inventario' },
+        { id: 'tecnicos', title: 'Técnicos', subtitle: 'Equipo técnico', icon: '🔧', url: '/tecnicos' },
+        { id: 'reportes', title: 'Reportes', subtitle: 'Análisis y finanzas', icon: '📈', url: '/reportes' },
+        { id: 'usuarios', title: 'Usuarios', subtitle: 'Gestión de usuarios', icon: '👤', url: '/usuarios' },
+        { id: 'configuracion', title: 'Configuración', subtitle: 'Ajustes del taller', icon: '⚙️', url: '/configuracion-taller' },
+        { id: 'ayuda', title: 'Ayuda', subtitle: 'Documentación y soporte', icon: '📚', url: '/ayuda' },
+        { id: 'nueva-orden', title: 'Nueva Orden', subtitle: 'Crear orden de servicio', icon: '➕', url: '/ordenes/nueva' },
+        { id: 'nuevo-cliente', title: 'Nuevo Cliente', subtitle: 'Registrar cliente', icon: '➕', url: '/clientes/nuevo' },
+    ];
+    
+    // Abrir command palette con Ctrl+K
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openCommandPalette();
+        }
+        if (e.key === 'Escape' && commandPalette && commandPalette.classList.contains('show')) {
+            closeCommandPalette();
+        }
+    });
+    
+    // Abrir al hacer click en search global
+    if (searchGlobal) {
+        searchGlobal.addEventListener('click', openCommandPalette);
+    }
+    
+    function openCommandPalette() {
+        if (commandPalette) {
+            commandPalette.classList.add('show');
+            if (commandInput) {
+                commandInput.value = '';
+                commandInput.focus();
+                renderCommands(commands);
+            }
+        }
+    }
+    
+    function closeCommandPalette() {
+        if (commandPalette) {
+            commandPalette.classList.remove('show');
+        }
+    }
+    
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (commandPalette && !commandPalette.contains(e.target) && e.target !== searchGlobal) {
+            closeCommandPalette();
+        }
+    });
+    
+    // Filtrar comandos
+    if (commandInput) {
+        commandInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filtered = commands.filter(cmd => 
+                cmd.title.toLowerCase().includes(searchTerm) ||
+                cmd.subtitle.toLowerCase().includes(searchTerm)
+            );
+            renderCommands(filtered);
+        });
+    }
+    
+    function renderCommands(cmds) {
+        if (!commandResults) return;
+        
+        if (cmds.length === 0) {
+            commandResults.innerHTML = '<div class="empty-state" style="padding: 2rem;"><p>No se encontraron resultados</p></div>';
+            return;
+        }
+        
+        commandResults.innerHTML = cmds.map(cmd => `
+            <div class="command-item" data-url="${cmd.url}">
+                <div class="command-item-icon">${cmd.icon}</div>
+                <div class="command-item-text">
+                    <div class="command-item-title">${cmd.title}</div>
+                    <div class="command-item-subtitle">${cmd.subtitle}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Agregar eventos de click
+        commandResults.querySelectorAll('.command-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const url = this.dataset.url;
+                if (url) window.location.href = url;
+            });
+        });
+    }
+    
+    // ========================================
+    // FUNCIONALIDAD EXISTENTE (alertas, etc.)
+    // ========================================
     
     // Auto-cerrar alertas después de 5 segundos
     const alerts = document.querySelectorAll('.alert');
@@ -62,19 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!confirm('¿Está seguro de que desea eliminar este registro? Esta acción no se puede deshacer.')) {
                 e.preventDefault();
             }
-        });
-    });
-    
-    // Búsqueda dinámica en selects (si existe la funcionalidad)
-    const searchSelects = document.querySelectorAll('.search-select');
-    searchSelects.forEach(function(select) {
-        select.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const options = this.querySelectorAll('option');
-            options.forEach(function(option) {
-                const text = option.textContent.toLowerCase();
-                option.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
         });
     });
     
@@ -97,30 +208,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Manejo de modal de confirmación
-    const confirmModals = document.querySelectorAll('[data-confirm]');
-    confirmModals.forEach(function(element) {
-        element.addEventListener('click', function(e) {
-            const message = this.getAttribute('data-confirm');
-            if (!confirm(message)) {
-                e.preventDefault();
-            }
-        });
-    });
-    
-    // Actualizar hora actual en tiempo real (opcional)
-    const clockElement = document.getElementById('clock');
-    if (clockElement) {
-        setInterval(function() {
-            const now = new Date();
-            clockElement.textContent = now.toLocaleString('es-CU');
-        }, 1000);
-    }
-    
-    console.log('Sistema de Taller de Impresoras cargado correctamente');
+    console.log('✅ MegaPrint Lab v2.0 cargado correctamente');
 });
 
-// Función para calcular total de orden (implementación básica)
+// Función para calcular total de orden
 function calcularTotalOrden() {
     const totalElement = document.getElementById('total-orden');
     if (!totalElement) return;
@@ -142,7 +233,7 @@ function calcularTotalOrden() {
     totalElement.textContent = '$' + total.toFixed(2) + ' CUP';
 }
 
-// Función para agregar pieza a orden (usada en formulario dinámico)
+// Función para agregar pieza a orden
 function agregarPiezaAOrden(id, nombre, precio, unidad) {
     const contenedor = document.getElementById('piezas-seleccionadas');
     if (!contenedor) return;
@@ -200,4 +291,22 @@ function exportarTablaCSV(tablaId, nombreArchivo) {
     link.href = URL.createObjectURL(blob);
     link.download = nombreArchivo + '.csv';
     link.click();
+}
+
+// Mostrar toast/notificación
+function showToast(message, type = 'info') {
+    const container = document.createElement('div');
+    container.className = `alert alert-${type} alert-dismissible fade show`;
+    container.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    container.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✓' : type === 'danger' ? '✕' : 'ℹ'}</span>
+        <span class="alert-content">${message}</span>
+        <button type="button" class="alert-close" data-bs-dismiss="alert">×</button>
+    `;
+    document.body.appendChild(container);
+    
+    setTimeout(() => {
+        const bsAlert = new bootstrap.Alert(container);
+        bsAlert.close();
+    }, 5000);
 }
