@@ -110,6 +110,22 @@
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
+                <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}">
+                    <span class="nav-icon">🚚</span>
+                    <span class="nav-text">Proveedores</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-text">Contratos</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
                 <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-text">Configuración</span>
