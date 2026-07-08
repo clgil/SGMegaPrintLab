@@ -459,6 +459,15 @@ def api_dispositivos_cliente_global(cliente_id):
 def inject_year():
     return {'current_year': datetime.now().year}
 
+
+@app.context_processor
+def inject_configuracion_taller():
+    """Inyecta la configuración del taller en todas las plantillas"""
+    config = {}
+    for c in Configuracion.query.all():
+        config[c.clave] = c.valor
+    return {'config_taller': config}
+
 # Agregar el filtro 'zip' a Jinja2 (útil para iterar sobre múltiples listas en templates)
 @app.template_filter('zip')
 def zip_filter(*args):
