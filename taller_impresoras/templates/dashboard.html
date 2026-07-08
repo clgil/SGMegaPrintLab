@@ -368,7 +368,7 @@
             <div class="card bg-secondary text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Total Usuarios</h5>
-                    <h2 class="display-4">{{ usuarios_por_rol.administrador + usuarios_por_rol.tecnico + usuarios_por_rol.proveedor + usuarios_por_rol.cliente }}</h2>
+                    <h2 class="display-4">{{ total_usuarios }}</h2>
                     <p class="card-text">Activos</p>
                 </div>
             </div>
@@ -377,8 +377,8 @@
             <div class="card bg-info text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Técnicos</h5>
-                    <h2 class="display-4">{{ usuarios_por_rol.tecnico }}</h2>
-                    <p class="card-text">Activos</p>
+                    <h2 class="display-4">{{ total_tecnicos }}</h2>
+                    <p class="card-text">Registrados</p>
                 </div>
             </div>
         </div>
@@ -386,8 +386,8 @@
             <div class="card bg-warning text-dark shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Proveedores</h5>
-                    <h2 class="display-4">{{ usuarios_por_rol.proveedor }}</h2>
-                    <p class="card-text">Activos</p>
+                    <h2 class="display-4">{{ total_piezas }}</h2>
+                    <p class="card-text">Piezas en inventario</p>
                 </div>
             </div>
         </div>
@@ -399,8 +399,8 @@
             <div class="card bg-light text-dark shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Clientes</h5>
-                    <h2 class="display-4">{{ usuarios_por_rol.cliente }}</h2>
-                    <p class="card-text">Activos</p>
+                    <h2 class="display-4">{{ total_clientes }}</h2>
+                    <p class="card-text">Registrados</p>
                 </div>
             </div>
         </div>
