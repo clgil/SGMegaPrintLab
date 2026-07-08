@@ -892,12 +892,47 @@ body {
     transition: background-color var(--transition-base);
 }
 
-.table tbody tr:hover {
+.table tbody tr td {
+    background-color: var(--bg-card);
+}
+
+.table tbody tr:hover td {
     background-color: var(--gray-50);
 }
 
-[data-theme="dark"] .table tbody tr:hover {
+[data-theme="dark"] .table tbody tr:hover td {
     background-color: var(--gray-700);
+}
+
+/* Clases de estado para filas (warning, danger, success) */
+.table tbody tr.table-warning td {
+    background-color: var(--warning-light);
+    color: var(--gray-900);
+}
+
+.table tbody tr.table-danger td {
+    background-color: var(--danger-light);
+    color: var(--gray-900);
+}
+
+.table tbody tr.table-success td {
+    background-color: var(--success-light);
+    color: var(--gray-900);
+}
+
+[data-theme="dark"] .table tbody tr.table-warning td {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: var(--gray-100);
+}
+
+[data-theme="dark"] .table tbody tr.table-danger td {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: var(--gray-100);
+}
+
+[data-theme="dark"] .table tbody tr.table-success td {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: var(--gray-100);
 }
 
 .table tbody tr:last-child td {
