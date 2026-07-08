@@ -330,6 +330,53 @@
     <!-- VISTA PARA ADMINISTRADOR (completa) -->
     <!-- ========================================== -->
     {% elif current_user.rol == 'administrador' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control administrativo del taller.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para administrador -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Órdenes Totales</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_ordenes }}</h3>
+                    <small class="text-muted">En el sistema</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Completadas</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">{{ ordenes_completadas }}</h3>
+                    <small class="text-muted">Entregadas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">Pendientes</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-warning">{{ ordenes_pendientes }}</h3>
+                    <small class="text-muted">En espera</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Usuarios</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-secondary">{{ usuarios_por_rol.administrador + usuarios_por_rol.tecnico + usuarios_por_rol.proveedor + usuarios_por_rol.cliente }}</h3>
                     <small class="text-muted">Activos</small>
                 </div>
             </div>
@@ -356,6 +403,10 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+    <!-- Usuarios por rol -->
+    <div class="row mb-4">
         <div class="col-md-2">
             <div class="card shadow-sm border-light">
                 <div class="card-header bg-light text-dark">
