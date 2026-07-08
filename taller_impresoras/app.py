@@ -124,6 +124,11 @@ def dashboard():
         ordenes_listas_entregar = Orden.query.filter_by(estado='Listo para entregar').count()
         piezas_stock_bajo = Pieza.query.filter(Pieza.cantidad <= Pieza.cantidad_minima).count()
         
+        # Estadísticas de órdenes para tarjetas del dashboard
+        total_ordenes = Orden.query.count()
+        ordenes_completadas = Orden.query.filter_by(estado='Entregado').count()
+        ordenes_pendientes = Orden.query.filter(Orden.estado.in_(['Recibido', 'En diagnostico', 'Esperando piezas', 'En reparacion', 'Listo para entregar'])).count()
+        
         # Estadísticas de usuarios
         total_usuarios = Usuario.query.count()
         usuarios_por_rol = {
@@ -372,6 +377,10 @@ def dashboard():
                          total_dispositivos=total_dispositivos,
                          total_tecnicos=total_tecnicos,
                          total_piezas=total_piezas,
+                         # Estadísticas de órdenes para administrador
+                         total_ordenes=total_ordenes,
+                         ordenes_completadas=ordenes_completadas,
+                         ordenes_pendientes=ordenes_pendientes,
                          # Datos específicos para cliente
                          mis_ordenes=mis_ordenes,
                          total_ordenes_cliente=total_ordenes_cliente,

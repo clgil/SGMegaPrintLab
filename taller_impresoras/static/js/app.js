@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnMenuMobile.addEventListener('click', function(e) {
             e.stopPropagation();
             sidebar.classList.toggle('show');
+            btnMenuMobile.classList.toggle('hide-on-open');
             if (sidebarOverlay) {
                 sidebarOverlay.classList.toggle('show');
             }
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('show');
+                btnMenuMobile.classList.remove('hide-on-open');
                 sidebarOverlay.classList.remove('show');
             });
         }
@@ -31,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', function(e) {
             if (!sidebar.contains(e.target) && !btnMenuMobile.contains(e.target)) {
                 sidebar.classList.remove('show');
+                btnMenuMobile.classList.remove('hide-on-open');
                 if (sidebarOverlay) {
                     sidebarOverlay.classList.remove('show');
                 }
