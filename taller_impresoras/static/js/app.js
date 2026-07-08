@@ -83,8 +83,14 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 'usuarios', title: 'Usuarios', subtitle: 'Gestión de usuarios', icon: '👤', url: '/usuarios' },
         { id: 'configuracion', title: 'Configuración', subtitle: 'Ajustes del taller', icon: '⚙️', url: '/configuracion-taller' },
         { id: 'ayuda', title: 'Ayuda', subtitle: 'Documentación y soporte', icon: '📚', url: '/ayuda' },
-        { id: 'nueva-orden', title: 'Nueva Orden', subtitle: 'Crear orden de servicio', icon: '➕', url: '/ordenes/nueva' },
+        { id: 'nueva-orden', title: 'Nueva Orden', subtitle: 'Crear orden de servicio', icon: '➕', url: '/ordenes/nuevo' },
         { id: 'nuevo-cliente', title: 'Nuevo Cliente', subtitle: 'Registrar cliente', icon: '➕', url: '/clientes/nuevo' },
+        { id: 'nuevo-dispositivo', title: 'Nuevo Dispositivo', subtitle: 'Registrar equipo', icon: '➕', url: '/dispositivos/nuevo' },
+        { id: 'nueva-pieza', title: 'Nueva Pieza', subtitle: 'Agregar pieza al inventario', icon: '➕', url: '/inventario/nuevo' },
+        { id: 'nuevo-tecnico', title: 'Nuevo Técnico', subtitle: 'Registrar técnico', icon: '➕', url: '/tecnicos/nuevo' },
+        { id: 'nuevo-usuario', title: 'Nuevo Usuario', subtitle: 'Crear usuario', icon: '➕', url: '/usuarios/nuevo' },
+        { id: 'nuevo-contrato', title: 'Nuevo Contrato', subtitle: 'Crear contrato', icon: '➕', url: '/contratos/nuevo' },
+        { id: 'nuevo-proveedor', title: 'Nuevo Proveedor', subtitle: 'Registrar proveedor', icon: '➕', url: '/proveedores/nuevo' },
     ];
     
     // Abrir command palette con Ctrl+K
