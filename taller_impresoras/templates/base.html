@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Taller de Impresoras{% endblock %}</title>
+    <title>{% block title %}MegaPrint Lab{% endblock %}</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS local -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Estilos personalizados -->
+    <!-- Estilos personalizados MegaPrint Lab v2.0 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <!-- Botón hamburguesa para móvil -->
-    <button class="btn-menu-mobile" id="btnMenuMobile" type="button" aria-label="Abrir menú">
-        ☰
-    </button>
-    
-    <!-- Overlay para cerrar al hacer click fuera -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
-    <!-- Barra de navegación lateral -->
+    <!-- Sidebar Moderno -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="taller-brand">
@@ -36,115 +33,179 @@
                     {% if config_taller.get('nombre_taller') %}
                         {{ config_taller.get('nombre_taller') }}
                     {% else %}
-                        Taller
+                        MegaPrint Lab
                     {% endif %}
                 </h4>
             </div>
-            <small>{{ current_user.nombre }}</small>
-            {% if current_user.rol %}
-            <br><span class="badge bg-info" style="font-size: 0.7rem;">{{ current_user.rol | capitalize }}</span>
-            {% endif %}
+            <div class="user-info">
+                <div>{{ current_user.nombre }}</div>
+                {% if current_user.rol %}
+                <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
+                {% endif %}
+            </div>
         </div>
-        <ul class="nav flex-column">
+        
+        <ul class="sidebar-nav nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('dashboard') }}">
-                    📊 Panel de Control
+                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
                 </a>
             </li>
             {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ordenes.index') }}">
-                    📋 Órdenes
+                <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Órdenes</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('clientes.index') }}">
-                    👥 Clientes
+                <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Clientes</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('dispositivos.index') }}">
-                    🖨️ Dispositivos
+                <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}">
+                    <span class="nav-icon">🖨️</span>
+                    <span class="nav-text">Dispositivos</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('inventario.index') }}">
-                    📦 Inventario
+                <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-text">Inventario</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('tecnicos.index') }}">
-                    🔧 Técnicos
+                <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}">
+                    <span class="nav-icon">🔧</span>
+                    <span class="nav-text">Técnicos</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('reportes.index') }}">
-                    📈 Reportes y Finanzas
+                <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Reportes</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('backup.index') }}">
-                    💾 Respaldo
+                <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}">
+                    <span class="nav-icon">💾</span>
+                    <span class="nav-text">Respaldo</span>
                 </a>
             </li>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.configuracion_taller') }}">
-                    ⚙️ Configuración Taller
+                <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Configuración</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <div class="nav-section-title">Administración</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}">
+                    <span class="nav-icon">🔑</span>
+                    <span class="nav-text">Cambiar Clave</span>
+                </a>
+            </li>
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-text">Usuarios</span>
                 </a>
             </li>
             {% endif %}
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.cambiar_password') }}">
-                    🔑 Cambiar Clave
+                <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">Ayuda</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ayuda.index') }}">
-                    📚 Ayuda
-                </a>
-            </li>
-            {% if current_user.rol == 'administrador' %}
-            <!-- Submenú Administración -->
             <li class="nav-item mt-3">
-                <div class="text-white px-3 mb-1" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.7;">Administración</div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('usuarios.index') }}">
-                    👤 Usuarios
-                </a>
-            </li>
-            {% endif %}
-            <li class="nav-item mt-3">
-                <a class="nav-link" href="{{ url_for('auth.logout') }}">
-                    🚪 Cerrar Sesión
+                <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Cerrar Sesión</span>
                 </a>
             </li>
         </ul>
+        
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Colapsar menú">
+            ◀
+        </button>
     </nav>
+    
+    <!-- Navbar Superior -->
+    <header class="navbar-top">
+        <div class="navbar-left">
+            <button class="btn-icon" id="sidebarToggleTop" type="button" aria-label="Toggle sidebar">
+                ☰
+            </button>
+            <div class="search-global">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
+                <span class="search-shortcut">Ctrl K</span>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="btn-icon" type="button" aria-label="Notificaciones" id="themeToggle">
+                🌙
+                <span class="notification-badge hidden" id="notificationBadge"></span>
+            </button>
+            <div class="user-menu">
+                <div class="user-avatar">{{ current_user.nombre[0].upper() }}</div>
+                <span class="user-name">{{ current_user.nombre }}</span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Command Palette -->
+    <div class="command-palette" id="commandPalette">
+        <input type="text" class="command-palette-input" placeholder="Escribe para buscar comandos..." id="commandInput">
+        <div class="command-palette-results" id="commandResults">
+            <!-- Resultados dinámicos -->
+        </div>
+    </div>
     
     <!-- Contenido principal -->
     <main class="main-content">
+        <!-- Breadcrumbs -->
+        {% block breadcrumbs %}
+        <nav class="breadcrumbs">
+            <div class="breadcrumb-item">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            </div>
+            {% block breadcrumb_items %}{% endblock %}
+        </nav>
+        {% endblock %}
+        
         <!-- Mensajes flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <span class="alert-icon">
+                            {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+                        </span>
+                        <span class="alert-content">{{ message }}</span>
+                        <button type="button" class="alert-close" data-bs-dismiss="alert">×</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -159,8 +220,11 @@
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <span class="alert-icon">
+                            {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+                        </span>
+                        <span class="alert-content">{{ message }}</span>
+                        <button type="button" class="alert-close" data-bs-dismiss="alert">×</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -172,7 +236,7 @@
     
     <!-- Bootstrap JS local -->
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <!-- Script personalizado -->
+    <!-- Script personalizado MegaPrint Lab v2.0 -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     
     {% block extra_js %}{% endblock %}
