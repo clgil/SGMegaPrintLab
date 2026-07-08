@@ -4,6 +4,45 @@
 // Esperar a que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Funcionalidad del menú hamburguesa en móvil
+    const btnMenuMobile = document.getElementById('btnMenuMobile');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    if (btnMenuMobile && sidebar) {
+        // Abrir menú al hacer click en el botón hamburguesa
+        btnMenuMobile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle('show');
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.toggle('show');
+            }
+        });
+        
+        // Cerrar menú al hacer click en el overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Cerrar menú al hacer click fuera del sidebar
+        document.addEventListener('click', function(e) {
+            if (!sidebar.contains(e.target) && !btnMenuMobile.contains(e.target)) {
+                sidebar.classList.remove('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove('show');
+                }
+            }
+        });
+        
+        // Prevenir que clicks dentro del sidebar cierren el menú
+        sidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
     // Auto-cerrar alertas después de 5 segundos
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {

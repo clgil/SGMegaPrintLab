@@ -14,8 +14,16 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
+    <!-- Botón hamburguesa para móvil -->
+    <button class="btn-menu-mobile" id="btnMenuMobile" type="button" aria-label="Abrir menú">
+        ☰
+    </button>
+    
+    <!-- Overlay para cerrar al hacer click fuera -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!-- Barra de navegación lateral -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h4>🖨️ Taller</h4>
             <small>{{ current_user.nombre }}</small>
