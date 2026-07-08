@@ -869,6 +869,7 @@ body {
 
 [data-theme="dark"] .table thead {
     background-color: var(--gray-700);
+    border-bottom-color: var(--gray-600);
 }
 
 .table th {
@@ -879,6 +880,11 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-secondary);
+    background-color: transparent;
+}
+
+[data-theme="dark"] .table th {
+    color: var(--gray-300);
 }
 
 .table td {
