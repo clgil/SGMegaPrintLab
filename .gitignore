@@ -1,1 +1,44 @@
-Nothing needs to be added to .gitignore since only a template file (.html) was modified and no build artifacts, dependencies, or temporary files were detected in the changes.
+# Entorno virtual
+venv/
+env/
+.env
+.env.local
+.env.*.local
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Base de datos
+*.db
+instance/
+
+# Logs
+*.log
+*.log.*
+
+# Respaldos
+backup/
+*.backup
+
+# Archivos temporales
+.cache/
+.pytest_cache/
+.coverage
+
+# Uploads
+static/uploads/
+
+# Cookies de prueba
+cookies.txt
