@@ -13,10 +13,41 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from models import db
 
+# Cargar variables de entorno
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv no instalado, usar solo variables de entorno del sistema
+
 # Inicialización de la aplicación
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'taller-impressoras-cuba-2026-clave-secreta'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///taller.db'
+
+# ============================================================
+# CONFIGURACIÓN SEGURA
+# ============================================================
+# Usar variable de entorno para SECRET_KEY
+app.config['SECRET_KEY'] = os.getenv(
+    'SECRET_KEY',
+    'dev-key-cambiar-en-produccion-generar-con-secrets.token_hex(32)'
+)
+
+# Advertencia si se usa clave por defecto en producción
+if os.getenv('FLASK_ENV') == 'production' and app.config['SECRET_KEY'] == 'dev-key-cambiar-en-produccion-generar-con-secrets.token_hex(32)':
+    print("\n" + "="*60)
+    print("⚠️  ADVERTENCIA CRÍTICA DE SEGURIDAD")
+    print("="*60)
+    print("SECRET_KEY no está configurada en producción.")
+    print("Esto expone la aplicación a ataques de sesión.")
+    print("\nAcciones requeridas:")
+    print("1. Generar clave: python -c \"import secrets; print(secrets.token_hex(32))\"")
+    print("2. Configurar en variable de entorno: export SECRET_KEY=<valor-generado>")
+    print("="*60 + "\n")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL',
+    'sqlite:///taller.db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backup')
 
@@ -421,9 +452,12 @@ app.register_blueprint(usuarios_bp, url_prefix='/usuarios')
 
 # Rutas API globales para acceso directo desde cualquier template
 @app.route('/api/piezas')
-@login_required
+@rol_requerido(['administrador', 'tecnico', 'proveedor'])
 def api_piezas_global():
-    """API global para buscar piezas por nombre (usada en formularios de órdenes)"""
+    """API global para buscar piezas por nombre (usada en formularios de órdenes)
+    
+    Acceso restringido a administradores, técnicos y proveedores.
+    """
     from models import Pieza
     from flask import jsonify, request
     busqueda = request.args.get('q', '')
@@ -445,9 +479,12 @@ def api_piezas_global():
 
 
 @app.route('/api/clientes/<int:cliente_id>/dispositivos')
-@login_required
+@rol_requerido(['administrador', 'tecnico'])
 def api_dispositivos_cliente_global(cliente_id):
-    """API global para obtener dispositivos de un cliente"""
+    """API global para obtener dispositivos de un cliente
+    
+    Acceso restringido a administradores y técnicos.
+    """
     from models import Dispositivo
     from flask import jsonify
     dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id).all()
@@ -478,6 +515,21 @@ def crear_datos_iniciales():
     """Crea datos iniciales si no existen"""
     # Crear usuario administrador por defecto
     if not Usuario.query.filter_by(usuario='admin').first():
+        print("\n" + "="*60)
+        print("⚠️  PRIMERA INSTALACIÓN - CONFIGURACIÓN INICIAL")
+        print("="*60)
+        print("\nCreando usuario administrador por defecto...")
+        print("Usuario: admin")
+        print("Contraseña: Taller2026")
+        print("\n🔒 ACCIÓN REQUERIDA:")
+        print("   1. Inicie sesión con estas credenciales")
+        print("   2. Vaya a 'Cambiar Clave' inmediatamente")
+        print("   3. Cambie la contraseña a una contraseña fuerte")
+        print("      Requisitos:")
+        print("      - Mínimo 8 caracteres")
+        print("      - Incluir mayúsculas, minúsculas, números")
+        print("\n" + "="*60 + "\n")
+        
         admin = Usuario(
             nombre='Administrador',
             usuario='admin',
@@ -527,7 +579,7 @@ def crear_datos_iniciales():
         db.session.add(tecnico)
         
         db.session.commit()
-        print("Datos iniciales creados correctamente.")
+        print("✓ Datos iniciales creados correctamente.")
 
 if __name__ == '__main__':
     with app.app_context():
