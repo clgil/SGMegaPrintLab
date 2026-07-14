@@ -127,11 +127,20 @@ def ver(id):
 @ordenes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @rol_requerido(['administrador', 'tecnico'])
 def editar(id):
-    """Editar orden de reparación - formulario completo con piezas y mano de obra"""
+    """Editar orden de reparación - formulario completo con piezas y mano de obra
+    
+    Workflow de estados y gestión de inventario:
+    1. Recibido → En diagnostico → Esperando piezas → En reparacion → Listo para entregar → Entregado
+    2. Las piezas se descuentan del inventario SOLO cuando la orden pasa a "Entregado"
+    3. Si se edita una orden ya entregada, las piezas se devuelven y vuelven a descontar
+    """
     orden = Orden.query.get_or_404(id)
     
     if request.method == 'POST':
-        # Actualizar datos básicos
+        # PASO 1: Capturar el estado actual ANTES de hacer cambios
+        estado_anterior = orden.estado
+        
+        # PASO 2: Actualizar datos básicos
         orden.cliente_id = request.form.get('cliente_id')
         orden.dispositivo_id = request.form.get('dispositivo_id') if request.form.get('dispositivo_id') else None
         orden.problema_reportado = request.form.get('problema_reportado')
@@ -148,29 +157,38 @@ def editar(id):
         if orden.estado == 'Entregado' and not orden.fecha_entrega:
             orden.fecha_entrega = datetime.now().strftime('%Y-%m-%d')
         
-        # Procesar piezas usadas (enviadas como JSON desde el frontend)
+        # PASO 3: Procesar piezas usadas (enviadas como JSON desde el frontend)
         piezas_json = request.form.get('piezas_usadas', '[]')
         import json
         piezas_data = json.loads(piezas_json)
         
-        # Verificar si la orden está siendo concluida (cambio a estado final por primera vez)
-        estado_anterior = db.session.get(Orden, orden.id).estado
+        # PASO 4: Determinar si la orden está siendo concluida por primera vez
         estados_finales = ['Entregado', 'Listo para entregar']
         orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
+        orden_reactivada = (estado_anterior in estados_finales) and (orden.estado not in estados_finales)
         
-        # Eliminar piezas anteriores de la base de datos
-        # Si la orden ya estaba en estado final, devolver las piezas al stock
+        # PASO 5: Gestionar piezas anteriores
+        # Si la orden estaba concluida y ahora no lo está, devolver piezas al stock
         for op in list(orden.piezas_usadas):
             if op.pieza_id and estado_anterior in estados_finales:
-                # Solo devolver al stock si la orden ya estaba concluida
                 pieza = db.session.get(Pieza, op.pieza_id)
                 if pieza:
                     pieza.cantidad += op.cantidad  # Devolver al stock
+                    # Registrar movimiento de devolución
+                    movimiento = MovimientoInventario(
+                        pieza_id=pieza.id,
+                        tipo='entrada',
+                        cantidad=op.cantidad,
+                        concepto=f'Devolución por cambio de estado - Orden {orden.numero_orden}',
+                        orden_id=orden.id,
+                        fecha=datetime.now().strftime('%Y-%m-%d')
+                    )
+                    db.session.add(movimiento)
             db.session.delete(op)  # Eliminar registro de OrdenPieza
         
         db.session.flush()  # Confirmar eliminación de piezas anteriores antes de agregar nuevas
         
-        # Agregar nuevas piezas
+        # PASO 6: Agregar nuevas piezas y gestionar inventario
         total_piezas = 0.0
         for item in piezas_data:
             pieza_id = item.get('id')
@@ -219,11 +237,11 @@ def editar(id):
                     db.session.add(orden_pieza)
                     total_piezas += cantidad * precio_unitario
         
-        # Calcular total: piezas + mano de obra
+        # PASO 7: Calcular total: piezas + mano de obra
         mano_obra = float(orden.mano_obra_costo) if orden.mano_obra_costo else 0.0
         orden.costo_total = total_piezas + mano_obra
         
-        # Guardar cambios
+        # PASO 8: Guardar cambios
         db.session.commit()
         
         flash(f'Orden {orden.numero_orden} actualizada correctamente', 'success')
@@ -255,7 +273,10 @@ def editar(id):
 @ordenes_bp.route('/eliminar/<int:id>', methods=['POST'])
 @rol_requerido(['administrador', 'tecnico'])
 def eliminar(id):
-    """Eliminar orden (solo si está en estado inicial)"""
+    """Eliminar orden (solo si está en estado inicial)
+    
+    IMPORTANTE: Se muestra una confirmación JavaScript antes de ejecutar
+    """
     orden = Orden.query.get_or_404(id)
     
     if orden.estado not in ['Recibido', 'Cancelado']:
@@ -338,9 +359,11 @@ def api_orden_piezas(orden_id):
 @ordenes_bp.route('/api/ordenes/<int:orden_id>/historial')
 @rol_requerido(['administrador', 'tecnico'])
 def api_orden_historial(orden_id):
-    """API para obtener el historial de estados de una orden"""
-    # Nota: El modelo HistorialOrden no existe en models.py
-    # Se devuelve un array vacío como fallback
+    """API para obtener el historial de estados de una orden
+    
+    NOTA: El modelo HistorialOrden no existe en models.py
+    Se devuelve un array vacío como fallback
+    """
     return jsonify([])
 
 
