@@ -82,6 +82,8 @@
                         <td>
                             <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
                             <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                            <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-sm btn-outline-info" target="_blank">🖨️ Imprimir</a>
+                            <a href="{{ url_for('ordenes.descargar', id=orden.id) }}" class="btn btn-sm btn-outline-success">⬇️ Descargar</a>
                         </td>
                     </tr>
                     {% else %}
