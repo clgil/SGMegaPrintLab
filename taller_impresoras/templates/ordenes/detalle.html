@@ -8,6 +8,7 @@
         <h1>📋 Orden #{{ orden.numero_orden }}</h1>
         <div>
             <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-info" target="_blank">🖨️ Imprimir</a>
+            <a href="{{ url_for('ordenes.descargar', id=orden.id) }}" class="btn btn-success">⬇️ Descargar PDF</a>
             <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-warning">✏️ Editar</a>
             <a href="{{ url_for('ordenes.index') }}" class="btn btn-secondary">← Volver</a>
         </div>
