@@ -311,6 +311,225 @@ def imprimir(id):
     return render_template('ordenes/recibo.html', orden=orden, config=config)
 
 
+@ordenes_bp.route('/descargar/<int:id>')
+@rol_requerido(['administrador', 'tecnico'])
+def descargar(id):
+    """Descargar orden de reparación como PDF"""
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    from io import BytesIO
+    from flask import send_file
+    
+    orden = Orden.query.get_or_404(id)
+    
+    # Obtener configuración del taller
+    from models import Configuracion
+    config = {}
+    for c in Configuracion.query.all():
+        config[c.clave] = c.valor
+    
+    # Crear nombre del archivo: numero_orden_tipo_equipo_(nombre_cliente).pdf
+    tipo_equipo = orden.dispositivo.tipo if orden.dispositivo else 'SinEquipo'
+    nombre_cliente = orden.cliente.nombre if orden.cliente else 'SinCliente'
+    # Limpiar caracteres no válidos para nombres de archivo
+    tipo_equipo_limpio = "".join(c for c in tipo_equipo if c.isalnum() or c in ' -_').strip().replace(' ', '_')
+    nombre_cliente_limpio = "".join(c for c in nombre_cliente if c.isalnum() or c in ' -_').strip().replace(' ', '_')
+    nombre_archivo = f"{orden.numero_orden}_{tipo_equipo_limpio}_({nombre_cliente_limpio}).pdf"
+    
+    # Crear buffer para el PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=0.5*inch, leftMargin=0.5*inch, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor=colors.HexColor('#2c3e50'),
+        spaceAfter=12,
+        alignment=TA_CENTER
+    )
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor=colors.HexColor('#34495e'),
+        spaceAfter=6,
+        spaceBefore=6
+    )
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#34495e'),
+        spaceAfter=3
+    )
+    
+    # Construir contenido del PDF
+    story = []
+    
+    # Encabezado
+    nombre_taller = config.get('nombre_taller', 'Taller de Impresoras')
+    story.append(Paragraph(nombre_taller, title_style))
+    
+    direccion = config.get('direccion_taller', '')
+    telefono = config.get('telefono_taller', '')
+    email = config.get('email_taller', '')
+    info_contacto = f"{direccion} | Tel: {telefono}" if direccion and telefono else ""
+    if email:
+        info_contacto += f" | {email}" if info_contacto else email
+    if info_contacto:
+        story.append(Paragraph(info_contacto, normal_style))
+    
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Número de orden y estado
+    orden_header = f"ORDEN DE REPARACIÓN #{orden.numero_orden}"
+    story.append(Paragraph(orden_header, heading_style))
+    story.append(Paragraph(f"Fecha: {orden.fecha_entrada} | Estado: {orden.estado}", normal_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Información del cliente y dispositivo
+    datos_cliente = [
+        ['DATOS DEL CLIENTE', 'EQUIPO'],
+        [f"Nombre: {orden.cliente.nombre}", f"Tipo: {tipo_equipo}"],
+        [f"Teléfono: {orden.cliente.telefono}", f"Marca: {orden.dispositivo.marca if orden.dispositivo else '-'}"],
+        ['', f"Modelo: {orden.dispositivo.modelo if orden.dispositivo else '-'}"],
+        ['', f"No. Serie: {orden.dispositivo.numero_serie if orden.dispositivo and orden.dispositivo.numero_serie else '-'}"]
+    ]
+    tabla_datos = Table(datos_cliente, colWidths=[3*inch, 3*inch])
+    tabla_datos.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (1, 0), colors.HexColor('#3498db')),
+        ('TEXTCOLOR', (0, 0), (1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    story.append(tabla_datos)
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Problema reportado
+    story.append(Paragraph("PROBLEMA REPORTADO", heading_style))
+    story.append(Paragraph(orden.problema_reportado or '-', normal_style))
+    story.append(Spacer(1, 0.15*inch))
+    
+    # Diagnóstico
+    if orden.diagnostico:
+        story.append(Paragraph("DIAGNÓSTICO TÉCNICO", heading_style))
+        story.append(Paragraph(orden.diagnostico, normal_style))
+        story.append(Spacer(1, 0.15*inch))
+    
+    # Técnico responsable
+    if orden.tecnico:
+        story.append(Paragraph(f"TÉCNICO RESPONSABLE: {orden.tecnico.nombre}", normal_style))
+        story.append(Spacer(1, 0.15*inch))
+    
+    # Piezas utilizadas
+    if orden.piezas_usadas:
+        story.append(Paragraph("REPUESTOS UTILIZADOS", heading_style))
+        datos_piezas = [['DESCRIPCIÓN', 'CANT.', 'PRECIO UNIT.', 'SUBTOTAL']]
+        subtotal_piezas = 0
+        for op in orden.piezas_usadas:
+            nombre_pieza = op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual'
+            subtotal = op.cantidad * op.precio_unitario
+            subtotal_piezas += subtotal
+            datos_piezas.append([
+                nombre_pieza,
+                str(op.cantidad),
+                f"${op.precio_unitario:.2f}",
+                f"${subtotal:.2f}"
+            ])
+        
+        tabla_piezas = Table(datos_piezas, colWidths=[3*inch, 0.8*inch, 1.2*inch, 1.2*inch])
+        tabla_piezas.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#34495e')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('TOPPADDING', (0, 0), (-1, 0), 6),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        story.append(tabla_piezas)
+        story.append(Spacer(1, 0.1*inch))
+        story.append(Paragraph(f"SUBTOTAL REPUESTOS: ${subtotal_piezas:.2f}", normal_style))
+        story.append(Spacer(1, 0.15*inch))
+    
+    # Totales
+    mano_obra = orden.mano_obra_costo or 0
+    costo_total = orden.costo_total or 0
+    story.append(Paragraph(f"MANO DE OBRA: ${mano_obra:.2f}", normal_style))
+    if orden.mano_obra_desc:
+        story.append(Paragraph(f"  ({orden.mano_obra_desc})", normal_style))
+    story.append(Spacer(1, 0.1*inch))
+    total_style = ParagraphStyle(
+        'TotalStyle',
+        parent=normal_style,
+        fontSize=14,
+        textColor=colors.HexColor('#2c3e50'),
+        fontName='Helvetica-Bold'
+    )
+    story.append(Paragraph(f"TOTAL A PAGAR: ${costo_total:.2f}", total_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Notas adicionales
+    if orden.notas_cliente:
+        story.append(Paragraph("OBSERVACIONES", heading_style))
+        story.append(Paragraph(orden.notas_cliente, normal_style))
+        story.append(Spacer(1, 0.15*inch))
+    
+    # Firmas
+    story.append(Spacer(1, 0.3*inch))
+    firmas_data = [
+        ['__________________________', '__________________________'],
+        ['FIRMA DEL TÉCNICO', 'FIRMA DEL CLIENTE'],
+        ['Responsable del servicio', 'Conformidad del servicio']
+    ]
+    tabla_firmas = Table(firmas_data, colWidths=[3*inch, 3*inch])
+    tabla_firmas.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    story.append(tabla_firmas)
+    
+    # Footer
+    story.append(Spacer(1, 0.3*inch))
+    nit = config.get('nit_taller', '')
+    footer_text = "Gracias por confiar en nuestros servicios. Este documento es su comprobante de reparación."
+    if nit:
+        footer_text += f"\nNIT/CI: {nit}"
+    story.append(Paragraph(footer_text, ParagraphStyle(
+        'Footer',
+        parent=normal_style,
+        fontSize=8,
+        textColor=colors.grey,
+        alignment=TA_CENTER
+    )))
+    
+    # Construir PDF
+    doc.build(story)
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=nombre_archivo
+    )
+
+
 @ordenes_bp.route('/api/dispositivos/<int:cliente_id>')
 @rol_requerido(['administrador', 'tecnico'])
 def api_dispositivos(cliente_id):

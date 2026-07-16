@@ -175,6 +175,7 @@
 
     <div class="no-print acciones">
         <button onclick="window.print()" class="btn btn-primary btn-lg">🖨️ Imprimir</button>
+        <a href="{{ url_for('ordenes.descargar', id=orden.id) }}" class="btn btn-success btn-lg">⬇️ Descargar PDF</a>
         <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-secondary btn-lg">← Volver</a>
     </div>
 </div>

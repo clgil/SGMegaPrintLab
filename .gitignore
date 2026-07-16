@@ -1,44 +1,30 @@
-# Entorno virtual
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dependencies
 venv/
-env/
+.venv/
 .env
 .env.local
-.env.*.local
+*.env.*
 
-# Archivos de Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Base de datos
-*.db
-instance/
-
-# Logs
-*.log
-*.log.*
-
-# Respaldos
-backup/
-*.backup
-
-# Archivos temporales
-.cache/
-.pytest_cache/
-.coverage
-
-# Uploads
-static/uploads/
-
-# Cookies de prueba
-cookies.txt
+```
