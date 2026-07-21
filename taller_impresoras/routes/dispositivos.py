@@ -134,5 +134,5 @@ def por_cliente(cliente_id):
 def api_dispositivos(cliente_id):
     """API para obtener dispositivos de un cliente (usada en formulario de órdenes)"""
     dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id, activo=1).all()
-    resultado = [{'id': d.id, 'texto': f"{d.tipo} - {d.marca} {d.modelo} ({d.serial})"} for d in dispositivos]
+    resultado = [{'id': d.id, 'texto': f"{d.tipo} - {d.marca} {d.modelo} ({d.numero_serie})"} for d in dispositivos]
     return jsonify(resultado)
