@@ -188,7 +188,7 @@ document.getElementById('cliente_id').addEventListener('change', function() {
                 data.forEach(dispositivo => {
                     const option = document.createElement('option');
                     option.value = dispositivo.id;
-                    option.textContent = `${dispositivo.tipo} - ${dispositivo.marca} ${dispositivo.modelo} (${dispositivo.serial})`;
+                    option.textContent = dispositivo.texto;
                     
                     {% if orden and orden.dispositivo_id %}
                     if (dispositivo.id == {{ orden.dispositivo_id }}) {

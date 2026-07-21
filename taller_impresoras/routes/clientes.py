@@ -142,7 +142,23 @@ def api_dispositivos_cliente(cliente_id):
     """API para obtener dispositivos de un cliente específico"""
     from models import Dispositivo
     
-    dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id, activo=1).all()
+    dispositivos = Dispositivo.query.filter_by(cliente_id=cliente_id).all()
     
-    resultado = [{'id': d.id, 'texto': f"{d.tipo} - {d.marca} {d.modelo} ({d.serial})", 'tipo': d.tipo, 'marca': d.marca, 'modelo': d.modelo, 'serial': d.serial} for d in dispositivos]
+    resultado = []
+    for d in dispositivos:
+        # Construir el texto mostrando el número de serie solo si está disponible
+        if d.numero_serie and d.numero_serie.strip():
+            texto = f"{d.marca} {d.modelo} (SN: {d.numero_serie}) - {d.tipo}"
+        else:
+            texto = f"{d.marca} {d.modelo} - {d.tipo}"
+        
+        resultado.append({
+            'id': d.id, 
+            'texto': texto, 
+            'tipo': d.tipo, 
+            'marca': d.marca, 
+            'modelo': d.modelo, 
+            'numero_serie': d.numero_serie
+        })
+    
     return jsonify(resultado)

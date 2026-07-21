@@ -42,7 +42,7 @@
                                 <option value="">Seleccione un dispositivo...</option>
                                 {% for dispositivo in dispositivos %}
                                 <option value="{{ dispositivo.id }}" {% if orden.dispositivo_id == dispositivo.id %}selected{% endif %}>
-                                    {{ dispositivo.tipo }} - {{ dispositivo.marca }} {{ dispositivo.modelo }} ({{ dispositivo.serial }})
+                                    {{ dispositivo.marca }} {{ dispositivo.modelo }}{% if dispositivo.numero_serie %} (SN: {{ dispositivo.numero_serie }}){% endif %} - {{ dispositivo.tipo }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -240,6 +240,14 @@ document.getElementById('cliente_id').addEventListener('change', function() {
                     const option = document.createElement('option');
                     option.value = dispositivo.id;
                     option.textContent = dispositivo.texto;
+                    
+                    // Mantener selección si hay una orden existente con dispositivo
+                    {% if orden and orden.dispositivo_id %}
+                    if (dispositivo.id == {{ orden.dispositivo_id }}) {
+                        option.selected = true;
+                    }
+                    {% endif %}
+                    
                     dispositivoSelect.appendChild(option);
                 });
             })
