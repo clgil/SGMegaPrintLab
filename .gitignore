@@ -1,1 +1,58 @@
-Nothing should be ignored since the changes only include source files (.css, .html) without any build artifacts, dependencies, or temporary files.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.ENV
+.ENV.db
+.ENV.local
+.ENV.*
+.env
+.env.db
+.env.local
+.env.*
+
+# Django/Python web framework
+*.log
+*.pot
+*.pyc
+__pycache__/
+*.mo
+*.pot
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Static files and media
+staticfiles/
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.coverage.*
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# Build
+build/
+dist/
+*.egg-info/
+```

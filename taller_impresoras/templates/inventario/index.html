@@ -40,46 +40,48 @@
     <!-- Listado de piezas -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Código</th>
-                        <th>Stock</th>
-                        <th>Mínimo</th>
-                        <th>Precio Venta</th>
-                        <th>Proveedor</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for pieza in piezas.items %}
-                    <tr class="{% if pieza.cantidad <= pieza.cantidad_minima %}table-warning{% endif %}">
-                        <td><strong>{{ pieza.nombre }}</strong></td>
-                        <td>{{ pieza.categoria.nombre if pieza.categoria else '-' }}</td>
-                        <td>{{ pieza.codigo_interno or '-' }}</td>
-                        <td>
-                            {{ pieza.cantidad }} {{ pieza.unidad }}
-                            {% if pieza.cantidad <= pieza.cantidad_minima %}
-                                <span class="badge bg-danger">Bajo</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ pieza.cantidad_minima }} {{ pieza.unidad }}</td>
-                        <td>${{ "%.2f"|format(pieza.precio_venta) }}</td>
-                        <td>{{ pieza.proveedor or '-' }}</td>
-                        <td>
-                            <a href="{{ url_for('inventario.ver', id=pieza.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
-                            <a href="{{ url_for('inventario.editar', id=pieza.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">No hay piezas registradas</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th class="d-none d-md-table-cell">Código</th>
+                            <th>Stock</th>
+                            <th class="d-none d-md-table-cell">Mínimo</th>
+                            <th>Precio Venta</th>
+                            <th class="d-none d-lg-table-cell">Proveedor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pieza in piezas.items %}
+                        <tr class="{% if pieza.cantidad <= pieza.cantidad_minima %}table-warning{% endif %}">
+                            <td><strong>{{ pieza.nombre }}</strong></td>
+                            <td>{{ pieza.categoria.nombre if pieza.categoria else '-' }}</td>
+                            <td class="d-none d-md-table-cell">{{ pieza.codigo_interno or '-' }}</td>
+                            <td>
+                                {{ pieza.cantidad }} {{ pieza.unidad }}
+                                {% if pieza.cantidad <= pieza.cantidad_minima %}
+                                    <span class="badge bg-danger">Bajo</span>
+                                {% endif %}
+                            </td>
+                            <td class="d-none d-md-table-cell">{{ pieza.cantidad_minima }} {{ pieza.unidad }}</td>
+                            <td>${{ "%.2f"|format(pieza.precio_venta) }}</td>
+                            <td class="d-none d-lg-table-cell">{{ pieza.proveedor or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('inventario.ver', id=pieza.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                                <a href="{{ url_for('inventario.editar', id=pieza.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay piezas registradas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             
             <!-- Paginación -->
             {% if piezas.pages > 1 %}

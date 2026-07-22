@@ -29,47 +29,49 @@
     <!-- Listado de clientes -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Dirección</th>
-                        <th>Tipo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cliente in clientes.items %}
-                    <tr>
-                        <td><strong>{{ cliente.nombre }}</strong></td>
-                        <td>{{ cliente.telefono or '-' }}</td>
-                        <td>{{ cliente.direccion or '-' }}</td>
-                        <td>
-                            {% if cliente.tipo_cliente == 'Empresa Estatal' %}
-                                <span class="badge bg-info">{{ cliente.tipo_cliente }}</span>
-                            {% elif cliente.tipo_cliente == 'TCP' or cliente.tipo_cliente == 'Mypyme' %}
-                                <span class="badge bg-success">{{ cliente.tipo_cliente }}</span>
-                            {% elif cliente.tipo_cliente == 'PDL' or cliente.tipo_cliente == 'CNA' or cliente.tipo_cliente == 'CPA' %}
-                                <span class="badge bg-warning text-dark">{{ cliente.tipo_cliente }}</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ cliente.tipo_cliente }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('clientes.editar', id=cliente.id) }}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
-                            <form action="{{ url_for('clientes.eliminar', id=cliente.id) }}" method="POST" class="d-inline delete-form">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No hay clientes registrados</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes.items %}
+                        <tr>
+                            <td><strong>{{ cliente.nombre }}</strong></td>
+                            <td>{{ cliente.telefono or '-' }}</td>
+                            <td>{{ cliente.direccion or '-' }}</td>
+                            <td>
+                                {% if cliente.tipo_cliente == 'Empresa Estatal' %}
+                                    <span class="badge bg-info">{{ cliente.tipo_cliente }}</span>
+                                {% elif cliente.tipo_cliente == 'TCP' or cliente.tipo_cliente == 'Mypyme' %}
+                                    <span class="badge bg-success">{{ cliente.tipo_cliente }}</span>
+                                {% elif cliente.tipo_cliente == 'PDL' or cliente.tipo_cliente == 'CNA' or cliente.tipo_cliente == 'CPA' %}
+                                    <span class="badge bg-warning text-dark">{{ cliente.tipo_cliente }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ cliente.tipo_cliente }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('clientes.editar', id=cliente.id) }}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                                <form action="{{ url_for('clientes.eliminar', id=cliente.id) }}" method="POST" class="d-inline delete-form">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No hay clientes registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             
             <!-- Paginación -->
             {% if clientes.pages > 1 %}
