@@ -243,7 +243,8 @@ def api_piezas():
         'texto': f"{p.nombre} ({p.unidad}) - Stock: {p.cantidad}",
         'precio': p.precio_venta,
         'unidad': p.unidad,
-        'stock': p.cantidad
+        'stock': p.cantidad,
+        'stock_bajo': p.stock_bajo
     } for p in piezas]
     return jsonify(resultado)
 

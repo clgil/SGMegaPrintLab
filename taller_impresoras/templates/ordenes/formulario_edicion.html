@@ -361,7 +361,7 @@ function agregarPiezaDesdeSelect() {
     const cantidadInput = document.getElementById('pieza_cantidad');
     
     if (select.value === '' || select.value === 'otra') {
-        alert('Seleccione una pieza del listado');
+        mostrarError('Seleccione una pieza del listado');
         return;
     }
     
@@ -372,15 +372,35 @@ function agregarPiezaDesdeSelect() {
     const unidad = option.dataset.unidad;
     const cantidad = parseFloat(cantidadInput.value) || 1;
     
+    // Obtener el stock actual de la pieza desde el texto de la opción
+    const textoStock = option.textContent;
+    const matchStock = textoStock.match(/Stock:\s*([\d.]+)/);
+    const stockDisponible = matchStock ? parseFloat(matchStock[1]) : 0;
+    
     if (cantidad <= 0) {
-        alert('La cantidad debe ser mayor a 0');
+        mostrarError('La cantidad debe ser mayor a 0');
         return;
     }
     
-    // Verificar si ya existe
+    // Validar que haya suficiente stock
+    if (cantidad > stockDisponible) {
+        mostrarError(`No hay suficiente stock de "${nombre}". Stock disponible: ${stockDisponible} ${unidad}. Intenta con una cantidad menor.`);
+        return;
+    }
+    
+    // Verificar si ya existe y sumar cantidades
     const existente = piezasActuales.find(p => p.id === piezaId);
+    const cantidadTotal = existente ? existente.cantidad + cantidad : cantidad;
+    
+    // Validar que la cantidad total no exceda el stock
+    if (cantidadTotal > stockDisponible) {
+        mostrarError(`La cantidad total (${cantidadTotal}) excede el stock disponible (${stockDisponible}) de "${nombre}"`);
+        return;
+    }
+    
     if (existente) {
         existente.cantidad += cantidad;
+        mostrarExito(`Agregada ${cantidad} ${unidad}(s) de ${nombre} a la orden`);
     } else {
         piezasActuales.push({
             id: piezaId,
@@ -389,6 +409,7 @@ function agregarPiezaDesdeSelect() {
             precio: precio,
             unidad: unidad
         });
+        mostrarExito(`Agregada ${nombre} a la orden`);
     }
     
     renderizarPiezas();

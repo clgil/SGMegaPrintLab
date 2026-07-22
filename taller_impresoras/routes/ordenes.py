@@ -131,8 +131,9 @@ def editar(id):
     
     Workflow de estados y gestión de inventario:
     1. Recibido → En diagnostico → Esperando piezas → En reparacion → Listo para entregar → Entregado
-    2. Las piezas se descuentan del inventario SOLO cuando la orden pasa a "Entregado"
-    3. Si se edita una orden ya entregada, las piezas se devuelven y vuelven a descontar
+    2. Las piezas se descuentan del inventario INMEDIATAMENTE al ser agregadas a la orden
+    3. Si se edita una orden y se eliminan piezas, estas se devuelven al stock
+    4. Si se cancela o elimina la orden, todas las piezas se devuelven al stock
     """
     orden = Orden.query.get_or_404(id)
     
@@ -162,24 +163,22 @@ def editar(id):
         import json
         piezas_data = json.loads(piezas_json)
         
-        # PASO 4: Determinar si la orden está siendo concluida por primera vez
-        estados_finales = ['Entregado', 'Listo para entregar']
-        orden_concluida = (orden.estado in estados_finales) and (estado_anterior not in estados_finales)
-        orden_reactivada = (estado_anterior in estados_finales) and (orden.estado not in estados_finales)
+        # PASO 4: Determinar si la orden fue cancelada o eliminada
+        orden_cancelada = (orden.estado == 'Cancelado') and (estado_anterior != 'Cancelado')
         
-        # PASO 5: Gestionar piezas anteriores
-        # Si la orden estaba concluida y ahora no lo está, devolver piezas al stock
+        # PASO 5: Gestionar piezas anteriores - DEVOLVER TODAS al stock primero
         for op in list(orden.piezas_usadas):
-            if op.pieza_id and estado_anterior in estados_finales:
+            if op.pieza_id:
                 pieza = db.session.get(Pieza, op.pieza_id)
                 if pieza:
-                    pieza.cantidad += op.cantidad  # Devolver al stock
+                    # Devolver al stock la cantidad anterior
+                    pieza.cantidad += op.cantidad
                     # Registrar movimiento de devolución
                     movimiento = MovimientoInventario(
                         pieza_id=pieza.id,
                         tipo='entrada',
                         cantidad=op.cantidad,
-                        concepto=f'Devolución por cambio de estado - Orden {orden.numero_orden}',
+                        concepto=f'Devolución por edición/cancelación - Orden {orden.numero_orden}',
                         orden_id=orden.id,
                         fecha=datetime.now().strftime('%Y-%m-%d')
                     )
@@ -190,6 +189,28 @@ def editar(id):
         
         # PASO 6: Agregar nuevas piezas y gestionar inventario
         total_piezas = 0.0
+        errores_stock = []
+        
+        # Primero validar que hay suficiente stock para todas las piezas
+        for item in piezas_data:
+            pieza_id = item.get('id')
+            cantidad = float(item.get('cantidad', 1))
+            
+            # Ignorar validación de stock para piezas manuales (ID negativo o None)
+            if pieza_id is None or pieza_id < 0:
+                continue
+            
+            pieza = db.session.get(Pieza, pieza_id)
+            if pieza and cantidad > pieza.cantidad:
+                errores_stock.append(f'Pieza "{pieza.nombre}": cantidad solicitada ({cantidad}) > stock disponible ({pieza.cantidad})')
+        
+        # Si hay errores de stock, retornar error
+        if errores_stock:
+            db.session.rollback()
+            flash('Error: No hay suficiente stock para las siguientes piezas:\\n' + '\\n'.join(errores_stock), 'danger')
+            return redirect(url_for('ordenes.editar', id=orden.id))
+        
+        # Ahora procesar las piezas (ya validadas)
         for item in piezas_data:
             pieza_id = item.get('id')
             cantidad = float(item.get('cantidad', 1))
@@ -211,23 +232,21 @@ def editar(id):
                 
                 pieza = db.session.get(Pieza, pieza_id)
                 if pieza:
-                    # Descontar del stock SOLO si la orden está pasando a estado final por primera vez
-                    if orden_concluida:
-                        # Descontar del stock
-                        pieza.cantidad -= cantidad
-                        
-                        # Registrar movimiento de salida
-                        movimiento = MovimientoInventario(
-                            pieza_id=pieza.id,
-                            tipo='salida',
-                            cantidad=cantidad,
-                            concepto=f'Usada en orden {orden.numero_orden}',
-                            orden_id=orden.id,
-                            fecha=datetime.now().strftime('%Y-%m-%d')
-                        )
-                        db.session.add(movimiento)
+                    # Descontar del stock INMEDIATAMENTE al agregar a la orden
+                    pieza.cantidad -= cantidad
                     
-                    # Agregar a la orden (siempre, independientemente del estado)
+                    # Registrar movimiento de salida
+                    movimiento = MovimientoInventario(
+                        pieza_id=pieza.id,
+                        tipo='salida',
+                        cantidad=cantidad,
+                        concepto=f'Usada en orden {orden.numero_orden}',
+                        orden_id=orden.id,
+                        fecha=datetime.now().strftime('%Y-%m-%d')
+                    )
+                    db.session.add(movimiento)
+                    
+                    # Agregar a la orden
                     orden_pieza = OrdenPieza(
                         orden_id=orden.id,
                         pieza_id=pieza.id,
