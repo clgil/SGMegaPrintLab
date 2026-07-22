@@ -7,6 +7,8 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <!-- AdminLTE 4 CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}">
     <!-- Estilos personalizados MegaPrint Lab v2.0 -->
@@ -15,68 +17,72 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="hold-transition sidebar-mini">
-<div class="app-wrapper">
+<div class="wrapper">
     {% if current_user.is_authenticated %}
     <!-- Navbar superior -->
-    <nav class="app-header navbar navbar-expand bg-body-tertiary shadow-sm">
-        <!-- Botón para colapsar la barra lateral -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="fas fa-bars"></i></a>
-            </li>
-        </ul>
-        
-        <!-- Buscador global en navbar -->
-        <div class="navbar-nav mx-auto">
-            <div class="input-group input-group-sm" style="max-width: 300px;">
-                <input type="text" class="form-control form-control-navbar" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
-                <div class="input-group-append">
-                    <button class="btn btn-navbar" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
+    <nav class="app-header navbar navbar-expand-lg navbar-white navbar-light border-bottom">
+        <div class="container-fluid">
+            <!-- Botón para colapsar la barra lateral -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Buscador global en navbar -->
+            <div class="navbar-nav mx-auto">
+                <div class="input-group input-group-sm" style="max-width: 300px;">
+                    <input type="text" class="form-control form-control-navbar" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
+                    <div class="input-group-append">
+                        <button class="btn btn-navbar" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+            
+            <!-- Menú derecho de navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Toggle de tema -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="themeToggle" role="button">
+                        <i class="fas fa-moon"></i>
+                    </a>
+                </li>
+                <!-- Perfil de usuario dropdown -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <span class="d-none d-md-inline">{{ current_user.nombre }}</span>
+                        <span class="badge badge-info navbar-badge">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                        <li class="user-footer">
+                            <a href="{{ url_for('auth.cambiar_password') }}" class="btn btn-default btn-flat">
+                                <i class="fas fa-key"></i> Cambiar Clave
+                            </a>
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-default btn-flat float-end">
+                                <i class="fas fa-sign-out-alt"></i> Salir
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </div>
-        
-        <!-- Menú derecho de navbar -->
-        <ul class="navbar-nav ms-auto">
-            <!-- Toggle de tema -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" id="themeToggle" role="button">
-                    <i class="fas fa-moon"></i>
-                </a>
-            </li>
-            <!-- Perfil de usuario dropdown -->
-            <li class="nav-item dropdown user-menu">
-                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                    <span class="d-none d-md-inline">{{ current_user.nombre }}</span>
-                    <span class="badge badge-info navbar-badge">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <li class="user-footer">
-                        <a href="{{ url_for('auth.cambiar_password') }}" class="btn btn-default btn-flat">
-                            <i class="fas fa-key"></i> Cambiar Clave
-                        </a>
-                        <a href="{{ url_for('auth.logout') }}" class="btn btn-default btn-flat float-end">
-                            <i class="fas fa-sign-out-alt"></i> Salir
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
     </nav>
 
     <!-- Barra lateral principal -->
-    <aside class="app-sidebar bg-dark text-white" data-lte-widget="sidebar">
+    <aside class="app-sidebar sidebar-dark-primary elevation-4" data-lte-widget="sidebar">
         <!-- Brand Logo -->
-        <a href="{{ url_for('dashboard') }}" class="app-sidebar__brand">
+        <a href="{{ url_for('dashboard') }}" class="brand-link">
             {% if config_taller.get('logotipo_taller') %}
                 <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                     alt="Logotipo del taller" class="app-sidebar__brand-image img-circle elevation-3" style="opacity: .8">
+                     alt="Logotipo del taller" class="brand-image img-circle elevation-3" style="opacity: .8">
             {% else %}
-                <span class="app-sidebar__brand-image img-circle elevation-3 bg-primary" style="opacity: .8; width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">🖨️</span>
+                <span class="brand-image img-circle elevation-3 bg-primary" style="opacity: .8; width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">🖨️</span>
             {% endif %}
-            <span class="app-sidebar__brand-text font-weight-light">
+            <span class="brand-text font-weight-light">
                 {% if config_taller.get('nombre_taller') %}
                     {{ config_taller.get('nombre_taller') }}
                 {% else %}
@@ -86,7 +92,7 @@
         </a>
 
         <!-- Sidebar -->
-        <div class="app-sidebar__container">
+        <div class="sidebar">
             <!-- Panel de usuario en sidebar -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
@@ -215,57 +221,55 @@
     </aside>
 
     <!-- Contenido principal -->
-    <main class="app-main">
-        <div class="app-content">
-            {% block breadcrumbs %}
-            <div class="app-content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">{% block page_title %}Dashboard{% endblock %}</h1>
-                        </div>
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-end">
-                                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                                {% block breadcrumb_items %}{% endblock %}
-                            </ol>
-                        </div>
+    <div class="content-wrapper">
+        {% block breadcrumbs %}
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                            {% block breadcrumb_items %}{% endblock %}
+                        </ol>
                     </div>
                 </div>
             </div>
-            {% endblock %}
-
-            <section class="content">
-                <div class="container-fluid">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
-                                    <span class="alert-icon">
-                                        {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
-                                    </span>
-                                    <span class="alert-content">{{ message }}</span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    {% block content %}{% endblock %}
-                </div>
-            </section>
         </div>
-    </main>
+        {% endblock %}
+
+        <section class="content">
+            <div class="container-fluid">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
+                                <span class="alert-icon">
+                                    {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                                </span>
+                                <span class="alert-content">{{ message }}</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    </div>
 
     <!-- Footer -->
-    <footer class="app-footer bg-body-tertiary border-top">
+    <footer class="main-footer bg-body-tertiary border-top">
         <div class="float-end d-none d-sm-block">
             <b>MegaPrint Lab</b> v2.0
         </div>
         <strong>Copyright &copy; {{ now().year if now is defined else '2025' }} <a href="#">MegaPrint Lab</a>.</strong> Todos los derechos reservados.
     </footer>
     {% else %}
-    <div class="app-wrapper">
+    <div class="wrapper">
         <div class="container mt-5">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -288,7 +292,7 @@
 </div>
 
 <!-- 1. Bootstrap 5 Bundle (Incluye Popper) -->
-<script src="{{ url_for('static', filename='plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 
 <!-- 2. AdminLTE App JS (Maneja el layout, sidebar y responsive) -->
 <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
