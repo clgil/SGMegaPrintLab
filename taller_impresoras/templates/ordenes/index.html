@@ -42,57 +42,59 @@
     <!-- Listado de órdenes -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Número</th>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Dispositivo</th>
-                        <th>Estado</th>
-                        <th>Técnico</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for orden in ordenes.items %}
-                    <tr>
-                        <td><strong>{{ orden.numero_orden }}</strong></td>
-                        <td>{{ orden.fecha_entrada }}</td>
-                        <td>{{ orden.cliente.nombre if orden.cliente else '-' }}</td>
-                        <td>{{ orden.dispositivo.marca + ' ' + orden.dispositivo.modelo if orden.dispositivo and orden.dispositivo.modelo else (orden.dispositivo.marca if orden.dispositivo else '-') }}</td>
-                        <td>
-                            {% if orden.estado == 'Recibido' %}
-                                <span class="badge bg-secondary">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'En diagnostico' %}
-                                <span class="badge bg-info">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'Esperando piezas' %}
-                                <span class="badge bg-warning">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'En reparacion' %}
-                                <span class="badge bg-primary">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'Listo para entregar' %}
-                                <span class="badge bg-success">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'Entregado' %}
-                                <span class="badge bg-success">{{ orden.estado }}</span>
-                            {% elif orden.estado == 'Cancelado' %}
-                                <span class="badge bg-danger">{{ orden.estado }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ orden.tecnico.nombre if orden.tecnico else '-' }}</td>
-                        <td>
-                            <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
-                            <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
-                            <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-sm btn-outline-info" target="_blank">🖨️ Imprimir</a>
-                            <a href="{{ url_for('ordenes.descargar', id=orden.id) }}" class="btn btn-sm btn-outline-success">⬇️ Descargar</a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">No hay órdenes registradas</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th class="d-none d-md-table-cell">Fecha</th>
+                            <th>Cliente</th>
+                            <th>Dispositivo</th>
+                            <th>Estado</th>
+                            <th class="d-none d-lg-table-cell">Técnico</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes.items %}
+                        <tr>
+                            <td><strong>{{ orden.numero_orden }}</strong></td>
+                            <td class="d-none d-md-table-cell">{{ orden.fecha_entrada }}</td>
+                            <td>{{ orden.cliente.nombre if orden.cliente else '-' }}</td>
+                            <td>{{ orden.dispositivo.marca + ' ' + orden.dispositivo.modelo if orden.dispositivo and orden.dispositivo.modelo else (orden.dispositivo.marca if orden.dispositivo else '-') }}</td>
+                            <td>
+                                {% if orden.estado == 'Recibido' %}
+                                    <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'En diagnostico' %}
+                                    <span class="badge bg-info">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'Esperando piezas' %}
+                                    <span class="badge bg-warning">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'En reparacion' %}
+                                    <span class="badge bg-primary">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'Listo para entregar' %}
+                                    <span class="badge bg-success">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'Entregado' %}
+                                    <span class="badge bg-success">{{ orden.estado }}</span>
+                                {% elif orden.estado == 'Cancelado' %}
+                                    <span class="badge bg-danger">{{ orden.estado }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="d-none d-lg-table-cell">{{ orden.tecnico.nombre if orden.tecnico else '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                                <a href="{{ url_for('ordenes.editar', id=orden.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+                                <a href="{{ url_for('ordenes.imprimir', id=orden.id) }}" class="btn btn-sm btn-outline-info" target="_blank">🖨️ Imprimir</a>
+                                <a href="{{ url_for('ordenes.descargar', id=orden.id) }}" class="btn btn-sm btn-outline-success">⬇️ Descargar</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No hay órdenes registradas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             
             <!-- Paginación -->
             {% if ordenes.pages > 1 %}

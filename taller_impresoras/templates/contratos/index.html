@@ -12,54 +12,56 @@
     <!-- Listado -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Descripción</th>
-                        <th>Frecuencia</th>
-                        <th>Inicio</th>
-                        <th>Próxima Visita</th>
-                        <th>Precio</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contrato in contratos.items %}
-                    <tr>
-                        <td>{{ contrato.cliente.nombre }}</td>
-                        <td>{{ contrato.descripcion or '-' }}</td>
-                        <td>
-                            {% if contrato.frecuencia == 'semanal' %}Semanal
-                            {% elif contrato.frecuencia == 'quincenal' %}Quincenal
-                            {% elif contrato.frecuencia == 'mensual' %}Mensual
-                            {% elif contrato.frecuencia == 'trimestral' %}Trimestral
-                            {% elif contrato.frecuencia == 'semestral' %}Semestral
-                            {% else %}Anual{% endif %}
-                        </td>
-                        <td>{{ contrato.fecha_inicio }}</td>
-                        <td>{{ contrato.calcular_proxima_visita() or 'N/A' }}</td>
-                        <td>${{ "%.2f"|format(contrato.precio_mantenimiento) }}</td>
-                        <td>
-                            {% if contrato.activo %}
-                                <span class="badge bg-success">Activo</span>
-                            {% else %}
-                                <span class="badge bg-danger">Inactivo</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('contratos.ver', id=contrato.id) }}" class="btn btn-sm btn-info">👁️ Ver</a>
-                            <a href="{{ url_for('contratos.editar', id=contrato.id) }}" class="btn btn-sm btn-warning">✏️</a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="9" class="text-center text-muted">No hay contratos registrados</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th class="d-none d-md-table-cell">Descripción</th>
+                            <th>Frecuencia</th>
+                            <th class="d-none d-lg-table-cell">Inicio</th>
+                            <th class="d-none d-lg-table-cell">Próxima Visita</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos.items %}
+                        <tr>
+                            <td>{{ contrato.cliente.nombre }}</td>
+                            <td class="d-none d-md-table-cell">{{ contrato.descripcion or '-' }}</td>
+                            <td>
+                                {% if contrato.frecuencia == 'semanal' %}Semanal
+                                {% elif contrato.frecuencia == 'quincenal' %}Quincenal
+                                {% elif contrato.frecuencia == 'mensual' %}Mensual
+                                {% elif contrato.frecuencia == 'trimestral' %}Trimestral
+                                {% elif contrato.frecuencia == 'semestral' %}Semestral
+                                {% else %}Anual{% endif %}
+                            </td>
+                            <td class="d-none d-lg-table-cell">{{ contrato.fecha_inicio }}</td>
+                            <td class="d-none d-lg-table-cell">{{ contrato.calcular_proxima_visita() or 'N/A' }}</td>
+                            <td>${{ "%.2f"|format(contrato.precio_mantenimiento) }}</td>
+                            <td>
+                                {% if contrato.activo %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('contratos.ver', id=contrato.id) }}" class="btn btn-sm btn-info">👁️ Ver</a>
+                                <a href="{{ url_for('contratos.editar', id=contrato.id) }}" class="btn btn-sm btn-warning">✏️</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">No hay contratos registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Paginación -->
             {% if contratos.pages > 1 %}

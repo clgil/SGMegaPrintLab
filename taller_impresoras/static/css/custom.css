@@ -867,6 +867,11 @@ body {
     box-shadow: var(--shadow-card);
 }
 
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -874,12 +879,12 @@ body {
 }
 
 .table thead {
-    background-color: var(--gray-50);
-    border-bottom: 2px solid var(--border-color);
+    background-color: var(--primary);
+    border-bottom: 2px solid var(--primary-hover);
 }
 
 [data-theme="dark"] .table thead {
-    background-color: var(--gray-700);
+    background-color: var(--gray-800);
     border-bottom-color: var(--gray-600);
 }
 
@@ -890,31 +895,43 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    background-color: transparent;
+    color: var(--white);
+    background-color: var(--primary);
+    white-space: nowrap;
 }
 
 [data-theme="dark"] .table th {
-    color: var(--gray-300);
+    color: var(--white);
+    background-color: var(--gray-800);
 }
 
 .table td {
-    padding: var(--space-4);
+    padding: 0.75rem var(--space-4);
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     font-size: var(--font-size-sm);
+    vertical-align: middle;
+    border-top: 1px solid var(--gray-200);
+}
+
+[data-theme="dark"] .table td {
+    border-top-color: var(--gray-700);
 }
 
 .table tbody tr {
     transition: background-color var(--transition-base);
 }
 
-.table tbody tr td {
-    background-color: var(--bg-card);
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--gray-50);
+}
+
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .table tbody tr:hover td {
-    background-color: var(--gray-50);
+    background-color: var(--gray-100);
 }
 
 [data-theme="dark"] .table tbody tr:hover td {
@@ -1530,5 +1547,12 @@ body {
     
     .search-global {
         display: none;
+    }
+    
+    /* Tablas en móviles: reducir tamaño de fuente */
+    .table td,
+    .table th {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
     }
 }
