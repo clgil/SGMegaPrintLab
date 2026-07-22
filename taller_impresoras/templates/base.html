@@ -5,413 +5,299 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MegaPrint Lab{% endblock %}</title>
     
-    <!-- Bootstrap 5 CSS local -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- AdminLTE 4 CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}">
     <!-- Estilos personalizados MegaPrint Lab v2.0 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
     {% if current_user.is_authenticated %}
-    <!-- Botón hamburguesa solo visible en móviles -->
-    <button class="btn btn-icon d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú" style="position: fixed; top: 1rem; left: 1rem; z-index: 1050;">
-        ☰
-    </button>
-    
-    <!-- Sidebar Offcanvas para móviles -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
-        <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
-            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-        </div>
-        <div class="offcanvas-body p-0">
-            <nav class="sidebar-mobile">
-                <div class="sidebar-header">
-                    <div class="taller-brand">
-                        {% if config_taller.get('logotipo_taller') %}
-                            <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                                 alt="Logotipo del taller" class="taller-logo">
-                        {% else %}
-                            <div class="taller-icon">🖨️</div>
-                        {% endif %}
-                        <h4 class="taller-name">
-                            {% if config_taller.get('nombre_taller') %}
-                                {{ config_taller.get('nombre_taller') }}
-                            {% else %}
-                                MegaPrint Lab
-                            {% endif %}
-                        </h4>
-                    </div>
-                    <div class="user-info">
-                        <div>{{ current_user.nombre }}</div>
-                        {% if current_user.rol %}
-                        <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
-                        {% endif %}
-                    </div>
+    <!-- Navbar superior -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <!-- Botón para colapsar la barra lateral -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
+        </ul>
+        
+        <!-- Buscador global en navbar -->
+        <div class="navbar-nav mx-auto">
+            <div class="input-group input-group-sm" style="max-width: 300px;">
+                <input type="text" class="form-control form-control-navbar" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
+                <div class="input-group-append">
+                    <button class="btn btn-navbar" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-                
-                <ul class="sidebar-nav nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📊</span>
-                            <span class="nav-text">Dashboard</span>
+            </div>
+        </div>
+        
+        <!-- Menú derecho de navbar -->
+        <ul class="navbar-nav ml-auto">
+            <!-- Toggle de tema -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="themeToggle" role="button">
+                    <i class="fas fa-moon"></i>
+                </a>
+            </li>
+            <!-- Perfil de usuario dropdown -->
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <span class="d-none d-md-inline">{{ current_user.nombre }}</span>
+                    <span class="badge badge-info navbar-badge">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                    <li class="user-footer">
+                        <a href="{{ url_for('auth.cambiar_password') }}" class="btn btn-default btn-flat">
+                            <i class="fas fa-key"></i> Cambiar Clave
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-default btn-flat float-right">
+                            <i class="fas fa-sign-out-alt"></i> Salir
                         </a>
                     </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Barra lateral principal -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Brand Logo -->
+        <a href="{{ url_for('dashboard') }}" class="brand-link">
+            {% if config_taller.get('logotipo_taller') %}
+                <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
+                     alt="Logotipo del taller" class="brand-image img-circle elevation-3" style="opacity: .8">
+            {% else %}
+                <span class="brand-image img-circle elevation-3 bg-primary" style="opacity: .8; width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">🖨️</span>
+            {% endif %}
+            <span class="brand-text font-weight-light">
+                {% if config_taller.get('nombre_taller') %}
+                    {{ config_taller.get('nombre_taller') }}
+                {% else %}
+                    MegaPrint Lab
+                {% endif %}
+            </span>
+        </a>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Panel de usuario en sidebar -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <span class="img-circle elevation-2 bg-info" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; color: white;">{{ current_user.nombre[0].upper() }}</span>
+                </div>
+                <div class="info">
+                    <a href="#" class="d-block">{{ current_user.nombre }}</a>
+                    <span class="text-muted text-xs">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
+                </div>
+            </div>
+
+            <!-- Menú de navegación Sidebar -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    
                     {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📋</span>
-                            <span class="nav-text">Órdenes</span>
+                        <a href="{{ url_for('ordenes.index') }}" class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Órdenes</p>
                         </a>
                     </li>
                     {% endif %}
+                    
                     {% if current_user.rol == 'administrador' %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">👥</span>
-                            <span class="nav-text">Clientes</span>
+                        <a href="{{ url_for('clientes.index') }}" class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Clientes</p>
                         </a>
                     </li>
                     {% endif %}
+                    
                     {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">🖨️</span>
-                            <span class="nav-text">Dispositivos</span>
+                        <a href="{{ url_for('dispositivos.index') }}" class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-print"></i>
+                            <p>Dispositivos</p>
                         </a>
                     </li>
                     {% endif %}
+                    
                     {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📦</span>
-                            <span class="nav-text">Inventario</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">🔧</span>
-                            <span class="nav-text">Técnicos</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📈</span>
-                            <span class="nav-text">Reportes</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">💾</span>
-                            <span class="nav-text">Respaldo</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">🚚</span>
-                            <span class="nav-text">Proveedores</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📄</span>
-                            <span class="nav-text">Contratos</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.rol == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">⚙️</span>
-                            <span class="nav-text">Configuración</span>
+                        <a href="{{ url_for('inventario.index') }}" class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-boxes"></i>
+                            <p>Inventario</p>
                         </a>
                     </li>
                     {% endif %}
                     
-                    <div class="nav-section-title">Administración</div>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">🔑</span>
-                            <span class="nav-text">Cambiar Clave</span>
-                        </a>
-                    </li>
                     {% if current_user.rol == 'administrador' %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">👤</span>
-                            <span class="nav-text">Usuarios</span>
+                        <a href="{{ url_for('tecnicos.index') }}" class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-tools"></i>
+                            <p>Técnicos</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('proveedores.index') }}" class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-truck"></i>
+                            <p>Proveedores</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('contratos.index') }}" class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-file-contract"></i>
+                            <p>Contratos</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('reportes.index') }}" class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Reportes</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('backup.index') }}" class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-database"></i>
+                            <p>Respaldo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('auth.configuracion_taller') }}" class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-cogs"></i>
+                            <p>Configuración</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('usuarios.index') }}" class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-user-shield"></i>
+                            <p>Usuarios</p>
                         </a>
                     </li>
                     {% endif %}
+                    
+                    <li class="nav-header">Administración</li>
+                    
                     <li class="nav-item">
-                        <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">📚</span>
-                            <span class="nav-text">Ayuda</span>
+                        <a href="{{ url_for('auth.cambiar_password') }}" class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>Cambiar Clave</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('ayuda.index') }}" class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}">
+                            <i class="nav-icon fas fa-book"></i>
+                            <p>Ayuda</p>
                         </a>
                     </li>
                     <li class="nav-item mt-3">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);" data-bs-dismiss="offcanvas">
-                            <span class="nav-icon">🚪</span>
-                            <span class="nav-text">Cerrar Sesión</span>
+                        <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>Cerrar Sesión</p>
                         </a>
                     </li>
                 </ul>
             </nav>
         </div>
-    </div>
-    
-    <!-- Sidebar fijo para pantallas grandes (md+) -->
-    <nav class="sidebar d-none d-md-flex" id="sidebar">
-        <div class="sidebar-header">
-            <div class="taller-brand">
-                {% if config_taller.get('logotipo_taller') %}
-                    <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                         alt="Logotipo del taller" class="taller-logo">
-                {% else %}
-                    <div class="taller-icon">🖨️</div>
-                {% endif %}
-                <h4 class="taller-name">
-                    {% if config_taller.get('nombre_taller') %}
-                        {{ config_taller.get('nombre_taller') }}
-                    {% else %}
-                        MegaPrint Lab
-                    {% endif %}
-                </h4>
-            </div>
-            <div class="user-info">
-                <div>{{ current_user.nombre }}</div>
-                {% if current_user.rol %}
-                <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <ul class="sidebar-nav nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">Órdenes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-text">Clientes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}">
-                    <span class="nav-icon">🖨️</span>
-                    <span class="nav-text">Dispositivos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}">
-                    <span class="nav-icon">📦</span>
-                    <span class="nav-text">Inventario</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}">
-                    <span class="nav-icon">🔧</span>
-                    <span class="nav-text">Técnicos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}">
-                    <span class="nav-icon">📈</span>
-                    <span class="nav-text">Reportes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}">
-                    <span class="nav-icon">💾</span>
-                    <span class="nav-text">Respaldo</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}">
-                    <span class="nav-icon">🚚</span>
-                    <span class="nav-text">Proveedores</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}">
-                    <span class="nav-icon">📄</span>
-                    <span class="nav-text">Contratos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-text">Configuración</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <div class="nav-section-title">Administración</div>
-            
-            <li class="nav-item">
-                <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}">
-                    <span class="nav-icon">🔑</span>
-                    <span class="nav-text">Cambiar Clave</span>
-                </a>
-            </li>
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}">
-                    <span class="nav-icon">👤</span>
-                    <span class="nav-text">Usuarios</span>
-                </a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}">
-                    <span class="nav-icon">📚</span>
-                    <span class="nav-text">Ayuda</span>
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
-                    <span class="nav-icon">🚪</span>
-                    <span class="nav-text">Cerrar Sesión</span>
-                </a>
-            </li>
-        </ul>
-        
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Colapsar menú">
-            ◀
-        </button>
-    </nav>
-    
-    <!-- Navbar Superior -->
-    <header class="navbar-top">
-        <div class="navbar-left">
-            <div class="search-global">
-                <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
-                <span class="search-shortcut">Ctrl K</span>
-            </div>
-        </div>
-        <div class="navbar-right">
-            <button class="btn-icon" type="button" aria-label="Notificaciones" id="themeToggle">
-                🌙
-                <span class="notification-badge hidden" id="notificationBadge"></span>
-            </button>
-            <div class="user-menu">
-                <div class="user-avatar">{{ current_user.nombre[0].upper() }}</div>
-                <span class="user-name">{{ current_user.nombre }}</span>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Command Palette -->
-    <div class="command-palette" id="commandPalette">
-        <input type="text" class="command-palette-input" placeholder="Escribe para buscar comandos..." id="commandInput">
-        <div class="command-palette-results" id="commandResults">
-            <!-- Resultados dinámicos -->
-        </div>
-    </div>
-    
+    </aside>
+
     <!-- Contenido principal -->
-    <main class="main-content">
-        <div class="container-fluid">
-        <!-- Breadcrumbs -->
+    <div class="content-wrapper">
         {% block breadcrumbs %}
-        <nav class="breadcrumbs">
-            <div class="breadcrumb-item">
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                            {% block breadcrumb_items %}{% endblock %}
+                        </ol>
+                    </div>
+                </div>
             </div>
-            {% block breadcrumb_items %}{% endblock %}
-        </nav>
-        {% endblock %}
-        
-        <!-- Mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        <span class="alert-icon">
-                            {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
-                        </span>
-                        <span class="alert-content">{{ message }}</span>
-                        <button type="button" class="alert-close" data-bs-dismiss="alert">×</button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
         </div>
-    </main>
+        {% endblock %}
+
+        <section class="content">
+            <div class="container-fluid">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
+                                <span class="alert-icon">
+                                    {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                                </span>
+                                <span class="alert-content">{{ message }}</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-block">
+            <b>MegaPrint Lab</b> v2.0
+        </div>
+        <strong>Copyright &copy; {{ now().year if now is defined else '2025' }} <a href="#">MegaPrint Lab</a>.</strong> Todos los derechos reservados.
+    </footer>
     {% else %}
-    <!-- Sin autenticación -->
-    <div class="container mt-5">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        <span class="alert-icon">
-                            {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
-                        </span>
-                        <span class="alert-content">{{ message }}</span>
-                        <button type="button" class="alert-close" data-bs-dismiss="alert">×</button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content_no_auth %}{% endblock %}
+    <div class="wrapper">
+        <div class="container mt-5">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
+                            <span class="alert-icon">
+                                {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                            </span>
+                            <span class="alert-content">{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content_no_auth %}{% endblock %}
+        </div>
     </div>
     {% endif %}
-    
-    <!-- Bootstrap JS local -->
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <!-- Utilidades de UX -->
-    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-    
-    {% block scripts %}
-    <!-- Script personalizado MegaPrint Lab v2.0 -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    {% endblock %}
+</div>
 
-    {% block extra_js %}{% endblock %}
+<script src="{{ url_for('static', filename='plugins/@popperjs/core/dist/umd/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>
