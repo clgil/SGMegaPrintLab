@@ -9,50 +9,35 @@ env/
 venv/
 .venv/
 .ENV
-.ENV.db
-.ENV.local
-.ENV.*
 .env
-.env.db
-.env.local
-.env.*
 
-# Django/Python web framework
+# Django/Python web development
 *.log
-*.pot
-*.pyc
-__pycache__/
-*.mo
-*.pot
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Static files and media
-staticfiles/
-media/
-
-# IDE
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage
-.coverage
+# Coverage reports
+coverage/
 htmlcov/
-.coverage.*
+.coverage
 
-# Testing
-.pytest_cache/
-.mypy_cache/
-
-# Build
-build/
+# Build outputs
 dist/
+build/
 *.egg-info/
+
+# MyPy cache
+.mypy_cache/
 ```

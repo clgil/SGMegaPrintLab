@@ -5,41 +5,51 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10 col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h4>{{ accion }} Cliente</h4>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{% if cliente %}{{ url_for('clientes.editar', id=cliente.id) }}{% else %}{{ url_for('clientes.nuevo') }}{% endif %}">
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre Completo *</label>
-                            <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required autofocus>
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control py-3" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required autofocus placeholder="Nombre Completo">
+                                    <label for="nombre">Nombre Completo *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-md-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control py-3" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" placeholder="Teléfono">
+                                    <label for="telefono">Teléfono</label>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" placeholder="Ej: 51234567">
+                            <div class="form-floating">
+                                <textarea class="form-control py-3" id="direccion" name="direccion" rows="2" placeholder="Dirección">{{ cliente.direccion if cliente else '' }}</textarea>
+                                <label for="direccion">Dirección</label>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="direccion" class="form-label">Dirección</label>
-                            <textarea class="form-control" id="direccion" name="direccion" rows="2">{{ cliente.direccion if cliente else '' }}</textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="tipo_cliente" class="form-label">Tipo de Cliente *</label>
-                            <select class="form-select" id="tipo_cliente" name="tipo_cliente" required>
-                                {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
-                                {% for tipo in tipos %}
-                                <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="form-floating">
+                                <select class="form-select py-3" id="tipo_cliente" name="tipo_cliente" required placeholder="Tipo de Cliente">
+                                    {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
+                                    {% for tipo in tipos %}
+                                    <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="tipo_cliente">Tipo de Cliente *</label>
+                            </div>
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary btn-lg">💾 Guardar</button>
+                            <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">Cancelar</a>
+                            <button type="submit" class="btn btn-primary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">💾 Guardar</button>
                         </div>
                     </form>
                 </div>
