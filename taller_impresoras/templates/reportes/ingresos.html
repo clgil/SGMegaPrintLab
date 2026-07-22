@@ -68,14 +68,14 @@
                                     N/A
                                 {% endif %}
                             </td>
-                            <td class="text-end"><strong>${{ "%.2f"|format(orden.costo_total) }}</strong></td>
+                            <td class="text-right"><strong>${{ "%.2f"|format(orden.costo_total) }}</strong></td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr class="table-primary">
-                            <td colspan="4" class="text-end"><strong>Total Ingresos:</strong></td>
-                            <td class="text-end"><strong>${{ "%.2f"|format(total_ingresos) }}</strong></td>
+                            <td colspan="4" class="text-right"><strong>Total Ingresos:</strong></td>
+                            <td class="text-right"><strong>${{ "%.2f"|format(total_ingresos) }}</strong></td>
                         </tr>
                     </tfoot>
                 </table>
