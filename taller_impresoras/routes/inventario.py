@@ -14,10 +14,11 @@ inventario_bp = Blueprint('inventario', __name__, template_folder='../templates'
 @inventario_bp.route('/')
 @rol_requerido(['administrador', 'tecnico'])
 def index():
-    """Listado de piezas con filtro por categoría y alertas de stock bajo"""
+    """Listado de piezas con filtro por categoría, stock bajo y búsqueda por nombre"""
     pagina = request.args.get('pagina', 1, type=int)
     categoria_id = request.args.get('categoria_id', type=int)
     mostrar_stock_bajo = request.args.get('stock_bajo', '')
+    busqueda_nombre = request.args.get('busqueda', '')
     
     query = Pieza.query
     
@@ -27,6 +28,10 @@ def index():
     if mostrar_stock_bajo:
         # Mostrar solo piezas con stock bajo
         query = query.filter(Pieza.cantidad <= Pieza.cantidad_minima)
+    
+    if busqueda_nombre:
+        # Filtrar por nombre de pieza
+        query = query.filter(Pieza.nombre.ilike(f'%{busqueda_nombre}%'))
     
     # Paginación de 20 registros
     piezas_pagina = query.order_by(Pieza.nombre).paginate(page=pagina, per_page=20, error_out=False)
@@ -38,6 +43,7 @@ def index():
                          categorias=categorias,
                          categoria_seleccionada=categoria_id,
                          mostrar_stock_bajo=mostrar_stock_bajo,
+                         busqueda_nombre=busqueda_nombre,
                          pagina_actual=pagina)
 
 
