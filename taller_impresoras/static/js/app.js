@@ -176,14 +176,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // FUNCIONALIDAD EXISTENTE (alertas, etc.)
     // ========================================
     
-    // Auto-cerrar alertas después de 5 segundos
+    // 1) Auto-cerrar alertas después de 4 segundos con fade-out suave
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {
         setTimeout(function() {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
+            // Agregar clase para fade-out suave
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            // Esperar a que termine la transición antes de remover
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 500);
+        }, 4000);
     });
+    
+    // 2) Spinner de carga en botones submit - evitar dobles envíos
+    const forms = document.querySelectorAll('form');
+    forms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            // Buscar todos los botones submit dentro del formulario
+            const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+            submitButtons.forEach(function(btn) {
+                // Guardar el texto original si no está guardado
+                if (!btn.dataset.originalText) {
+                    btn.dataset.originalText = btn.textContent || btn.value;
+                }
+                // Deshabilitar botón y mostrar estado de procesamiento
+                btn.disabled = true;
+                if (btn.tagName === 'BUTTON') {
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+                } else if (btn.tagName === 'INPUT') {
+                    btn.value = 'Procesando...';
+                }
+            });
+        });
+    });
+    
+    // También manejar clicks individuales en botones submit fuera de forms
+    const submitButtons = document.querySelectorAll('button[type="submit"]');
+    submitButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            // Solo si no está ya deshabilitado
+            if (!btn.disabled && !btn.dataset.originalText) {
+                btn.dataset.originalText = btn.textContent;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+            }
+        });
+    });
+    
+    // 3) Inicializar tooltips de Bootstrap en todos los elementos con data-bs-toggle="tooltip"
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // ========================================
+    // FUNCIONALIDAD ADICIONAL EXISTENTE
+    // ========================================
     
     // Confirmación para eliminaciones
     const deleteForms = document.querySelectorAll('.delete-form');
@@ -203,8 +254,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Validación de formularios antes de enviar
-    const forms = document.querySelectorAll('form.needs-validation');
-    forms.forEach(function(form) {
+    const validationForms = document.querySelectorAll('form.needs-validation');
+    validationForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
             if (!form.checkValidity()) {
                 e.preventDefault();
