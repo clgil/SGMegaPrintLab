@@ -19,8 +19,166 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <!-- Sidebar Moderno -->
-    <nav class="sidebar" id="sidebar">
+    <!-- Botón hamburguesa solo visible en móviles -->
+    <button class="btn btn-icon d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú" style="position: fixed; top: 1rem; left: 1rem; z-index: 1050;">
+        ☰
+    </button>
+    
+    <!-- Sidebar Offcanvas para móviles -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <nav class="sidebar-mobile">
+                <div class="sidebar-header">
+                    <div class="taller-brand">
+                        {% if config_taller.get('logotipo_taller') %}
+                            <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
+                                 alt="Logotipo del taller" class="taller-logo">
+                        {% else %}
+                            <div class="taller-icon">🖨️</div>
+                        {% endif %}
+                        <h4 class="taller-name">
+                            {% if config_taller.get('nombre_taller') %}
+                                {{ config_taller.get('nombre_taller') }}
+                            {% else %}
+                                MegaPrint Lab
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="user-info">
+                        <div>{{ current_user.nombre }}</div>
+                        {% if current_user.rol %}
+                        <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <ul class="sidebar-nav nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-text">Órdenes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">👥</span>
+                            <span class="nav-text">Clientes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">🖨️</span>
+                            <span class="nav-text">Dispositivos</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📦</span>
+                            <span class="nav-text">Inventario</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">🔧</span>
+                            <span class="nav-text">Técnicos</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📈</span>
+                            <span class="nav-text">Reportes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">💾</span>
+                            <span class="nav-text">Respaldo</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">🚚</span>
+                            <span class="nav-text">Proveedores</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📄</span>
+                            <span class="nav-text">Contratos</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-text">Configuración</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <div class="nav-section-title">Administración</div>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">🔑</span>
+                            <span class="nav-text">Cambiar Clave</span>
+                        </a>
+                    </li>
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-text">Usuarios</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">📚</span>
+                            <span class="nav-text">Ayuda</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);" data-bs-dismiss="offcanvas">
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Cerrar Sesión</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Sidebar fijo para pantallas grandes (md+) -->
+    <nav class="sidebar d-none d-md-flex" id="sidebar">
         <div class="sidebar-header">
             <div class="taller-brand">
                 {% if config_taller.get('logotipo_taller') %}
@@ -171,9 +329,6 @@
     <!-- Navbar Superior -->
     <header class="navbar-top">
         <div class="navbar-left">
-            <button class="btn-icon" id="sidebarToggleTop" type="button" aria-label="Toggle sidebar">
-                ☰
-            </button>
             <div class="search-global">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
@@ -202,6 +357,7 @@
     
     <!-- Contenido principal -->
     <main class="main-content">
+        <div class="container-fluid">
         <!-- Breadcrumbs -->
         {% block breadcrumbs %}
         <nav class="breadcrumbs">
@@ -228,6 +384,7 @@
         {% endwith %}
         
         {% block content %}{% endblock %}
+        </div>
     </main>
     {% else %}
     <!-- Sin autenticación -->
