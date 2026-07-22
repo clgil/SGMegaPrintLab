@@ -52,7 +52,7 @@
     /* ========================================
        TIPOGRAFÍA
        ======================================== */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
@@ -64,8 +64,8 @@
     /* ========================================
        RADIOS DE BORDE
        ======================================== */
-    --radius-sm: 8px;
-    --radius-md: 12px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
     --radius-lg: 16px;
     --radius-xl: 20px;
     --radius-full: 9999px;
@@ -73,10 +73,10 @@
     /* ========================================
        SOMBRAS
        ======================================== */
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.12);
-    --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.18);
-    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
     
     /* ========================================
        ESPACIADO (múltiplos de 8)
@@ -189,7 +189,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    font-size: var(--font-size-3xl);
     margin-bottom: var(--space-2);
     background: linear-gradient(135deg, var(--primary), var(--info));
     border-radius: var(--radius-md);
@@ -304,7 +304,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: var(--font-size-lg);
 }
 
 .nav-text {
@@ -408,7 +408,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
 }
 
 .search-shortcut {
@@ -515,15 +515,15 @@ body {
    ============================================ */
 .card {
     background-color: var(--bg-card);
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
     transition: all var(--transition-base);
 }
 
 .card:hover {
-    box-shadow: var(--shadow-hover);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
@@ -544,10 +544,10 @@ body {
 /* KPI Cards */
 .kpi-card {
     background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
+    border-radius: 16px;
+    padding: 1.25rem;
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: all var(--transition-base);
     position: relative;
     overflow: hidden;
@@ -577,7 +577,7 @@ body {
 
 .kpi-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-elevated);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .kpi-icon {
@@ -587,7 +587,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     margin-bottom: var(--space-3);
 }
 
@@ -658,7 +658,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    padding: 0.625rem 1.25rem;
     font-size: var(--font-size-sm);
     font-weight: 500;
     border-radius: var(--radius-md);
@@ -676,8 +676,8 @@ body {
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    transform: scale(1.03);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
 }
 
 .btn-secondary {
@@ -686,6 +686,7 @@ body {
 }
 
 .btn-secondary:hover {
+    transform: scale(1.03);
     background-color: var(--gray-300);
 }
 
@@ -694,9 +695,17 @@ body {
     color: var(--white);
 }
 
+.btn-success:hover {
+    transform: scale(1.03);
+}
+
 .btn-danger {
     background: linear-gradient(135deg, var(--danger), var(--danger-hover));
     color: var(--white);
+}
+
+.btn-danger:hover {
+    transform: scale(1.03);
 }
 
 .btn-outline {
@@ -706,6 +715,7 @@ body {
 }
 
 .btn-outline:hover {
+    transform: scale(1.03);
     border-color: var(--primary);
     color: var(--primary);
     background-color: var(--primary-light);
@@ -717,6 +727,7 @@ body {
 }
 
 .btn-ghost:hover {
+    transform: scale(1.03);
     background-color: var(--gray-100);
     color: var(--text-primary);
 }
@@ -726,12 +737,12 @@ body {
 }
 
 .btn-sm {
-    padding: var(--space-1) var(--space-3);
+    padding: 0.5rem 0.75rem;
     font-size: var(--font-size-xs);
 }
 
 .btn-lg {
-    padding: var(--space-3) var(--space-6);
+    padding: 0.75rem 1.5rem;
     font-size: var(--font-size-base);
 }
 
@@ -800,7 +811,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
 }
 
 .form-help {
@@ -1044,7 +1055,7 @@ body {
 .alert-close {
     background: transparent;
     border: none;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     cursor: pointer;
     color: inherit;
     opacity: 0.5;
@@ -1113,7 +1124,7 @@ body {
 .modal-close {
     background: transparent;
     border: none;
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     cursor: pointer;
     color: var(--text-muted);
     transition: color var(--transition-base);
@@ -1175,7 +1186,7 @@ body {
 }
 
 .empty-state-icon {
-    font-size: 4rem;
+    font-size: var(--font-size-3xl);
     margin-bottom: var(--space-4);
     opacity: 0.5;
 }
@@ -1492,6 +1503,15 @@ body {
     letter-spacing: 0.05em;
     padding: var(--space-3) var(--space-3) var(--space-2);
     margin-top: var(--space-3);
+}
+
+.offcanvas {
+    background: linear-gradient(180deg, var(--gray-900), var(--gray-800));
+}
+
+.offcanvas-header {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), transparent);
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
 .offcanvas.show ~ .navbar-top {
