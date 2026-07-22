@@ -60,7 +60,7 @@
                         <td><strong>{{ orden.numero_orden }}</strong></td>
                         <td>{{ orden.fecha_entrada }}</td>
                         <td>{{ orden.cliente.nombre if orden.cliente else '-' }}</td>
-                        <td>{{ orden.dispositivo.marca if orden.dispositivo else '-' }}</td>
+                        <td>{{ orden.dispositivo.marca + ' ' + orden.dispositivo.modelo if orden.dispositivo and orden.dispositivo.modelo else (orden.dispositivo.marca if orden.dispositivo else '-') }}</td>
                         <td>
                             {% if orden.estado == 'Recibido' %}
                                 <span class="badge bg-secondary">{{ orden.estado }}</span>
