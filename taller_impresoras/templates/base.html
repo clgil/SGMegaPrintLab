@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <!-- AdminLTE 4 CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/css/adminlte.min.css') }}">
-    <!-- Estilos personalizados MegaPrint Lab v2.0 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <!-- Estilos personalizados MegaPrint Lab v2.0 - DESHABILITADO para usar AdminLTE puro -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}"> -->
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -55,14 +55,14 @@
                 <li class="nav-item dropdown user-menu">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                         <span class="d-none d-md-inline">{{ current_user.nombre }}</span>
-                        <span class="badge badge-info navbar-badge">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
+                        <span class="badge bg-info navbar-badge">{{ current_user.rol | capitalize if current_user.rol else 'Usuario' }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                         <li class="user-footer">
                             <a href="{{ url_for('auth.cambiar_password') }}" class="btn btn-default btn-flat">
                                 <i class="fas fa-key"></i> Cambiar Clave
                             </a>
-                            <a href="{{ url_for('auth.logout') }}" class="btn btn-default btn-flat float-end">
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-default float-end">
                                 <i class="fas fa-sign-out-alt"></i> Salir
                             </a>
                         </li>
@@ -73,14 +73,14 @@
     </nav>
 
     <!-- Barra lateral principal -->
-    <aside class="app-sidebar sidebar-dark-primary elevation-4" data-lte-widget="sidebar">
+    <aside class="app-sidebar sidebar-dark-primary" data-lte-widget="sidebar">
         <!-- Brand Logo -->
         <a href="{{ url_for('dashboard') }}" class="brand-link">
             {% if config_taller.get('logotipo_taller') %}
                 <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                     alt="Logotipo del taller" class="brand-image elevation-3" style="width: 33px; height: 33px; object-fit: contain;">
+                     alt="Logotipo del taller" class="brand-image" style="width: 33px; height: 33px; object-fit: contain;">
             {% else %}
-                <span class="brand-image elevation-3 bg-primary" style="width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 50%;">🖨️</span>
+                <span class="brand-image bg-primary" style="width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 50%;">🖨️</span>
             {% endif %}
             <span class="brand-text font-weight-light">
                 {% if config_taller.get('nombre_taller') %}
@@ -96,7 +96,7 @@
             <!-- Panel de usuario en sidebar -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
-                    <span class="img-circle elevation-2 bg-info" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; color: white;">{{ current_user.nombre[0].upper() }}</span>
+                    <span class="img-circle bg-info" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; color: white;">{{ current_user.nombre[0].upper() }}</span>
                 </div>
                 <div class="info">
                     <a href="#" class="d-block">{{ current_user.nombre }}</a>

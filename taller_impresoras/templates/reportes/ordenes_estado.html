@@ -37,8 +37,8 @@
                             <thead>
                                 <tr>
                                     <th>Estado</th>
-                                    <th class="text-right">Cantidad</th>
-                                    <th class="text-right">Porcentaje</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Porcentaje</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -46,25 +46,25 @@
                                 <tr>
                                     <td>
                                         {% if resultado[0] == 'Recibido' %}
-                                            <span class="badge badge-secondary">{{ resultado[0] }}</span>
+                                            <span class="badge bg-secondary">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'En diagnostico' %}
-                                            <span class="badge badge-info">{{ resultado[0] }}</span>
+                                            <span class="badge bg-info">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'Esperando piezas' %}
-                                            <span class="badge badge-warning">{{ resultado[0] }}</span>
+                                            <span class="badge bg-warning">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'En reparacion' %}
-                                            <span class="badge badge-primary">{{ resultado[0] }}</span>
+                                            <span class="badge bg-primary">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'Listo para entregar' %}
-                                            <span class="badge badge-success">{{ resultado[0] }}</span>
+                                            <span class="badge bg-success">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'Entregado' %}
-                                            <span class="badge badge-success">{{ resultado[0] }}</span>
+                                            <span class="badge bg-success">{{ resultado[0] }}</span>
                                         {% elif resultado[0] == 'Cancelado' %}
-                                            <span class="badge badge-danger">{{ resultado[0] }}</span>
+                                            <span class="badge bg-danger">{{ resultado[0] }}</span>
                                         {% else %}
-                                            <span class="badge badge-light">{{ resultado[0] }}</span>
+                                            <span class="badge bg-light">{{ resultado[0] }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-right"><strong>{{ resultado[1] }}</strong></td>
-                                    <td class="text-right">
+                                    <td class="text-end"><strong>{{ resultado[1] }}</strong></td>
+                                    <td class="text-end">
                                         {% if total > 0 %}
                                             {{ "%.1f"|format((resultado[1] / total) * 100) }}%
                                         {% else %}
@@ -77,8 +77,8 @@
                             <tfoot>
                                 <tr class="table-primary">
                                     <td><strong>Total</strong></td>
-                                    <td class="text-right"><strong>{{ total }}</strong></td>
-                                    <td class="text-right"><strong>100%</strong></td>
+                                    <td class="text-end"><strong>{{ total }}</strong></td>
+                                    <td class="text-end"><strong>100%</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
