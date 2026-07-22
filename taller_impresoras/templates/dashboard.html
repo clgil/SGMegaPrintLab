@@ -337,7 +337,7 @@
     
     <!-- Tarjetas resumen para administrador -->
     <div class="row mb-4">
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-primary text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Órdenes Totales</h5>
@@ -346,7 +346,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-success text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Completadas</h5>
@@ -355,7 +355,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-warning text-dark shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Pendientes</h5>
@@ -364,7 +364,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-secondary text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Total Usuarios</h5>
@@ -373,7 +373,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-info text-white shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Técnicos</h5>
@@ -382,7 +382,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-warning text-dark shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Proveedores</h5>
@@ -395,7 +395,7 @@
     
     <!-- Usuarios por rol -->
     <div class="row mb-4">
-        <div class="col-md-2">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
             <div class="card bg-light text-dark shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Clientes</h5>
@@ -534,7 +534,7 @@
                                     {% set max_ingreso = ingresos_mensuales | map(attribute='ingreso') | max %}
                                     {% if max_ingreso > 0 %}
                                         {% set ancho = (item.ingreso / max_ingreso * 100)|int %}
-                                        <div class="progress" style="height: 10px; width: 100px;">
+                                        <div class="progress" style="height: 10px; width: 100%;">
                                             <div class="progress-bar bg-success" style="width: {{ ancho }}%"></div>
                                         </div>
                                     {% endif %}
