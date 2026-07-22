@@ -20,7 +20,7 @@
 <div class="wrapper">
     {% if current_user.is_authenticated %}
     <!-- Navbar superior -->
-    <nav class="app-header navbar navbar-expand-lg navbar-white navbar-light border-bottom">
+    <nav class="app-header navbar navbar-expand bg-body-tertiary border-bottom">
         <div class="container-fluid">
             <!-- Botón para colapsar la barra lateral -->
             <ul class="navbar-nav">
@@ -32,7 +32,7 @@
             </ul>
             
             <!-- Buscador global en navbar -->
-            <div class="navbar-nav mx-auto">
+            <form class="d-flex ms-3 me-auto" role="search">
                 <div class="input-group input-group-sm" style="max-width: 300px;">
                     <input type="text" class="form-control form-control-navbar" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
                     <div class="input-group-append">
@@ -41,10 +41,10 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
             
             <!-- Menú derecho de navbar -->
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav">
                 <!-- Toggle de tema -->
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="themeToggle" role="button">
@@ -263,10 +263,12 @@
 
     <!-- Footer -->
     <footer class="main-footer bg-body-tertiary border-top">
-        <div class="float-end d-none d-sm-block">
-            <b>MegaPrint Lab</b> v2.0
+        <div class="container-fluid">
+            <div class="float-end d-none d-sm-block">
+                <b>MegaPrint Lab</b> v2.0
+            </div>
+            <strong>Copyright &copy; {{ now().year if now is defined else '2025' }} <a href="#">MegaPrint Lab</a>.</strong> Todos los derechos reservados.
         </div>
-        <strong>Copyright &copy; {{ now().year if now is defined else '2025' }} <a href="#">MegaPrint Lab</a>.</strong> Todos los derechos reservados.
     </footer>
     {% else %}
     <div class="wrapper">
