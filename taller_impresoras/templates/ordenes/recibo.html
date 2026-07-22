@@ -106,16 +106,16 @@
                 <tr>
                     <td>{{ op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual' }}</td>
                     <td class="text-center">{{ op.cantidad }}</td>
-                    <td class="text-end">${{ "%.2f"|format(op.precio_unitario) }}</td>
-                    <td class="text-end">${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
+                    <td class="text-right">${{ "%.2f"|format(op.precio_unitario) }}</td>
+                    <td class="text-right">${{ "%.2f"|format(op.cantidad * op.precio_unitario) }}</td>
                     {% set subtotal_piezas.total = subtotal_piezas.total + (op.cantidad * op.precio_unitario) %}
                 </tr>
                 {% endfor %}
             </tbody>
             <tfoot>
                 <tr class="fila-subtotal">
-                    <td colspan="3" class="text-end"><strong>SUBTOTAL REPUESTOS:</strong></td>
-                    <td class="text-end"><strong>${{ "%.2f"|format(subtotal_piezas.total) }}</strong></td>
+                    <td colspan="3" class="text-right"><strong>SUBTOTAL REPUESTOS:</strong></td>
+                    <td class="text-right"><strong>${{ "%.2f"|format(subtotal_piezas.total) }}</strong></td>
                 </tr>
             </tfoot>
         </table>
