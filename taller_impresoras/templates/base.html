@@ -22,7 +22,7 @@
         <!-- Botón para colapsar la barra lateral -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
         </ul>
         
@@ -100,7 +100,7 @@
 
             <!-- Menú de navegación Sidebar -->
             <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
                         <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -244,7 +244,9 @@
                                     {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
                                 </span>
                                 <span class="alert-content">{{ message }}</span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
                         {% endfor %}
                     {% endif %}
@@ -273,7 +275,9 @@
                                 {% if category == 'success' %}<i class="fas fa-check-circle"></i>{% elif category == 'danger' %}<i class="fas fa-exclamation-circle"></i>{% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
                             </span>
                             <span class="alert-content">{{ message }}</span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
                     {% endfor %}
                 {% endif %}
@@ -285,57 +289,14 @@
     {% endif %}
 </div>
 
-<!-- 1. Bootstrap 5 Bundle (Incluye Popper) -->
+<!-- 1. jQuery (Requerido por AdminLTE) -->
+<script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
+
+<!-- 2. Bootstrap 5 Bundle (Incluye Popper) -->
 <script src="{{ url_for('static', filename='plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
-<!-- 2. AdminLTE App JS (Maneja el layout, sidebar y responsive) -->
+<!-- 3. AdminLTE App JS (Maneja el layout, sidebar y responsive) -->
 <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
-
-<!-- Script para funcionalidades adicionales -->
-<script>
-    // Toggle de tema claro/oscuro
-    document.addEventListener('DOMContentLoaded', function() {
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            // Verificar preferencia guardada
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeToggle.querySelector('i').classList.remove('fa-moon');
-                themeToggle.querySelector('i').classList.add('fa-sun');
-            }
-            
-            themeToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                const icon = this.querySelector('i');
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                
-                if (currentTheme === 'dark') {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    localStorage.setItem('theme', 'light');
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                } else {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('theme', 'dark');
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                }
-            });
-        }
-        
-        // Búsqueda global con atajo Ctrl+K
-        const searchInput = document.getElementById('searchGlobal');
-        if (searchInput) {
-            document.addEventListener('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                    e.preventDefault();
-                    searchInput.focus();
-                }
-            });
-        }
-    });
-</script>
 
 {% block extra_js %}{% endblock %}
 </body>

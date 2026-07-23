@@ -1,1 +1,1 @@
-Nothing should be ignored in this case, as only a template file (.html) was modified and no build artifacts, dependencies, or temporary files were present in the changes.
+Nothing should be ignored in this case, as the only modified file is a CSS source file (`taller_impresoras/static/css/custom.css`) which is part of the source code and not a build artifact, dependency, or temporary file.
