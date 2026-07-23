@@ -289,14 +289,14 @@
     {% endif %}
 </div>
 
-<!-- 1. jQuery (Requerido por AdminLTE) -->
-<script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
-
-<!-- 2. Bootstrap 5 Bundle (Incluye Popper) -->
-<script src="{{ url_for('static', filename='plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
-<!-- 3. AdminLTE App JS (Maneja el layout, sidebar y responsive) -->
+<script src="{{ url_for('static', filename='plugins/@popperjs/core/dist/umd/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='adminlte/js/adminlte.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}
 
 {% block extra_js %}{% endblock %}
 </body>
