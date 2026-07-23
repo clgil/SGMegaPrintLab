@@ -13,24 +13,14 @@ dispositivos_bp = Blueprint('dispositivos', __name__, template_folder='../templa
 @dispositivos_bp.route('/')
 @rol_requerido(['administrador', 'tecnico'])
 def index():
-    """Listado de dispositivos con filtro por cliente y búsqueda por nombre"""
+    """Listado de dispositivos con filtro por cliente"""
     pagina = request.args.get('pagina', 1, type=int)
     cliente_id = request.args.get('cliente_id', type=int)
-    nombre = request.args.get('nombre', type=str)
     
     query = Dispositivo.query
     
     if cliente_id:
         query = query.filter_by(cliente_id=cliente_id)
-    
-    if nombre:
-        # Buscar por marca o modelo que contengan el texto buscado
-        query = query.filter(
-            db.or_(
-                Dispositivo.marca.ilike(f'%{nombre}%'),
-                Dispositivo.modelo.ilike(f'%{nombre}%')
-            )
-        )
     
     # Paginación de 20 registros
     dispositivos_pagina = query.order_by(Dispositivo.marca).paginate(page=pagina, per_page=20, error_out=False)
@@ -41,7 +31,6 @@ def index():
                          dispositivos=dispositivos_pagina, 
                          clientes=clientes,
                          cliente_seleccionado=cliente_id,
-                         nombre_busqueda=nombre,
                          pagina_actual=pagina)
 
 
