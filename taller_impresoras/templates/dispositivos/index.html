@@ -9,11 +9,11 @@
         <a href="{{ url_for('dispositivos.nuevo') }}" class="btn btn-primary btn-lg">➕ Nuevo Dispositivo</a>
     </div>
     
-    <!-- Filtro por cliente y nombre -->
+    <!-- Filtro por cliente -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" action="{{ url_for('dispositivos.index') }}" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-8">
                     <select name="cliente_id" class="form-select">
                         <option value="">Todos los clientes</option>
                         {% for cliente in clientes %}
@@ -22,10 +22,7 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <input type="text" name="nombre" class="form-control" placeholder="Buscar por marca o modelo" value="{{ nombre_busqueda or '' }}">
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">🔍 Filtrar</button>
+                    <button type="submit" class="btn btn-primary w-100">🔍 Filtrar por cliente</button>
                 </div>
             </form>
         </div>
@@ -76,14 +73,14 @@
                 <ul class="pagination justify-content-center">
                     {% if dispositivos.has_prev %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.prev_num, cliente_id=cliente_seleccionado, nombre=nombre_busqueda) }}">Anterior</a>
+                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.prev_num, cliente_id=cliente_seleccionado) }}">Anterior</a>
                     </li>
                     {% endif %}
                     
                     {% for page in dispositivos.iter_pages() %}
                         {% if page %}
                             {% if page != dispositivos.page %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for('dispositivos.index', pagina=page, cliente_id=cliente_seleccionado, nombre=nombre_busqueda) }}">{{ page }}</a></li>
+                            <li class="page-item"><a class="page-link" href="{{ url_for('dispositivos.index', pagina=page, cliente_id=cliente_seleccionado) }}">{{ page }}</a></li>
                             {% else %}
                             <li class="page-item active"><span class="page-link">{{ page }}</span></li>
                             {% endif %}
@@ -94,7 +91,7 @@
                     
                     {% if dispositivos.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.next_num, cliente_id=cliente_seleccionado, nombre=nombre_busqueda) }}">Siguiente</a>
+                        <a class="page-link" href="{{ url_for('dispositivos.index', pagina=dispositivos.next_num, cliente_id=cliente_seleccionado) }}">Siguiente</a>
                     </li>
                     {% endif %}
                 </ul>
