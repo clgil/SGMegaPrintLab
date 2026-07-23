@@ -78,9 +78,9 @@
         <a href="{{ url_for('dashboard') }}" class="brand-link">
             {% if config_taller.get('logotipo_taller') %}
                 <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                     alt="Logotipo del taller" class="brand-image elevation-3" style="width: 33px; height: 33px; object-fit: contain;">
+                     alt="Logotipo del taller" class="brand-image img-circle elevation-3" style="opacity: .8">
             {% else %}
-                <span class="brand-image elevation-3 bg-primary" style="width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 50%;">🖨️</span>
+                <span class="brand-image img-circle elevation-3 bg-primary" style="opacity: .8; width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">🖨️</span>
             {% endif %}
             <span class="brand-text font-weight-light">
                 {% if config_taller.get('nombre_taller') %}
