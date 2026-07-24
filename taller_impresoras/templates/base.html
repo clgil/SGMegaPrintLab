@@ -19,11 +19,6 @@
     <!-- Barra de navegación superior estilo app (móvil y escritorio) -->
     <nav class="mobile-top-nav">
         <div class="mobile-top-nav-container">
-            <!-- Botón hamburguesa para abrir sidebar offcanvas - SOLO MOVIL -->
-            <button class="btn btn-icon mobile-menu-btn-mobile d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
-                <i class="bi bi-list"></i>
-            </button>
-            
             <!-- Botón hamburguesa para colapsar sidebar fijo - SOLO ESCRITORIO -->
             <button class="btn btn-icon sidebar-toggle-btn-desktop d-none d-md-inline-block" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
                 <i class="bi bi-list"></i>
@@ -165,8 +160,8 @@
         </div>
     </div>
     
-    <!-- Sidebar Offcanvas para todos los dispositivos -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
+    <!-- Sidebar Offcanvas para móvil - OCULTO en desktop -->
+    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
         <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
@@ -319,7 +314,7 @@
     </div>
     
     <!-- Sidebar fijo para pantallas grandes (md+) -->
-    <nav class="sidebar d-none d-md-block" id="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="taller-brand">
                 {% if config_taller.get('logotipo_taller') %}
@@ -554,16 +549,38 @@
     <!-- Script para navegación móvil (FAB y menú Más opciones) y toggle sidebar escritorio -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle sidebar en escritorio - nuevo botón hamburguesa
+            // Toggle sidebar en escritorio - botón hamburguesa
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
             const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
             
             if (sidebarToggleBtn && sidebar) {
                 sidebarToggleBtn.addEventListener('click', function() {
+                    // Alternar clase 'collapsed' en el sidebar
                     sidebar.classList.toggle('collapsed');
                     const isCollapsed = sidebar.classList.contains('collapsed');
+                    
+                    // Guardar estado en localStorage
                     localStorage.setItem('sidebarCollapsed', isCollapsed);
+                    
+                    // Ajustar margen del contenido principal
+                    if (mainContent) {
+                        if (isCollapsed) {
+                            mainContent.style.marginLeft = 'var(--sidebar-width-collapsed)';
+                        } else {
+                            mainContent.style.marginLeft = 'var(--sidebar-width-expanded)';
+                        }
+                    }
                 });
+            }
+            
+            // Cargar estado del sidebar desde localStorage al iniciar
+            const savedCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebar && savedCollapsed) {
+                sidebar.classList.add('collapsed');
+                if (mainContent) {
+                    mainContent.style.marginLeft = 'var(--sidebar-width-collapsed)';
+                }
             }
             
             // Menú "Más opciones" en barra superior móvil
