@@ -500,15 +500,15 @@ body {
    CONTENIDO PRINCIPAL
    ============================================ */
 .main-content {
-    margin-left: var(--sidebar-width-expanded);
-    margin-top: 64px;
-    padding: var(--space-6);
-    min-height: calc(100vh - 64px);
+    margin-left: 0;
+    margin-top: 60px;
+    padding: var(--space-5);
+    min-height: calc(100vh - 60px);
     transition: margin-left var(--transition-slow);
 }
 
 .sidebar.collapsed ~ .main-content {
-    margin-left: var(--sidebar-width-collapsed);
+    margin-left: 0;
 }
 
 /* ============================================
@@ -1788,16 +1788,21 @@ i[title]:hover {
 }
 
 /* ============================================
-   NAVEGACIÓN MÓVIL ESTILO APP (Facebook/X)
+   NAVEGACIÓN SUPERIOR ESTILO APP (Móvil y Escritorio)
    ============================================ */
-.mobile-menu-btn {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1049;
-    background-color: var(--bg-card);
+.mobile-menu-btn-desktop {
+    background-color: transparent;
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-card);
+    box-shadow: none;
+    margin-right: var(--space-2);
+}
+
+.mobile-menu-btn-desktop:hover {
+    background-color: var(--gray-100);
+}
+
+[data-theme="dark"] .mobile-menu-btn-desktop:hover {
+    background-color: var(--gray-700);
 }
 
 .mobile-top-nav {
@@ -2043,11 +2048,26 @@ i[title]:hover {
     background-color: var(--gray-700);
 }
 
-/* Ajustar navbar superior en desktop para no interferir */
+/* Ajustar elementos en desktop: ocultar FAB, mantener navbar superior */
 @media (min-width: 768px) {
-    .mobile-top-nav,
-    .mobile-fab-container,
-    .mobile-menu-btn {
+    .mobile-fab-container {
+        display: none !important;
+    }
+    
+    /* Ocultar sidebar fijo en desktop para usar el menú hamburguesa */
+    .sidebar.d-none {
+        display: none !important;
+    }
+    
+    /* Ajustar contenido principal para la nueva navbar */
+    .main-content {
+        margin-left: 0 !important;
+        margin-top: 60px !important;
+        padding: var(--space-5);
+    }
+    
+    /* Ocultar navbar-top antigua en desktop */
+    .navbar-top {
         display: none !important;
     }
 }
