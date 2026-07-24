@@ -5,13 +5,9 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Dependencies
-.venv/
-venv/
-env/
-
 # Logs
 *.log
+*.tmp
 
 # Environment variables
 .env
@@ -23,14 +19,27 @@ env/
 coverage/
 htmlcov/
 
-# MyPy
-.mypy_cache/
-
-# PyTest
-.pytest_cache/
+# Coverage
+.coverage
+coverage/
+htmlcov/
 
 # Build artifacts
 dist/
 build/
-*.egg-info/
+target/
+*.o
+*.obj
+*.so
+*.a
+*.dll
+*.exe
+*.out
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+.mypy_cache/
+.pytest_cache/
 ```

@@ -1534,6 +1534,9 @@ body:has(.sidebar.collapsed) .navbar-top {
 
 .offcanvas {
     background: linear-gradient(180deg, var(--gray-900), var(--gray-800));
+    z-index: 1050 !important;
+    top: 64px !important;
+    height: calc(100vh - 64px) !important;
 }
 
 .offcanvas-header {
@@ -1543,6 +1546,16 @@ body:has(.sidebar.collapsed) .navbar-top {
 
 .offcanvas.show ~ .navbar-top {
     left: 0;
+}
+
+/* Asegurar que el offcanvas se muestre correctamente desde la izquierda */
+.offcanvas-start {
+    left: 0;
+    transform: translateX(-100%);
+}
+
+.offcanvas.show.offcanvas-start {
+    transform: translateX(0);
 }
 
 @media (max-width: 767.98px) {
