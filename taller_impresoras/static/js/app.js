@@ -10,30 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // SIDEBAR COLAPSABLE
     // ========================================
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebarToggleTop = document.getElementById('sidebarToggleTop');
     
     // Cargar estado del sidebar desde localStorage
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
     if (sidebar && sidebarCollapsed) {
         sidebar.classList.add('collapsed');
-        if (sidebarToggle) sidebarToggle.innerHTML = '▶';
     }
     
-    // Toggle sidebar
-    function toggleSidebar() {
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-            if (sidebarToggle) {
-                sidebarToggle.innerHTML = isCollapsed ? '▶' : '◀';
-            }
-        }
-    }
-    
-    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
-    if (sidebarToggleTop) sidebarToggleTop.addEventListener('click', toggleSidebar);
+    // Nota: El toggle del sidebar ahora se maneja desde el botón hamburguesa
+    // en la barra superior (sidebarToggleBtn) definido en base.html
     
     // ========================================
     // MODO OSCURO

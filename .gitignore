@@ -1,39 +1,99 @@
-```
-# Compiled Python files
-*.pyc
+# Python
 __pycache__/
-
-# Dependencies
-venv/
-.venv/
-node_modules/
-
-# Build/dist directories
+*.py[cod]
+*$py.class
+*.so
+.Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
 
-# Environment files
-.env
-.env.local
-*.env.*
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
 
-# Editor/IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 
-# Coverage reports
+# Coverage
 .coverage
 coverage/
 htmlcov/
 
-# Python cache
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# MyPy
 .mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PyTest
 .pytest_cache/
-```
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# Temporary files
+*.tmp
+*~
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
