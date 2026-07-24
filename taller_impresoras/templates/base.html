@@ -19,8 +19,13 @@
     <!-- Barra de navegación superior estilo app (móvil y escritorio) -->
     <nav class="mobile-top-nav">
         <div class="mobile-top-nav-container">
-            <!-- Botón hamburguesa para abrir sidebar offcanvas -->
-            <button class="btn btn-icon mobile-menu-btn-desktop" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
+            <!-- Botón hamburguesa para abrir sidebar offcanvas - SOLO MOVIL -->
+            <button class="btn btn-icon mobile-menu-btn-mobile d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <!-- Botón hamburguesa para colapsar sidebar fijo - SOLO ESCRITORIO -->
+            <button class="btn btn-icon sidebar-toggle-btn-desktop d-none d-md-inline-block" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
                 <i class="bi bi-list"></i>
             </button>
             
@@ -313,8 +318,8 @@
         </div>
     </div>
     
-    <!-- Sidebar fijo para pantallas grandes (md+) - OCULTO, ahora se usa menú hamburguesa -->
-    <nav class="sidebar d-none" id="sidebar" style="display: none !important;">
+    <!-- Sidebar fijo para pantallas grandes (md+) -->
+    <nav class="sidebar d-none d-md-block" id="sidebar">
         <div class="sidebar-header">
             <div class="taller-brand">
                 {% if config_taller.get('logotipo_taller') %}
@@ -456,10 +461,6 @@
                 </a>
             </li>
         </ul>
-        
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Colapsar menú">
-            <i class="bi bi-chevron-left"></i>
-        </button>
     </nav>
     
     <!-- Navbar Superior - OCULTA, reemplazada por mobile-top-nav -->
@@ -550,9 +551,21 @@
     <!-- Script personalizado MegaPrint Lab v2.0 -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     
-    <!-- Script para navegación móvil (FAB y menú Más opciones) -->
+    <!-- Script para navegación móvil (FAB y menú Más opciones) y toggle sidebar escritorio -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar en escritorio - nuevo botón hamburguesa
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebarToggleBtn && sidebar) {
+                sidebarToggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    localStorage.setItem('sidebarCollapsed', isCollapsed);
+                });
+            }
+            
             // Menú "Más opciones" en barra superior móvil
             const moreOptionsBtn = document.getElementById('moreOptionsBtn');
             const moreOptionsMenu = document.getElementById('moreOptionsMenu');

@@ -318,32 +318,11 @@ body {
     display: none;
 }
 
+/* Eliminar estilos del botón toggle antiguo dentro del sidebar (ya no se usa) */
 .sidebar-toggle {
-    position: absolute;
-    bottom: var(--space-4);
-    right: var(--space-4);
-    background: var(--sidebar-bg-hover);
-    border: 1px solid var(--sidebar-border);
-    color: var(--gray-400);
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-base);
+    display: none !important;
 }
 
-.sidebar-toggle:hover {
-    background: var(--primary);
-    color: var(--white);
-}
-
-.sidebar.collapsed .sidebar-toggle {
-    right: 50%;
-    transform: translateX(50%);
-}
 
 /* ============================================
    NAVBAR SUPERIOR
@@ -507,8 +486,15 @@ body {
     transition: margin-left var(--transition-slow);
 }
 
-.sidebar.collapsed ~ .main-content {
-    margin-left: 0;
+/* Ajustar margen del contenido principal cuando sidebar está colapsado (escritorio) */
+@media (min-width: 768px) {
+    .sidebar.collapsed ~ .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+    }
+    
+    .sidebar:not(.collapsed) ~ .main-content {
+        margin-left: var(--sidebar-width-expanded);
+    }
 }
 
 /* ============================================
@@ -1810,20 +1796,64 @@ i[title]:hover {
 /* ============================================
    NAVEGACIÓN SUPERIOR ESTILO APP (Móvil y Escritorio)
    ============================================ */
-.mobile-menu-btn-desktop {
+   
+/* Botón hamburguesa para escritorio - colapsa sidebar fijo */
+.sidebar-toggle-btn-desktop {
     background-color: transparent;
     border: 1px solid var(--border-color);
     box-shadow: none;
     margin-right: var(--space-2);
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
 }
 
-.mobile-menu-btn-desktop:hover {
+.sidebar-toggle-btn-desktop:hover {
     background-color: var(--gray-100);
+    color: var(--primary);
 }
 
-[data-theme="dark"] .mobile-menu-btn-desktop:hover {
+[data-theme="dark"] .sidebar-toggle-btn-desktop:hover {
     background-color: var(--gray-700);
 }
+
+/* Botón hamburguesa para móvil - abre offcanvas */
+.mobile-menu-btn-mobile {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    margin-right: var(--space-2);
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.mobile-menu-btn-mobile:hover {
+    background-color: var(--gray-100);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .mobile-menu-btn-mobile:hover {
+    background-color: var(--gray-700);
+}
+
+/* Clase de utilidad antigua - mantener por compatibilidad pero sin uso */
+.mobile-menu-btn-desktop {
+    display: none !important;
+}
+
 
 .mobile-top-nav {
     position: fixed;
