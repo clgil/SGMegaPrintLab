@@ -926,23 +926,29 @@ body {
 
 .table tbody tr {
     transition: background-color var(--transition-base);
-    background-color: var(--white);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: var(--gray-50);
 }
 
+/* Modo Oscuro - Forzar fondos oscuros en tablas */
 [data-theme="dark"] .table tbody tr {
-    background-color: var(--gray-800);
+    background-color: var(--gray-800) !important;
 }
 
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
-    background-color: var(--gray-750);
+    background-color: var(--gray-750) !important;
 }
 
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(even) {
-    background-color: var(--gray-800);
+    background-color: var(--gray-800) !important;
+}
+
+/* Asegurar que todas las celdas hereden el fondo en modo oscuro */
+[data-theme="dark"] .table tbody tr td,
+[data-theme="dark"] .table tbody tr th {
+    background-color: transparent !important;
 }
 
 .table tbody tr:hover td {
