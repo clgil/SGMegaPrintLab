@@ -1579,12 +1579,9 @@ i[title]:hover {
 }
 
 @media (max-width: 768px) {
+    /* Ocultar sidebar fijo en móvil - nunca debe ser visible */
     .sidebar {
-        transform: translateX(-100%);
-    }
-    
-    .sidebar.show {
-        transform: translateX(0);
+        display: none !important;
     }
     
     .navbar-top {
@@ -1592,7 +1589,7 @@ i[title]:hover {
     }
     
     .main-content {
-        margin-left: 0;
+        margin-left: 0 !important;
         padding-top: calc(60px + var(--space-4)); /* Ajustar por la mobile-top-nav */
         padding-bottom: var(--space-4);
         padding-left: var(--space-3);
@@ -1850,7 +1847,8 @@ i[title]:hover {
 }
 
 /* Clase de utilidad antigua - mantener por compatibilidad pero sin uso */
-.mobile-menu-btn-desktop {
+.mobile-menu-btn-desktop,
+.mobile-menu-btn-mobile {
     display: none !important;
 }
 
@@ -2104,16 +2102,23 @@ i[title]:hover {
         display: none !important;
     }
     
-    /* Ocultar sidebar fijo en desktop para usar el menú hamburguesa */
+    /* Mostrar sidebar fijo en desktop */
     .sidebar.d-none {
-        display: none !important;
+        display: flex !important;
     }
     
-    /* Ajustar contenido principal para la nueva navbar */
+    /* Ajustar contenido principal para la nueva navbar y sidebar */
     .main-content {
-        margin-left: 0 !important;
+        margin-left: var(--sidebar-width-expanded) !important;
         margin-top: 60px !important;
         padding: var(--space-5);
+    }
+    
+    /* Cuando el sidebar está colapsado */
+    .sidebar.collapsed ~ .main-content,
+    .sidebar.collapsed + .main-content,
+    body.sidebar-collapsed .main-content {
+        margin-left: var(--sidebar-width-collapsed) !important;
     }
     
     /* Ocultar navbar-top antigua en desktop */
