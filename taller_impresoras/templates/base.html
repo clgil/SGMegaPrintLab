@@ -16,14 +16,14 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <!-- Botón hamburguesa solo visible en móviles -->
-    <button class="btn btn-icon d-md-none mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
-        <i class="bi bi-list"></i>
-    </button>
-    
-    <!-- Barra de navegación superior estilo app (móvil) -->
-    <nav class="mobile-top-nav d-md-none">
+    <!-- Barra de navegación superior estilo app (móvil y escritorio) -->
+    <nav class="mobile-top-nav">
         <div class="mobile-top-nav-container">
+            <!-- Botón hamburguesa para abrir sidebar offcanvas -->
+            <button class="btn btn-icon mobile-menu-btn-desktop" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
+                <i class="bi bi-list"></i>
+            </button>
+            
             <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" aria-label="Dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Inicio</span>
@@ -43,8 +43,7 @@
                 <i class="bi bi-grid-3x3-gap"></i>
                 <span>Más</span>
             </a>
-            {% else %}
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            {% elif current_user.rol == 'tecnico' %}
             <a href="{{ url_for('dispositivos.index') }}" class="mobile-nav-item {% if 'dispositivos' in request.endpoint %}active{% endif %}" aria-label="Dispositivos">
                 <i class="bi bi-printer"></i>
                 <span>Equipos</span>
@@ -53,7 +52,7 @@
                 <i class="bi bi-grid-3x3-gap"></i>
                 <span>Más</span>
             </a>
-            {% else %}
+            {% elif current_user.rol == 'proveedor' %}
             <a href="{{ url_for('inventario.index') }}" class="mobile-nav-item {% if 'inventario' in request.endpoint %}active{% endif %}" aria-label="Inventario">
                 <i class="bi bi-box-seam"></i>
                 <span>Inventario</span>
@@ -62,7 +61,6 @@
                 <i class="bi bi-grid-3x3-gap"></i>
                 <span>Más</span>
             </a>
-            {% endif %}
             {% endif %}
         </div>
         
@@ -136,8 +134,8 @@
         </div>
     </nav>
     
-    <!-- Floating Action Button (FAB) para móvil -->
-    <div class="mobile-fab-container d-md-none">
+    <!-- Floating Action Button (FAB) para móvil - OCULTO en desktop -->
+    <div class="mobile-fab-container">
         <button class="mobile-fab" id="mobileFab" aria-label="Nueva acción" aria-expanded="false">
             <i class="bi bi-plus-lg fab-icon-open"></i>
             <i class="bi bi-x-lg fab-icon-close"></i>
@@ -162,7 +160,7 @@
         </div>
     </div>
     
-    <!-- Sidebar Offcanvas para móviles -->
+    <!-- Sidebar Offcanvas para todos los dispositivos -->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
         <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
@@ -315,8 +313,8 @@
         </div>
     </div>
     
-    <!-- Sidebar fijo para pantallas grandes (md+) -->
-    <nav class="sidebar d-none d-md-flex" id="sidebar">
+    <!-- Sidebar fijo para pantallas grandes (md+) - OCULTO, ahora se usa menú hamburguesa -->
+    <nav class="sidebar d-none" id="sidebar" style="display: none !important;">
         <div class="sidebar-header">
             <div class="taller-brand">
                 {% if config_taller.get('logotipo_taller') %}
@@ -464,8 +462,8 @@
         </button>
     </nav>
     
-    <!-- Navbar Superior -->
-    <header class="navbar-top">
+    <!-- Navbar Superior - OCULTA, reemplazada por mobile-top-nav -->
+    <header class="navbar-top" style="display: none !important;">
         <div class="navbar-left">
             <div class="search-global">
                 <span class="search-icon"><i class="bi bi-search"></i></span>
