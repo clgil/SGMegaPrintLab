@@ -1779,11 +1779,31 @@ i[title]:hover {
         display: none;
     }
     
-    /* Tablas en móviles: reducir tamaño de fuente */
+    /* Tablas en móviles: reducir tamaño de fuente y padding */
     .table td,
     .table th {
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.25rem;
+        vertical-align: middle;
+    }
+    
+    /* Botones más pequeños en tablas para móvil */
+    .table .btn,
+    .table .btn-sm {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.35rem;
+        min-height: auto;
+    }
+    
+    /* Badges más compactos en móvil */
+    .table .badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.35rem;
+    }
+    
+    /* Ajustar el contenedor de acciones para que los botones se apilen si es necesario */
+    .table td:last-child {
+        white-space: nowrap;
     }
 }
 

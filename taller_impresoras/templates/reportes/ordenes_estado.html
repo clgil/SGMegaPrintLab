@@ -37,8 +37,8 @@
                             <thead>
                                 <tr>
                                     <th>Estado</th>
-                                    <th class="text-right">Cantidad</th>
-                                    <th class="text-right">Porcentaje</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Porcentaje</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,8 +63,8 @@
                                             <span class="badge badge-light">{{ resultado[0] }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-right"><strong>{{ resultado[1] }}</strong></td>
-                                    <td class="text-right">
+                                    <td class="text-end"><strong>{{ resultado[1] }}</strong></td>
+                                    <td class="text-end">
                                         {% if total > 0 %}
                                             {{ "%.1f"|format((resultado[1] / total) * 100) }}%
                                         {% else %}
@@ -77,8 +77,8 @@
                             <tfoot>
                                 <tr class="table-primary">
                                     <td><strong>Total</strong></td>
-                                    <td class="text-right"><strong>{{ total }}</strong></td>
-                                    <td class="text-right"><strong>100%</strong></td>
+                                    <td class="text-end"><strong>{{ total }}</strong></td>
+                                    <td class="text-end"><strong>100%</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
