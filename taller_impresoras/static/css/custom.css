@@ -28,6 +28,7 @@
        ======================================== */
     --gray-900: #111827;
     --gray-800: #1F2937;
+    --gray-750: #2a3441;
     --gray-700: #374151;
     --gray-600: #6B7280;
     --gray-500: #9CA3AF;
@@ -925,7 +926,7 @@ body {
 
 .table tbody tr {
     transition: background-color var(--transition-base);
-    background-color: transparent;
+    background-color: var(--white);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -933,15 +934,15 @@ body {
 }
 
 [data-theme="dark"] .table tbody tr {
-    background-color: transparent;
+    background-color: var(--gray-800);
 }
 
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.02);
+    background-color: var(--gray-750);
 }
 
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(even) {
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--gray-800);
 }
 
 .table tbody tr:hover td {
