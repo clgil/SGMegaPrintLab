@@ -1590,7 +1590,7 @@ i[title]:hover {
     
     .main-content {
         margin-left: 0 !important;
-        padding-top: calc(60px + var(--space-4)); /* Ajustar por la mobile-top-nav */
+        padding-top: calc(60px + var(--space-4)); /* Ajustar por la mobile-top-nav (60px de altura) */
         padding-bottom: var(--space-4);
         padding-left: var(--space-3);
         padding-right: var(--space-3);
@@ -1852,6 +1852,13 @@ i[title]:hover {
     display: none !important;
 }
 
+/* Asegurar que sidebar-toggle-btn-desktop solo se vea en escritorio */
+@media (max-width: 767.98px) {
+    .sidebar-toggle-btn-desktop {
+        display: none !important;
+    }
+}
+
 
 .mobile-top-nav {
     position: fixed;
@@ -1866,6 +1873,13 @@ i[title]:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Asegurar que mobile-top-nav esté oculto en desktop (>= 768px) */
+@media (min-width: 768px) {
+    .mobile-top-nav.d-md-none {
+        display: none !important;
+    }
 }
 
 .mobile-top-nav-container {
@@ -2107,10 +2121,10 @@ i[title]:hover {
         display: flex !important;
     }
     
-    /* Ajustar contenido principal para la nueva navbar y sidebar */
+    /* Ajustar contenido principal para la navbar superior y sidebar */
     .main-content {
         margin-left: var(--sidebar-width-expanded) !important;
-        margin-top: 60px !important;
+        margin-top: 64px !important; /* Altura de navbar-top (64px) */
         padding: var(--space-5);
     }
     
@@ -2119,10 +2133,5 @@ i[title]:hover {
     .sidebar.collapsed + .main-content,
     body.sidebar-collapsed .main-content {
         margin-left: var(--sidebar-width-collapsed) !important;
-    }
-    
-    /* Ocultar navbar-top antigua en desktop */
-    .navbar-top {
-        display: none !important;
     }
 }

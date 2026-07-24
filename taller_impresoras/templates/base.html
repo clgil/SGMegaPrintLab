@@ -16,14 +16,9 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <!-- Barra de navegación superior estilo app (móvil y escritorio) -->
-    <nav class="mobile-top-nav">
+    <!-- Barra de navegación superior estilo app (SOLO móvil < 768px) -->
+    <nav class="mobile-top-nav d-flex d-md-none">
         <div class="mobile-top-nav-container">
-            <!-- Botón hamburguesa para colapsar sidebar fijo - SOLO ESCRITORIO -->
-            <button class="btn btn-icon sidebar-toggle-btn-desktop d-none d-md-inline-block" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
-                <i class="bi bi-list"></i>
-            </button>
-            
             <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" aria-label="Dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Inicio</span>
@@ -458,9 +453,13 @@
         </ul>
     </nav>
     
-    <!-- Navbar Superior - OCULTA, reemplazada por mobile-top-nav -->
-    <header class="navbar-top" style="display: none !important;">
+    <!-- Navbar Superior (SOLO escritorio >= 768px) -->
+    <header class="navbar-top d-none d-md-flex">
         <div class="navbar-left">
+            <!-- Botón hamburguesa para colapsar sidebar - SOLO ESCRITORIO -->
+            <button class="btn btn-icon sidebar-toggle-btn-desktop" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
+                <i class="bi bi-list"></i>
+            </button>
             <div class="search-global">
                 <span class="search-icon"><i class="bi bi-search"></i></span>
                 <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
