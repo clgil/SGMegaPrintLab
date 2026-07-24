@@ -797,6 +797,10 @@ body {
     opacity: 0.6;
 }
 
+[data-theme="dark"] .form-control:disabled {
+    background-color: var(--gray-800);
+}
+
 .input-icon {
     position: relative;
 }
@@ -911,23 +915,33 @@ body {
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     vertical-align: middle;
-    border-top: 1px solid var(--gray-200);
+    border-top: 1px solid var(--border-color);
 }
 
 [data-theme="dark"] .table td {
-    border-top-color: var(--gray-700);
+    border-top-color: var(--border-color);
+    border-bottom-color: var(--border-color);
 }
 
 .table tbody tr {
     transition: background-color var(--transition-base);
+    background-color: transparent;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: var(--gray-50);
 }
 
+[data-theme="dark"] .table tbody tr {
+    background-color: transparent;
+}
+
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(even) {
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
 .table tbody tr:hover td {
@@ -935,6 +949,15 @@ body {
 }
 
 [data-theme="dark"] .table tbody tr:hover td {
+    background-color: var(--gray-700);
+}
+
+/* Table hover effect for table-hover class */
+.table-hover tbody tr:hover {
+    background-color: var(--gray-100);
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
     background-color: var(--gray-700);
 }
 
@@ -954,6 +977,12 @@ body {
     color: var(--gray-900);
 }
 
+.table tbody tr.table-warning,
+.table tbody tr.table-danger,
+.table tbody tr.table-success {
+    background-color: transparent;
+}
+
 [data-theme="dark"] .table tbody tr.table-warning td {
     background-color: rgba(245, 158, 11, 0.2);
     color: var(--gray-100);
@@ -967,6 +996,12 @@ body {
 [data-theme="dark"] .table tbody tr.table-success td {
     background-color: rgba(16, 185, 129, 0.2);
     color: var(--gray-100);
+}
+
+[data-theme="dark"] .table tbody tr.table-warning,
+[data-theme="dark"] .table tbody tr.table-danger,
+[data-theme="dark"] .table tbody tr.table-success {
+    background-color: transparent;
 }
 
 .table tbody tr:last-child td {
