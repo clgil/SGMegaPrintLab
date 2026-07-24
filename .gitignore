@@ -1,23 +1,13 @@
 ```
-# Compiled and build artifacts
-*.pyc
+# Python
 __pycache__/
-*.o
-*.obj
-dist/
-build/
-*.min.css
-*.woff2
-
-# Dependencies
-.venv/
-venv/
-node_modules/
+*.pyc
+*.pyo
+*.pyd
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
@@ -28,9 +18,27 @@ node_modules/
 .vscode/
 .idea/
 
-# Python specific
-*.py[cod]
-*$py.class
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+target/
+*.o
+*.obj
 *.so
-.Python
+*.a
+*.dll
+*.exe
+*.out
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+.mypy_cache/
+.pytest_cache/
 ```
