@@ -144,17 +144,17 @@
         </button>
         <div class="mobile-fab-menu" id="mobileFabMenu">
             {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
-            <a href="{{ url_for('ordenes.formulario') }}" class="mobile-fab-item">
+            <a href="{{ url_for('ordenes.nuevo') }}" class="mobile-fab-item">
                 <i class="bi bi-clipboard-plus"></i>
                 <span>Nueva orden</span>
             </a>
-            <a href="{{ url_for('dispositivos.formulario') }}" class="mobile-fab-item">
+            <a href="{{ url_for('dispositivos.nuevo') }}" class="mobile-fab-item">
                 <i class="bi bi-printer-fill"></i>
                 <span>Nuevo dispositivo</span>
             </a>
             {% endif %}
             {% if current_user.rol == 'administrador' %}
-            <a href="{{ url_for('clientes.formulario') }}" class="mobile-fab-item">
+            <a href="{{ url_for('clientes.nuevo') }}" class="mobile-fab-item">
                 <i class="bi bi-person-plus"></i>
                 <span>Nuevo cliente</span>
             </a>
