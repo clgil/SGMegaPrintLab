@@ -847,6 +847,35 @@ select:focus,
     z-index: 10;
 }
 
+/* Estilos para tooltips nativos del navegador - Modo Claro */
+select[required]:invalid::-webkit-validation-bubble-message,
+input[required]:invalid::-webkit-validation-bubble-message,
+textarea[required]:invalid::-webkit-validation-bubble-message {
+    color: var(--gray-900);
+    background-color: var(--white);
+    border: 1px solid var(--gray-300);
+}
+
+/* Estilos para tooltips nativos del navegador - Modo Oscuro */
+[data-theme="dark"] select[required]:invalid::-webkit-validation-bubble-message,
+[data-theme="dark"] input[required]:invalid::-webkit-validation-bubble-message,
+[data-theme="dark"] textarea[required]:invalid::-webkit-validation-bubble-message {
+    color: var(--gray-100);
+    background-color: var(--gray-800);
+    border: 1px solid var(--gray-600);
+}
+
+/* Ajuste para etiquetas con asterisco en modo oscuro */
+[data-theme="dark"] label {
+    color: var(--text-secondary);
+}
+
+/* Asegurar que el asterisco de campos requeridos sea visible */
+[data-theme="dark"] label:has(*) ,
+[data-theme="dark"] label span.text-danger {
+    color: var(--danger);
+}
+
 .input-icon {
     position: relative;
 }
