@@ -48,6 +48,7 @@
                 <div class="col-md-4 text-end">
                     <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir</button>
                     <a href="{{ url_for('reportes.exportar_csv', tipo='piezas', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" class="btn btn-success">📥 Exportar CSV</a>
+                    <a href="{{ url_for('reportes.exportar_pdf', tipo='piezas', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" class="btn btn-danger">📄 Exportar PDF</a>
                 </div>
             </div>
         </div>

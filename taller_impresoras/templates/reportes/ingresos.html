@@ -28,6 +28,9 @@
                     <a href="{{ url_for('reportes.exportar_csv', tipo='ingresos', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" class="btn btn-success">
                         <i class="fas fa-file-csv"></i> Exportar CSV
                     </a>
+                    <a href="{{ url_for('reportes.exportar_pdf', tipo='ingresos', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" class="btn btn-danger">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </a>
                 </div>
             </div>
         </div>
