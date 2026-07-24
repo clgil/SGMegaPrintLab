@@ -5,19 +5,18 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Logs
+# Logs and temp files
 *.log
 *.tmp
 
-# Environment variables
+# Environment
 .env
 .env.local
 *.env.*
 
-# Coverage
-.coverage
-coverage/
-htmlcov/
+# Editors
+.vscode/
+.idea/
 
 # Coverage
 .coverage
