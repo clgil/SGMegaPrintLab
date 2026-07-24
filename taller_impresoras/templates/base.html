@@ -63,7 +63,7 @@
                     {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
                     <li class="nav-item">
                         <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-clipboard-list nav-icon"></i>
+                            <i class="bi bi-clipboard nav-icon"></i>
                             <span class="nav-text">Órdenes</span>
                         </a>
                     </li>
