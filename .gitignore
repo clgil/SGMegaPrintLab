@@ -21,41 +21,39 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environment
 venv/
-ENV/
 env/
+ENV/
 .venv/
 .env/
-
-# Django/Python web framework
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+*.tmp
 
 # OS
 .DS_Store
 Thumbs.db
 
+# Logs
+*.log
+
 # Coverage
 .coverage
+coverage/
 htmlcov/
-.coverage.*
 
 # Environment variables
 .env
 .env.local
-*.env*
+*.env.*
 
-# Build outputs
-staticfiles/
-media/
+# Build
+build/
+dist/
+*.egg-info/
 ```

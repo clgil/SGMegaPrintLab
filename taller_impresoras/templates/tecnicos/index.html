@@ -36,7 +36,7 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('tecnicos.editar', id=tecnico.id) }}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
-                                <form action="{{ url_for('tecnicos.eliminar', id=tecnico.id) }}" method="POST" class="d-inline delete-form">
+                                <form action="{{ url_for('tecnicos.eliminar', id=tecnico.id) }}" method="POST" class="d-inline delete-form" novalidate>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
                                 </form>
                             </td>
