@@ -364,6 +364,13 @@ body {
     box-shadow: var(--shadow-card);
 }
 
+/* Ajuste cuando el sidebar está colapsado - usar selector de hermano general */
+body:has(.sidebar.collapsed) .navbar-top {
+    left: var(--sidebar-width-collapsed);
+}
+
+/* Fallback para navegadores que no soportan :has() */
+.sidebar.collapsed + #main-wrapper .navbar-top,
 .sidebar.collapsed ~ .navbar-top {
     left: var(--sidebar-width-collapsed);
 }
@@ -504,10 +511,13 @@ body {
     padding: var(--space-6);
     min-height: calc(100vh - 64px);
     transition: margin-left var(--transition-slow);
+    width: calc(100% - var(--sidebar-width-expanded));
 }
 
-.sidebar.collapsed ~ .main-content {
+.sidebar.collapsed ~ .main-content,
+.sidebar.collapsed + .navbar-top ~ .main-content {
     margin-left: var(--sidebar-width-collapsed);
+    width: calc(100% - var(--sidebar-width-collapsed));
 }
 
 /* ============================================

@@ -16,6 +16,158 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
+    <!-- Contenedor principal para layout -->
+    <div id="main-wrapper" style="display: flex; min-height: 100vh;">
+    
+    <!-- Sidebar fijo para pantallas grandes (md+) -->
+    <nav class="sidebar d-none d-md-flex" id="sidebar">
+        <div class="sidebar-header">
+            <div class="taller-brand">
+                {% if config_taller.get('logotipo_taller') %}
+                    <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
+                         alt="Logotipo del taller" class="taller-logo">
+                {% else %}
+                    <div class="taller-icon"><i class="bi bi-printer-fill"></i></div>
+                {% endif %}
+                <h4 class="taller-name">
+                    {% if config_taller.get('nombre_taller') %}
+                        {{ config_taller.get('nombre_taller') }}
+                    {% else %}
+                        MegaPrint Lab
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="user-info">
+                <div>{{ current_user.nombre }}</div>
+                {% if current_user.rol %}
+                <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <ul class="sidebar-nav nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                    <i class="bi bi-speedometer2 nav-icon"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}">
+                    <i class="bi bi-clipboard-list nav-icon"></i>
+                    <span class="nav-text">Órdenes</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}">
+                    <i class="bi bi-people nav-icon"></i>
+                    <span class="nav-text">Clientes</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}">
+                    <i class="bi bi-printer nav-icon"></i>
+                    <span class="nav-text">Dispositivos</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}">
+                    <i class="bi bi-box-seam nav-icon"></i>
+                    <span class="nav-text">Inventario</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}">
+                    <i class="bi bi-tools nav-icon"></i>
+                    <span class="nav-text">Técnicos</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}">
+                    <i class="bi bi-graph-up nav-icon"></i>
+                    <span class="nav-text">Reportes</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}">
+                    <i class="bi bi-hdd-stack nav-icon"></i>
+                    <span class="nav-text">Respaldo</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}">
+                    <i class="bi bi-truck nav-icon"></i>
+                    <span class="nav-text">Proveedores</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}">
+                    <i class="bi bi-file-earmark-text nav-icon"></i>
+                    <span class="nav-text">Contratos</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}">
+                    <i class="bi bi-gear nav-icon"></i>
+                    <span class="nav-text">Configuración</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <div class="nav-section-title">Administración</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}">
+                    <i class="bi bi-key nav-icon"></i>
+                    <span class="nav-text">Cambiar Clave</span>
+                </a>
+            </li>
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}">
+                    <i class="bi bi-person-gear nav-icon"></i>
+                    <span class="nav-text">Usuarios</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}">
+                    <i class="bi bi-question-circle nav-icon"></i>
+                    <span class="nav-text">Ayuda</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
+                    <i class="bi bi-box-arrow-right nav-icon"></i>
+                    <span class="nav-text">Cerrar Sesión</span>
+                </a>
+            </li>
+        </ul>
+        
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Colapsar menú">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+    </nav>
+    
     <!-- Botón hamburguesa solo visible en móviles -->
     <button class="btn btn-icon d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú" style="position: fixed; top: 1rem; left: 1rem; z-index: 1049;">
         <i class="bi bi-list"></i>
@@ -174,155 +326,6 @@
         </div>
     </div>
     
-    <!-- Sidebar fijo para pantallas grandes (md+) -->
-    <nav class="sidebar d-none d-md-flex" id="sidebar">
-        <div class="sidebar-header">
-            <div class="taller-brand">
-                {% if config_taller.get('logotipo_taller') %}
-                    <img src="{{ url_for('static', filename=config_taller.get('logotipo_taller').replace('static/', '')) }}" 
-                         alt="Logotipo del taller" class="taller-logo">
-                {% else %}
-                    <div class="taller-icon"><i class="bi bi-printer-fill"></i></div>
-                {% endif %}
-                <h4 class="taller-name">
-                    {% if config_taller.get('nombre_taller') %}
-                        {{ config_taller.get('nombre_taller') }}
-                    {% else %}
-                        MegaPrint Lab
-                    {% endif %}
-                </h4>
-            </div>
-            <div class="user-info">
-                <div>{{ current_user.nombre }}</div>
-                {% if current_user.rol %}
-                <span class="user-role-badge">{{ current_user.rol | capitalize }}</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <ul class="sidebar-nav nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
-                    <i class="bi bi-speedometer2 nav-icon"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'ordenes' in request.endpoint %}active{% endif %}" href="{{ url_for('ordenes.index') }}">
-                    <i class="bi bi-clipboard-list nav-icon"></i>
-                    <span class="nav-text">Órdenes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'clientes' in request.endpoint %}active{% endif %}" href="{{ url_for('clientes.index') }}">
-                    <i class="bi bi-people nav-icon"></i>
-                    <span class="nav-text">Clientes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'dispositivos' in request.endpoint %}active{% endif %}" href="{{ url_for('dispositivos.index') }}">
-                    <i class="bi bi-printer nav-icon"></i>
-                    <span class="nav-text">Dispositivos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'inventario' in request.endpoint %}active{% endif %}" href="{{ url_for('inventario.index') }}">
-                    <i class="bi bi-box-seam nav-icon"></i>
-                    <span class="nav-text">Inventario</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'tecnicos' in request.endpoint %}active{% endif %}" href="{{ url_for('tecnicos.index') }}">
-                    <i class="bi bi-tools nav-icon"></i>
-                    <span class="nav-text">Técnicos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'reportes' in request.endpoint %}active{% endif %}" href="{{ url_for('reportes.index') }}">
-                    <i class="bi bi-graph-up nav-icon"></i>
-                    <span class="nav-text">Reportes</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'backup' in request.endpoint %}active{% endif %}" href="{{ url_for('backup.index') }}">
-                    <i class="bi bi-hdd-stack nav-icon"></i>
-                    <span class="nav-text">Respaldo</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'proveedores' in request.endpoint %}active{% endif %}" href="{{ url_for('proveedores.index') }}">
-                    <i class="bi bi-truck nav-icon"></i>
-                    <span class="nav-text">Proveedores</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'contratos' in request.endpoint %}active{% endif %}" href="{{ url_for('contratos.index') }}">
-                    <i class="bi bi-file-earmark-text nav-icon"></i>
-                    <span class="nav-text">Contratos</span>
-                </a>
-            </li>
-            {% endif %}
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'configuracion_taller' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.configuracion_taller') }}">
-                    <i class="bi bi-gear nav-icon"></i>
-                    <span class="nav-text">Configuración</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <div class="nav-section-title">Administración</div>
-            
-            <li class="nav-item">
-                <a class="nav-link {% if 'cambiar_password' in request.endpoint %}active{% endif %}" href="{{ url_for('auth.cambiar_password') }}">
-                    <i class="bi bi-key nav-icon"></i>
-                    <span class="nav-text">Cambiar Clave</span>
-                </a>
-            </li>
-            {% if current_user.rol == 'administrador' %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}">
-                    <i class="bi bi-person-gear nav-icon"></i>
-                    <span class="nav-text">Usuarios</span>
-                </a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'ayuda' in request.endpoint %}active{% endif %}" href="{{ url_for('ayuda.index') }}">
-                    <i class="bi bi-question-circle nav-icon"></i>
-                    <span class="nav-text">Ayuda</span>
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <a class="nav-link" href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
-                    <i class="bi bi-box-arrow-right nav-icon"></i>
-                    <span class="nav-text">Cerrar Sesión</span>
-                </a>
-            </li>
-        </ul>
-        
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Colapsar menú">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-    </nav>
-    
     <!-- Navbar Superior -->
     <header class="navbar-top">
         <div class="navbar-left">
@@ -383,6 +386,7 @@
         {% block content %}{% endblock %}
         </div>
     </main>
+    </div>
     {% else %}
     <!-- Sin autenticación -->
     <div class="container mt-5">

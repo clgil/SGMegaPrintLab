@@ -4,7 +4,7 @@ Adaptado a la realidad cubana - Junio 2026
 
 Este es el módulo principal del sistema, maneja el ciclo completo de las órdenes
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, send_file
 from flask_login import login_required, current_user
 from models import db, Orden, Cliente, Dispositivo, Tecnico, Pieza, OrdenPieza, MovimientoInventario
 from datetime import datetime
@@ -341,7 +341,6 @@ def descargar(id):
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     from io import BytesIO
-    from flask import send_file
     
     orden = Orden.query.get_or_404(id)
     
@@ -592,7 +591,8 @@ def descargar(id):
         buffer,
         mimetype='application/pdf',
         as_attachment=True,
-        download_name=nombre_archivo
+        download_name=nombre_archivo,
+        etag=False
     )
 
 
