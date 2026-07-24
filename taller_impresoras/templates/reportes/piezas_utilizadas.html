@@ -56,26 +56,28 @@
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Pieza</th>
-                        <th>Unidad</th>
-                        <th>Cantidad Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in resultados %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ item.nombre }}</td>
-                        <td>{{ item.unidad }}</td>
-                        <td><strong>{{ item.cantidad_total }}</strong></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pieza</th>
+                            <th>Unidad</th>
+                            <th>Cantidad Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in resultados %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ item.nombre }}</td>
+                            <td>{{ item.unidad }}</td>
+                            <td><strong>{{ item.cantidad_total }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
