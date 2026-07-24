@@ -802,6 +802,51 @@ body {
     background-color: var(--gray-800);
 }
 
+/* ============================================
+   SELECTS Y DROPDOWNS
+   ============================================ */
+select.form-control,
+.form-select {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border-color: var(--input-border);
+    cursor: pointer;
+}
+
+select.form-control option,
+.form-select option {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] select.form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--gray-700);
+    color: var(--text-primary);
+    border-color: var(--gray-600);
+}
+
+[data-theme="dark"] select.form-control option,
+[data-theme="dark"] .form-select option {
+    background-color: var(--gray-800);
+    color: var(--text-primary);
+}
+
+/* Ocultar tooltips nativos del navegador en campos requeridos */
+select[required]:invalid,
+input[required]:invalid,
+textarea[required]:invalid {
+    box-shadow: none !important;
+}
+
+/* Prevenir que los tooltips nativos tapen el contenido */
+select:focus,
+.form-select:focus,
+.form-control:focus {
+    position: relative;
+    z-index: 10;
+}
+
 .input-icon {
     position: relative;
 }
