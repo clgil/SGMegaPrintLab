@@ -17,12 +17,159 @@
 <body>
     {% if current_user.is_authenticated %}
     <!-- Botón hamburguesa solo visible en móviles -->
-    <button class="btn btn-icon d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú" style="position: fixed; top: 1rem; left: 1rem; z-index: 1049;">
+    <button class="btn btn-icon d-md-none mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Menú">
         <i class="bi bi-list"></i>
     </button>
     
+    <!-- Barra de navegación superior estilo app (móvil) -->
+    <nav class="mobile-top-nav d-md-none">
+        <div class="mobile-top-nav-container">
+            <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" aria-label="Dashboard">
+                <i class="bi bi-speedometer2"></i>
+                <span>Inicio</span>
+            </a>
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            <a href="{{ url_for('ordenes.index') }}" class="mobile-nav-item {% if 'ordenes' in request.endpoint %}active{% endif %}" aria-label="Órdenes">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Órdenes</span>
+            </a>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <a href="{{ url_for('clientes.index') }}" class="mobile-nav-item {% if 'clientes' in request.endpoint %}active{% endif %}" aria-label="Clientes">
+                <i class="bi bi-people"></i>
+                <span>Clientes</span>
+            </a>
+            <a href="#" class="mobile-nav-item mobile-nav-more" id="moreOptionsBtn" aria-label="Más opciones">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <span>Más</span>
+            </a>
+            {% else %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            <a href="{{ url_for('dispositivos.index') }}" class="mobile-nav-item {% if 'dispositivos' in request.endpoint %}active{% endif %}" aria-label="Dispositivos">
+                <i class="bi bi-printer"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="#" class="mobile-nav-item mobile-nav-more" id="moreOptionsBtn" aria-label="Más opciones">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <span>Más</span>
+            </a>
+            {% else %}
+            <a href="{{ url_for('inventario.index') }}" class="mobile-nav-item {% if 'inventario' in request.endpoint %}active{% endif %}" aria-label="Inventario">
+                <i class="bi bi-box-seam"></i>
+                <span>Inventario</span>
+            </a>
+            <a href="#" class="mobile-nav-item mobile-nav-more" id="moreOptionsBtn" aria-label="Más opciones">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <span>Más</span>
+            </a>
+            {% endif %}
+            {% endif %}
+        </div>
+        
+        <!-- Menú desplegable "Más opciones" -->
+        <div class="mobile-more-menu" id="moreOptionsMenu">
+            <div class="mobile-more-menu-content">
+                {% if current_user.rol == 'administrador' %}
+                <a href="{{ url_for('dispositivos.index') }}" class="mobile-more-item {% if 'dispositivos' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-printer"></i>
+                    <span>Dispositivos</span>
+                </a>
+                <a href="{{ url_for('inventario.index') }}" class="mobile-more-item {% if 'inventario' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Inventario</span>
+                </a>
+                <a href="{{ url_for('tecnicos.index') }}" class="mobile-more-item {% if 'tecnicos' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-tools"></i>
+                    <span>Técnicos</span>
+                </a>
+                <a href="{{ url_for('reportes.index') }}" class="mobile-more-item {% if 'reportes' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="{{ url_for('backup.index') }}" class="mobile-more-item {% if 'backup' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-hdd-stack"></i>
+                    <span>Respaldo</span>
+                </a>
+                <a href="{{ url_for('proveedores.index') }}" class="mobile-more-item {% if 'proveedores' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-truck"></i>
+                    <span>Proveedores</span>
+                </a>
+                <a href="{{ url_for('contratos.index') }}" class="mobile-more-item {% if 'contratos' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Contratos</span>
+                </a>
+                <a href="{{ url_for('auth.configuracion_taller') }}" class="mobile-more-item {% if 'configuracion_taller' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-gear"></i>
+                    <span>Configuración</span>
+                </a>
+                {% elif current_user.rol == 'tecnico' %}
+                <a href="{{ url_for('inventario.index') }}" class="mobile-more-item {% if 'inventario' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Inventario</span>
+                </a>
+                {% elif current_user.rol == 'proveedor' %}
+                <a href="{{ url_for('inventario.index') }}" class="mobile-more-item {% if 'inventario' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Inventario</span>
+                </a>
+                {% endif %}
+                <div class="mobile-more-divider"></div>
+                <a href="{{ url_for('auth.cambiar_password') }}" class="mobile-more-item {% if 'cambiar_password' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-key"></i>
+                    <span>Cambiar Clave</span>
+                </a>
+                {% if current_user.rol == 'administrador' %}
+                <a href="{{ url_for('usuarios.index') }}" class="mobile-more-item {% if 'usuarios' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-person-gear"></i>
+                    <span>Usuarios</span>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('ayuda.index') }}" class="mobile-more-item {% if 'ayuda' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-question-circle"></i>
+                    <span>Ayuda</span>
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="mobile-more-item logout-item">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Floating Action Button (FAB) para móvil -->
+    <div class="mobile-fab-container d-md-none">
+        <button class="mobile-fab" id="mobileFab" aria-label="Nueva acción" aria-expanded="false">
+            <i class="bi bi-plus-lg fab-icon-open"></i>
+            <i class="bi bi-x-lg fab-icon-close"></i>
+        </button>
+        <div class="mobile-fab-menu" id="mobileFabMenu">
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' %}
+            <a href="{{ url_for('ordenes.formulario') }}" class="mobile-fab-item">
+                <i class="bi bi-clipboard-plus"></i>
+                <span>Nueva orden</span>
+            </a>
+            <a href="{{ url_for('dispositivos.formulario') }}" class="mobile-fab-item">
+                <i class="bi bi-printer-fill"></i>
+                <span>Nuevo dispositivo</span>
+            </a>
+            {% endif %}
+            {% if current_user.rol == 'administrador' %}
+            <a href="{{ url_for('clientes.formulario') }}" class="mobile-fab-item">
+                <i class="bi bi-person-plus"></i>
+                <span>Nuevo cliente</span>
+            </a>
+            {% endif %}
+            {% if current_user.rol == 'administrador' or current_user.rol == 'tecnico' or current_user.rol == 'proveedor' %}
+            <a href="{{ url_for('inventario.entrada') }}" class="mobile-fab-item">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Entrada inventario</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
     <!-- Sidebar Offcanvas para móviles -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 64px; height: calc(100vh - 64px);">
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
         <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
@@ -410,6 +557,71 @@
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <!-- Script personalizado MegaPrint Lab v2.0 -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Script para navegación móvil (FAB y menú Más opciones) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menú "Más opciones" en barra superior móvil
+            const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+            const moreOptionsMenu = document.getElementById('moreOptionsMenu');
+            
+            if (moreOptionsBtn && moreOptionsMenu) {
+                moreOptionsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    moreOptionsMenu.classList.toggle('show');
+                });
+                
+                // Cerrar al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!moreOptionsMenu.contains(e.target) && !moreOptionsBtn.contains(e.target)) {
+                        moreOptionsMenu.classList.remove('show');
+                    }
+                });
+                
+                // Cerrar al seleccionar una opción
+                const moreItems = moreOptionsMenu.querySelectorAll('.mobile-more-item');
+                moreItems.forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        moreOptionsMenu.classList.remove('show');
+                    });
+                });
+            }
+            
+            // Floating Action Button (FAB)
+            const mobileFab = document.getElementById('mobileFab');
+            const mobileFabMenu = document.getElementById('mobileFabMenu');
+            
+            if (mobileFab && mobileFabMenu) {
+                mobileFab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    mobileFab.classList.toggle('active');
+                    mobileFabMenu.classList.toggle('show');
+                    mobileFab.setAttribute('aria-expanded', mobileFabMenu.classList.contains('show'));
+                });
+                
+                // Cerrar al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!mobileFabMenu.contains(e.target) && !mobileFab.contains(e.target)) {
+                        mobileFab.classList.remove('active');
+                        mobileFabMenu.classList.remove('show');
+                        mobileFab.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                
+                // Cerrar al seleccionar una opción
+                const fabItems = mobileFabMenu.querySelectorAll('.mobile-fab-item');
+                fabItems.forEach(function(item) {
+                    item.addEventListener('click', function() {
+                        mobileFab.classList.remove('active');
+                        mobileFabMenu.classList.remove('show');
+                        mobileFab.setAttribute('aria-expanded', 'false');
+                    });
+                });
+            }
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
