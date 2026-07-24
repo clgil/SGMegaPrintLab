@@ -2,7 +2,7 @@
 Rutas de reportes para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 """
-from flask import Blueprint, render_template, request, make_response, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, request, make_response, jsonify, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
 from models import db, Orden, Pieza, MovimientoInventario, Cliente, Gasto, Configuracion
 from datetime import datetime
@@ -240,6 +240,171 @@ def exportar_csv(tipo):
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = f'attachment; filename=piezas_{fecha_inicio}_{fecha_fin}.csv'
         return response
+    
+    flash('Tipo de reporte no válido', 'danger')
+    return redirect(url_for('reportes.index'))
+
+
+@reportes_bp.route('/exportar_pdf/<tipo>')
+@rol_requerido(['administrador'])
+def exportar_pdf(tipo):
+    """Exportar reporte a PDF usando fpdf2"""
+    from fpdf import FPDF, XPos, YPos
+    from sqlalchemy import func
+    
+    if tipo == 'ingresos':
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+        
+        ordenes = Orden.query.filter(
+            Orden.estado == 'Entregado',
+            Orden.fecha_entrega >= fecha_inicio,
+            Orden.fecha_entrega <= fecha_fin
+        ).all()
+        
+        # Crear PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
+        pdf.cell(0, 10, 'Reporte de Ingresos', new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+        pdf.set_font('Helvetica', '', 12)
+        pdf.cell(0, 10, f'Periodo: {fecha_inicio} a {fecha_fin}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(10)
+        
+        # Tabla de encabezados
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(40, 8, 'Numero Orden', border=1)
+        pdf.cell(30, 8, 'Fecha', border=1)
+        pdf.cell(80, 8, 'Cliente', border=1)
+        pdf.cell(40, 8, 'Total', border=1)
+        pdf.ln()
+        
+        # Datos
+        pdf.set_font('Helvetica', '', 9)
+        total_general = 0
+        for o in ordenes:
+            pdf.cell(40, 7, o.numero_orden, border=1)
+            pdf.cell(30, 7, str(o.fecha_entrega), border=1)
+            # Truncar nombre si es muy largo
+            nombre_cliente = o.cliente.nombre[:35] if len(o.cliente.nombre) > 35 else o.cliente.nombre
+            pdf.cell(80, 7, nombre_cliente, border=1)
+            pdf.cell(40, 7, f'{o.costo_total:.2f}', border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            total_general += o.costo_total
+        
+        pdf.ln(5)
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(150, 8, 'TOTAL GENERAL:', align='R')
+        pdf.cell(40, 8, f'{total_general:.2f}', border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        
+        # Guardar en buffer
+        output = io.BytesIO()
+        pdf_bytes = pdf.output()
+        output.write(pdf_bytes)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'ingresos_{fecha_inicio}_{fecha_fin}.pdf'
+        )
+    
+    elif tipo == 'piezas':
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+        
+        resultados = db.session.query(
+            Pieza.nombre,
+            Pieza.unidad,
+            func.sum(MovimientoInventario.cantidad).label('cantidad_total')
+        ).join(MovimientoInventario).join(Orden).filter(
+            MovimientoInventario.tipo == 'salida',
+            Orden.fecha_entrega >= fecha_inicio,
+            Orden.fecha_entrega <= fecha_fin
+        ).group_by(Pieza.id).order_by(func.sum(MovimientoInventario.cantidad).desc()).all()
+        
+        # Crear PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
+        pdf.cell(0, 10, 'Reporte de Piezas Utilizadas', new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+        pdf.set_font('Helvetica', '', 12)
+        pdf.cell(0, 10, f'Periodo: {fecha_inicio} a {fecha_fin}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(10)
+        
+        # Tabla de encabezados
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(100, 8, 'Pieza', border=1)
+        pdf.cell(50, 8, 'Unidad', border=1)
+        pdf.cell(40, 8, 'Cantidad Total', border=1)
+        pdf.ln()
+        
+        # Datos
+        pdf.set_font('Helvetica', '', 9)
+        for r in resultados:
+            nombre_pieza = r.nombre[:45] if len(r.nombre) > 45 else r.nombre
+            pdf.cell(100, 7, nombre_pieza, border=1)
+            pdf.cell(50, 7, r.unidad, border=1)
+            pdf.cell(40, 7, str(r.cantidad_total), border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        
+        # Guardar en buffer
+        output = io.BytesIO()
+        pdf_bytes = pdf.output()
+        output.write(pdf_bytes)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'piezas_{fecha_inicio}_{fecha_fin}.pdf'
+        )
+    
+    elif tipo == 'clientes':
+        # Clientes más activos
+        resultados = db.session.query(
+            Cliente.id,
+            Cliente.nombre,
+            Cliente.telefono,
+            func.count(Orden.id).label('total_ordenes')
+        ).join(Orden).group_by(Cliente.id).order_by(func.count(Orden.id).desc()).limit(50).all()
+        
+        # Crear PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
+        pdf.cell(0, 10, 'Reporte de Clientes Activos', new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+        pdf.ln(10)
+        
+        # Tabla de encabezados
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(15, 8, '#', border=1)
+        pdf.cell(90, 8, 'Cliente', border=1)
+        pdf.cell(50, 8, 'Telefono', border=1)
+        pdf.cell(35, 8, 'Total Ordenes', border=1)
+        pdf.ln()
+        
+        # Datos
+        pdf.set_font('Helvetica', '', 9)
+        for i, r in enumerate(resultados, 1):
+            nombre_cliente = r.nombre[:35] if len(r.nombre) > 35 else r.nombre
+            pdf.cell(15, 7, str(i), border=1)
+            pdf.cell(90, 7, nombre_cliente, border=1)
+            pdf.cell(50, 7, r.telefono or '', border=1)
+            pdf.cell(35, 7, str(r.total_ordenes), border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        
+        # Guardar en buffer
+        output = io.BytesIO()
+        pdf_bytes = pdf.output()
+        output.write(pdf_bytes)
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='clientes_activos.pdf'
+        )
     
     flash('Tipo de reporte no válido', 'danger')
     return redirect(url_for('reportes.index'))
