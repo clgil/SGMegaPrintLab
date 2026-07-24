@@ -27,7 +27,7 @@
                 </div>
                 <div class="card-body">
                     <p>Genera una copia de seguridad completa de la base de datos actual.</p>
-                    <form action="{{ url_for('backup.crear') }}" method="POST">
+                    <form novalidate action="{{ url_for('backup.crear') }}" method="POST">
                         <button type="submit" class="btn btn-success btn-lg w-100">Crear Respaldo Ahora</button>
                     </form>
                 </div>
@@ -58,7 +58,7 @@
                 <strong>Advertencia:</strong> Esta acción reemplazará la base de datos actual con el archivo que seleccione. 
                 Se creará automáticamente un respaldo de la base de datos actual antes de restaurar.
             </p>
-            <form action="{{ url_for('backup.restaurar') }}" method="POST" enctype="multipart/form-data">
+            <form novalidate action="{{ url_for('backup.restaurar') }}" method="POST" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="archivo" class="form-label">Seleccione archivo de respaldo (.db)</label>
                     <input type="file" name="archivo" class="form-control" accept=".db" required>

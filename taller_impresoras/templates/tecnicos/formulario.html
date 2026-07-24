@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{% if tecnico %}{{ url_for('tecnicos.editar', id=tecnico.id) }}{% else %}{{ url_for('tecnicos.nuevo') }}{% endif %}">
+    <form method="POST" novalidate action="{% if tecnico %}{{ url_for('tecnicos.editar', id=tecnico.id) }}{% else %}{{ url_for('tecnicos.nuevo') }}{% endif %}">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="fas fa-id-badge"></i> Datos del Técnico</h5>

@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{% if pieza %}{{ url_for('inventario.editar', id=pieza.id) }}{% else %}{{ url_for('inventario.nuevo') }}{% endif %}">
+    <form method="POST" novalidate action="{% if pieza %}{{ url_for('inventario.editar', id=pieza.id) }}{% else %}{{ url_for('inventario.nuevo') }}{% endif %}">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="fas fa-tag"></i> Información Básica</h5>

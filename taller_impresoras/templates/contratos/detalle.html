@@ -59,7 +59,7 @@
                         {% endif %}
                     </p>
                     
-                    <form method="POST" action="{{ url_for('contratos.registrar_visita', id=contrato.id) }}" class="mt-3">
+                    <form method="POST" novalidate action="{{ url_for('contratos.registrar_visita', id=contrato.id) }}" class="mt-3">
                         <div class="input-group">
                             <input type="date" name="fecha_visita" class="form-control" value="{{ now() }}" required>
                             <button type="submit" class="btn btn-success">Registrar Visita</button>

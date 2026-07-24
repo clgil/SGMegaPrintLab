@@ -12,7 +12,7 @@
             <h5 class="mb-0">Registrar Nuevo Gasto</h5>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ url_for('reportes.gastos') }}" class="row g-3">
+            <form method="POST" novalidate action="{{ url_for('reportes.gastos') }}" class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Descripción:</label>
                     <input type="text" name="descripcion" class="form-control" required placeholder="Ej: Electricidad, Alquiler...">
@@ -55,7 +55,7 @@
                         <td>{{ gasto.descripcion }}</td>
                         <td class="text-danger">${{ "%.2f"|format(gasto.monto) }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('reportes.eliminar_gasto', id=gasto.id) }}" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este gasto?');">
+                            <form method="POST" novalidate action="{{ url_for('reportes.eliminar_gasto', id=gasto.id) }}" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este gasto?');">
                                 <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                             </form>
                         </td>

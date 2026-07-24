@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ url_for('ordenes.editar', id=orden.id) }}">
+    <form method="POST" novalidate action="{{ url_for('ordenes.editar', id=orden.id) }}">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente</h5>

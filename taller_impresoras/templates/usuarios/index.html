@@ -75,12 +75,12 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('usuarios.editar', id=usuario.id) }}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
-                                <form action="{{ url_for('usuarios.cambiar_estado', id=usuario.id) }}" method="POST" class="d-inline">
+                                <form novalidate action="{{ url_for('usuarios.cambiar_estado', id=usuario.id) }}" method="POST" class="d-inline">
                                     <button type="submit" class="btn btn-sm {% if usuario.activo == 1 %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
                                         {% if usuario.activo == 1 %}⏸️ Desactivar{% else %}▶️ Activar{% endif %}
                                     </button>
                                 </form>
-                                <form action="{{ url_for('usuarios.eliminar', id=usuario.id) }}" method="POST" class="d-inline delete-form">
+                                <form novalidate action="{{ url_for('usuarios.eliminar', id=usuario.id) }}" method="POST" class="d-inline delete-form">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
                                 </form>
                             </td>

@@ -11,7 +11,7 @@
                     <h4>{{ accion }} Usuario</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{% if usuario %}{{ url_for('usuarios.editar', id=usuario.id) }}{% else %}{{ url_for('usuarios.nuevo') }}{% endif %}" id="usuarioForm">
+                    <form method="POST" novalidate action="{% if usuario %}{{ url_for('usuarios.editar', id=usuario.id) }}{% else %}{{ url_for('usuarios.nuevo') }}{% endif %}" id="usuarioForm">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre Completo *</label>
                             <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" value="{{ usuario.nombre if usuario else '' }}" required autofocus>

@@ -11,7 +11,7 @@
                 <small>Sistema de Gestión</small>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.login') }}">
+                <form method="POST" novalidate action="{{ url_for('auth.login') }}">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control py-3" id="usuario" name="usuario" required autofocus placeholder="Usuario">
                         <label for="usuario">Usuario</label>

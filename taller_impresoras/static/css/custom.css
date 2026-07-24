@@ -832,51 +832,73 @@ select.form-control option,
     color: var(--text-primary);
 }
 
-/* Ocultar tooltips nativos del navegador en campos requeridos */
+/* Ocultar tooltips nativos del navegador en campos requeridos - SOLUCIÓN GLOBAL */
+/* Esto previene que los mensajes de validación nativos tapen el contenido en TODAS las vistas */
+
+/* Deshabilitar visualmente los bubbles de validación en todos los navegadores */
 select[required]:invalid,
 input[required]:invalid,
 textarea[required]:invalid,
-.form-select[required]:invalid {
+.form-select[required]:invalid,
+.form-control[required]:invalid {
     box-shadow: none !important;
 }
 
-/* Prevenir que los tooltips nativos tapen el contenido */
+/* Forzar que los elementos focales tengan z-index alto para evitar superposiciones */
 select:focus,
 .form-select:focus,
-.form-control:focus {
-    position: relative;
-    z-index: 10;
+.form-control:focus,
+textarea:focus,
+input:focus {
+    position: relative !important;
+    z-index: 9999 !important;
 }
 
-/* Ocultar completamente los mensajes de validación nativos del navegador para evitar que tapen el contenido */
+/* Ocultar completamente los mensajes de validación nativos - WebKit (Chrome, Safari, Edge) */
 select[required]:invalid::-webkit-validation-bubble-message,
 input[required]:invalid::-webkit-validation-bubble-message,
 textarea[required]:invalid::-webkit-validation-bubble-message,
-.form-select[required]:invalid::-webkit-validation-bubble-message {
+.form-select[required]:invalid::-webkit-validation-bubble-message,
+.form-control[required]:invalid::-webkit-validation-bubble-message {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Firefox - usar pseudoclase para prevenir mostrar mensajes */
+select:-moz-ui-invalid,
+input:-moz-ui-invalid,
+textarea:-moz-ui-invalid,
+.form-select:-moz-ui-invalid,
+.form-control:-moz-ui-invalid {
+    box-shadow: none !important;
+}
+
+select:-moz-ui-invalid::-moz-validation-bubble,
+input:-moz-ui-invalid::-moz-validation-bubble,
+textarea:-moz-ui-invalid::-moz-validation-bubble,
+.form-select:-moz-ui-invalid::-moz-validation-bubble,
+.form-control:-moz-ui-invalid::-moz-validation-bubble {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
 }
 
-/* Estilos para tooltips nativos del navegador - Modo Claro (fallback si el navegador no soporta display:none) */
-select[required]:invalid::-webkit-validation-bubble-message,
-input[required]:invalid::-webkit-validation-bubble-message,
-textarea[required]:invalid::-webkit-validation-bubble-message {
-    color: var(--gray-900);
-    background-color: var(--white);
-    border: 1px solid var(--gray-300);
-    font-size: 0.75rem;
-    max-width: 200px;
-}
-
-/* Estilos para tooltips nativos del navegador - Modo Oscuro */
-[data-theme="dark"] select[required]:invalid::-webkit-validation-bubble-message,
-[data-theme="dark"] input[required]:invalid::-webkit-validation-bubble-message,
-[data-theme="dark"] textarea[required]:invalid::-webkit-validation-bubble-message,
-[data-theme="dark"] .form-select[required]:invalid::-webkit-validation-bubble-message {
-    color: var(--gray-100);
-    background-color: var(--gray-800);
-    border: 1px solid var(--gray-600);
+/* Estilos para form-floating - asegurar que labels no interfieran */
+.form-floating select[required]:invalid::-webkit-validation-bubble-message,
+.form-floating input[required]:invalid::-webkit-validation-bubble-message,
+.form-floating textarea[required]:invalid::-webkit-validation-bubble-message,
+.form-floating .form-select[required]:invalid::-webkit-validation-bubble-message,
+.form-floating .form-control[required]:invalid::-webkit-validation-bubble-message {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 /* Ajuste para etiquetas con asterisco en modo oscuro */
@@ -956,8 +978,12 @@ textarea[required]:invalid::-webkit-validation-bubble-message {
 /* Asegurar que los selects en form-floating no muestren tooltips nativos encima */
 .form-floating select[required]:invalid::-webkit-validation-bubble-message,
 .form-floating input[required]:invalid::-webkit-validation-bubble-message,
-.form-floating textarea[required]:invalid::-webkit-validation-bubble-message {
-    display: none;
+.form-floating textarea[required]:invalid::-webkit-validation-bubble-message,
+.form-floating .form-select[required]:invalid::-webkit-validation-bubble-message,
+.form-floating .form-control[required]:invalid::-webkit-validation-bubble-message {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 /* ============================================

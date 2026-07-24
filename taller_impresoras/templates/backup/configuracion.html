@@ -16,7 +16,7 @@
                     <h5 class="mb-0">Datos del Taller para Impresiones</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('backup.configuracion') }}" enctype="multipart/form-data">
+                    <form method="POST" novalidate action="{{ url_for('backup.configuracion') }}" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="nombre_taller" class="form-label">Nombre del Taller *</label>
                             <input type="text" class="form-control" name="nombre_taller" id="nombre_taller" 
