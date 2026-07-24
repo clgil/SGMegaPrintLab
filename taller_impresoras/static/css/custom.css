@@ -840,12 +840,29 @@ textarea[required]:invalid,
     box-shadow: none !important;
 }
 
-/* Prevenir que los tooltips nativos tapen el contenido */
+/* Prevenir que los tooltips nativos tapen el contenido - Corrección para dropdowns */
 select:focus,
 .form-select:focus,
 .form-control:focus {
     position: relative;
     z-index: 10;
+}
+
+/* Asegurar que los menús desplegables (dropdowns) de Bootstrap no sean tapados por tooltips */
+.dropdown-menu {
+    z-index: 1060 !important;
+    position: absolute;
+}
+
+/* Evitar que los tooltips de Bootstrap interfieran con dropdowns */
+.tooltip {
+    z-index: 1070 !important;
+    pointer-events: none;
+}
+
+/* Asegurar que el tooltip no bloquee la interacción cuando está visible */
+.tooltip.show {
+    pointer-events: auto;
 }
 
 /* Ocultar completamente los mensajes de validación nativos del navegador para evitar que tapen el contenido */
@@ -877,6 +894,45 @@ textarea[required]:invalid::-webkit-validation-bubble-message {
     color: var(--gray-100);
     background-color: var(--gray-800);
     border: 1px solid var(--gray-600);
+}
+
+/* ============================================
+   TOOLTIPS DE BOOTSTRAP - MEJORAS
+   ============================================ */
+/* Ajuste del estilo de los tooltips para que no interfieran con la interacción */
+.tooltip-inner {
+    max-width: 250px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    text-align: center;
+    background-color: rgba(17, 24, 39, 0.95);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip en modo oscuro - mejor visibilidad */
+[data-theme="dark"] .tooltip-inner {
+    background-color: rgba(243, 244, 246, 0.95);
+    color: var(--gray-900);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Flecha del tooltip */
+.tooltip-arrow {
+    display: none;
+}
+
+/* Asegurar que los tooltips no se superpongan sobre elementos interactivos */
+.tooltip.show {
+    z-index: 1080 !important;
+}
+
+/* Prevenir que tooltips cubran botones o enlaces al hacer hover */
+.btn[title]:hover,
+a[title]:hover,
+i[title]:hover {
+    position: relative;
+    z-index: 1;
 }
 
 /* Ajuste para etiquetas con asterisco en modo oscuro */
@@ -1048,6 +1104,23 @@ textarea[required]:invalid::-webkit-validation-bubble-message {
 [data-theme="dark"] .table tbody tr td,
 [data-theme="dark"] .table tbody tr th {
     background-color: transparent !important;
+}
+
+/* Mejora de visibilidad en modo oscuro - mayor contraste entre filas */
+[data-theme="dark"] .table tbody tr {
+    border-bottom: 1px solid var(--gray-700);
+}
+
+[data-theme="dark"] .table tbody tr td,
+[data-theme="dark"] .table tbody tr th {
+    color: var(--gray-100) !important;
+}
+
+/* Asegurar que el header de la tabla tenga buen contraste */
+[data-theme="dark"] .table thead th {
+    background-color: var(--gray-750) !important;
+    color: var(--white) !important;
+    border-bottom: 2px solid var(--gray-600);
 }
 
 .table tbody tr:hover td {
