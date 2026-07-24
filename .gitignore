@@ -1,36 +1,36 @@
 ```
-# Compiled and build artifacts
-*.pyc
+# Python
 __pycache__/
-*.o
-*.obj
-dist/
-build/
-*.min.css
-*.woff2
+*.pyc
+*.pyo
+*.pyd
 
 # Dependencies
 .venv/
 venv/
-node_modules/
+env/
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
-*.swp
 
-# Environment
+# Environment variables
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
+# Coverage
+.coverage
+coverage/
+htmlcov/
 
-# Python specific
-*.py[cod]
-*$py.class
-*.so
-.Python
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
 ```
