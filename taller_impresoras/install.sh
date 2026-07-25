@@ -38,9 +38,26 @@ echo ""
 # Activar entorno virtual e instalar dependencias
 echo "Instalando dependencias..."
 source venv/bin/activate
+pip install --upgrade pip
+
+# Verificar e instalar dependencias del sistema para WeasyPrint si es necesario
+echo "Verificando dependencias del sistema para WeasyPrint..."
+if ! dpkg -l | grep -q libpango1.0-dev || ! dpkg -l | grep -q libharfbuzz-dev || ! dpkg -l | grep -q libffi-dev; then
+    echo "ADVERTENCIA: Faltan dependencias del sistema para WeasyPrint."
+    echo "Para instalarlas automaticamente, ejecute:"
+    echo "  sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev"
+    echo ""
+    read -p "¿Desea intentar instalarlas ahora? (s/n): " respuesta
+    if [ "$respuesta" = "s" ] || [ "$respuesta" = "S" ]; then
+        sudo apt-get update && sudo apt-get install -y libpango1.0-dev libharfbuzz-dev libffi-dev
+    fi
+fi
+
 pip install -r requirements.txt
 if [ $? -ne 0 ]; then
     echo "ERROR: No se pudieron instalar las dependencias"
+    echo "Asegurese de tener instaladas las dependencias del sistema para WeasyPrint:"
+    echo "  sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev"
     exit 1
 fi
 echo "[OK] Dependencias instaladas"

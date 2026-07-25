@@ -76,6 +76,7 @@ SGMegaPrintLab es un sistema informático **100% offline** diseñado para automa
 
 ```batch
 # Abrir CMD o PowerShell en la carpeta del proyecto
+cd taller_impresoras
 install.bat
 ```
 
@@ -83,6 +84,7 @@ install.bat
 
 ```bash
 # Abrir terminal en la carpeta del proyecto
+cd taller_impresoras
 chmod +x install.sh
 ./install.sh
 ```
@@ -158,6 +160,7 @@ DATABASE_URL=sqlite:///taller.db
 - Ingresos del mes actual
 - Gráficos de ingresos mensuales
 - Filtros por período (hoy, este mes, este año, personalizado)
+- Estadísticas diferenciadas por rol (administrador, técnico, proveedor, cliente)
 
 #### 📋 Órdenes de Reparación
 - Creación de órdenes con numeración automática (OT-AA-0001)
@@ -166,12 +169,18 @@ DATABASE_URL=sqlite:///taller.db
 - Cálculo automático de costos (mano de obra + piezas)
 - Flujo de estados: Recibido → Diagnóstico → Reparación → Listo → Entregado
 - Generación e impresión de recibos
+- Notas internas en órdenes
+- Reingresos por garantía
 
 #### 👥 Clientes
 - Registro de clientes con clasificación:
-  - Particular
-  - Empresa estatal
-  - Cuentapropista
+  - TCP (Trabajador por Cuenta Propia)
+  - Mypyme
+  - PDL (Persona con Derecho a Lucro)
+  - Empresa Estatal
+  - CNA (Cooperativa No Agropecuaria)
+  - CPA (Cooperativa de Producción Agropecuaria)
+  - Persona natural
 - Búsqueda rápida por nombre o teléfono
 - Historial completo de dispositivos y órdenes
 - Información de contacto detallada
@@ -205,6 +214,19 @@ DATABASE_URL=sqlite:///taller.db
 - Piezas más utilizadas
 - Clientes activos y frecuencia de servicio
 - Gastos operativos
+- Tributos calculados (ISIP, seguridad social)
+
+#### 🤝 Contratos de Mantenimiento
+- Gestión de contratos recurrentes con clientes
+- Frecuencias configurables (semanal, quincenal, mensual, trimestral)
+- Seguimiento de visitas programadas
+- Alertas de mantenimientos próximos
+
+#### 👥 Usuarios
+- Administración de usuarios del sistema
+- Roles: administrador, técnico, proveedor, cliente
+- Control de acceso basado en permisos
+- Activación/desactivación de usuarios
 
 #### 💾 Respaldo y Restauración
 - Crear copia de seguridad de la base de datos
@@ -260,22 +282,35 @@ workspace/
     │   ├── inventario.py    # Inventario de piezas
     │   ├── tecnicos.py      # Gestión de técnicos
     │   ├── reportes.py      # Reportes y estadísticas
-    │   └── backup.py        # Respaldo y restauración
+    │   ├── backup.py        # Respaldo y restauración
+    │   ├── proveedores.py   # Gestión de proveedores
+    │   ├── contratos.py     # Contratos de mantenimiento
+    │   ├── usuarios.py      # Gestión de usuarios
+    │   ├── decorators.py    # Decoradores de roles
+    │   ├── validators.py    # Validadores de datos
+    │   └── ayuda/           # Módulo de ayuda contextual
     │
     ├── static/              # Archivos estáticos
     │   ├── css/             # Hojas de estilo
-    │   └── js/              # JavaScript del frontend
+    │   ├── js/              # JavaScript del frontend
+    │   └── uploads/         # Archivos subidos
     │
     ├── templates/           # Plantillas HTML
     │   ├── base.html        # Layout principal
     │   ├── dashboard.html   # Panel de control
     │   ├── login.html       # Inicio de sesión
+    │   ├── auth/            # Plantillas de autenticación
     │   ├── clientes/        # Plantillas de clientes
     │   ├── dispositivos/    # Plantillas de dispositivos
     │   ├── ordenes/         # Plantillas de órdenes
     │   ├── inventario/      # Plantillas de inventario
     │   ├── tecnicos/        # Plantillas de técnicos
-    │   └── reportes/        # Plantillas de reportes
+    │   ├── reportes/        # Plantillas de reportes
+    │   ├── proveedores/     # Plantillas de proveedores
+    │   ├── contratos/       # Plantillas de contratos
+    │   ├── usuarios/        # Plantillas de usuarios
+    │   ├── backup/          # Plantillas de respaldo
+    │   └── ayuda/           # Plantillas de ayuda
     │
     ├── instance/            # Base de datos SQLite (auto-generada)
     │   └── taller.db
@@ -326,6 +361,17 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### WeasyPrint no instala correctamente (Linux)
+
+WeasyPrint requiere dependencias del sistema:
+```bash
+# Ubuntu/Debian
+sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev
+
+# Fedora
+sudo dnf install pango-devel harfbuzz-devel libffi-devel
+```
+
 ---
 
 ## 🔐 Seguridad
@@ -335,6 +381,7 @@ pip install -r requirements.txt
 - ✅ Protección contra CSRF en formularios
 - ✅ Validación de entrada de datos
 - ✅ Control de acceso basado en roles
+- ✅ Decoradores de permisos por ruta
 
 ### Cambio de Contraseña de Administrador
 
@@ -366,6 +413,8 @@ with app.app_context():
 | Werkzeug | 3.0.1 | Utilidades web |
 | python-dotenv | 1.0.0 | Variables de entorno |
 | reportlab | 5.0.0 | Generación de PDFs |
+| fpdf2 | 2.8.7 | Generación de PDFs alternativa |
+| WeasyPrint | 62.0 | Renderizado HTML a PDF |
 
 ---
 
@@ -378,6 +427,7 @@ Este sistema es **autocontenido** y está diseñado para operar sin soporte exte
 - Revise los archivos en `routes/` para entender la lógica de cada módulo
 - Los modelos de datos están definidos en `models.py`
 - Las plantillas HTML utilizan Jinja2 como motor de renderizado
+- Consulte la documentación adicional en `taller_impresoras/README.md`
 
 ---
 
