@@ -524,6 +524,27 @@ body {
     background-color: transparent;
 }
 
+/* Ajustes para headers de tarjetas con colores de fondo en modo oscuro */
+[data-theme="dark"] .card-header.bg-primary,
+[data-theme="dark"] .card-header.bg-success,
+[data-theme="dark"] .card-header.bg-info,
+[data-theme="dark"] .card-header.bg-warning,
+[data-theme="dark"] .card-header.bg-danger,
+[data-theme="dark"] .card-header.bg-secondary,
+[data-theme="dark"] .card-header.bg-dark {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card-header.bg-primary *,
+[data-theme="dark"] .card-header.bg-success *,
+[data-theme="dark"] .card-header.bg-info *,
+[data-theme="dark"] .card-header.bg-warning *,
+[data-theme="dark"] .card-header.bg-danger *,
+[data-theme="dark"] .card-header.bg-secondary *,
+[data-theme="dark"] .card-header.bg-dark * {
+    color: #ffffff !important;
+}
+
 .card-body {
     padding: var(--space-5);
 }
@@ -1619,12 +1640,25 @@ i[title]:hover {
 .text-info { color: var(--info); }
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
+.text-white { color: #ffffff !important; }
+.text-dark { color: var(--gray-900) !important; }
 
 .bg-primary { background-color: var(--primary); }
 .bg-success { background-color: var(--success); }
 .bg-warning { background-color: var(--warning); }
 .bg-danger { background-color: var(--danger); }
 .bg-info { background-color: var(--info); }
+.bg-dark { background-color: var(--gray-800) !important; }
+.bg-secondary { background-color: var(--gray-600); }
+
+/* Ajustes para modo oscuro - headers de tarjetas con colores de fondo */
+[data-theme="dark"] .bg-primary { background-color: var(--primary) !important; }
+[data-theme="dark"] .bg-success { background-color: var(--success) !important; }
+[data-theme="dark"] .bg-warning { background-color: var(--warning) !important; }
+[data-theme="dark"] .bg-danger { background-color: var(--danger) !important; }
+[data-theme="dark"] .bg-info { background-color: var(--info) !important; }
+[data-theme="dark"] .bg-secondary { background-color: var(--gray-600) !important; }
+[data-theme="dark"] .bg-dark { background-color: var(--gray-700) !important; }
 
 .shadow-sm { box-shadow: var(--shadow-card); }
 .shadow-md { box-shadow: var(--shadow-elevated); }
