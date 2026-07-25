@@ -51,6 +51,13 @@ def nuevo():
             flash('El cliente y la marca son obligatorios', 'warning')
             return redirect(url_for('dispositivos.nuevo'))
         
+        # Validar que el número de serie no exista ya (si se proporciona)
+        if numero_serie and numero_serie.strip():
+            dispositivo_existente = Dispositivo.query.filter_by(numero_serie=numero_serie.strip()).first()
+            if dispositivo_existente:
+                flash(f'El número de serie "{numero_serie}" ya está registrado en el sistema para otro dispositivo.', 'danger')
+                return redirect(url_for('dispositivos.nuevo'))
+        
         dispositivo = Dispositivo(
             cliente_id=cliente_id,
             marca=marca,
@@ -84,13 +91,28 @@ def editar(id):
     dispositivo = Dispositivo.query.get_or_404(id)
     
     if request.method == 'POST':
-        dispositivo.cliente_id = request.form.get('cliente_id')
-        dispositivo.marca = request.form.get('marca')
-        dispositivo.modelo = request.form.get('modelo')
-        dispositivo.numero_serie = request.form.get('numero_serie')
-        dispositivo.tipo = request.form.get('tipo')
-        dispositivo.problema_frecuente = request.form.get('problema_frecuente')
-        dispositivo.observaciones = request.form.get('observaciones')
+        cliente_id = request.form.get('cliente_id')
+        marca = request.form.get('marca')
+        modelo = request.form.get('modelo')
+        numero_serie = request.form.get('numero_serie')
+        tipo = request.form.get('tipo')
+        problema_frecuente = request.form.get('problema_frecuente')
+        observaciones = request.form.get('observaciones')
+        
+        # Validar que el número de serie no exista ya en otro dispositivo (si se proporciona)
+        if numero_serie and numero_serie.strip():
+            dispositivo_existente = Dispositivo.query.filter_by(numero_serie=numero_serie.strip()).first()
+            if dispositivo_existente and dispositivo_existente.id != id:
+                flash(f'El número de serie "{numero_serie}" ya está registrado en el sistema para otro dispositivo.', 'danger')
+                return redirect(url_for('dispositivos.editar', id=id))
+        
+        dispositivo.cliente_id = cliente_id
+        dispositivo.marca = marca
+        dispositivo.modelo = modelo
+        dispositivo.numero_serie = numero_serie
+        dispositivo.tipo = tipo
+        dispositivo.problema_frecuente = problema_frecuente
+        dispositivo.observaciones = observaciones
         
         db.session.commit()
         
