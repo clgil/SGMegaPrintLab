@@ -885,7 +885,7 @@ def descargar(id):
         ('RIGHTPADDING', (0, 0), (-1, -1), 12),
         ('TOPPADDING', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-        ('LINEBELOW', (0, 1), (-1, 1), 2, colors.HexColor('rgba(255,255,255,0.3)')),
+        ('LINEBELOW', (0, 1), (-1, 1), 2, colors.Color(1, 1, 1, alpha=0.3)),
         ('TOPPADDING', (0, 2), (-1, 2), 5),
         ('BOTTOMPADDING', (0, 2), (-1, 2), 5),
         ('ROUNDEDCORNERS', [8, 8, 8, 8]),
