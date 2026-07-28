@@ -333,15 +333,16 @@ def imprimir(id):
 @ordenes_bp.route('/descargar/<int:id>')
 @rol_requerido(['administrador', 'tecnico'])
 def descargar(id):
-    """Descargar orden de reparación como PDF"""
+    """Descargar orden de reparación como PDF con el mismo formato que la vista de impresión"""
     from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, KeepTogether
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import inch
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     from io import BytesIO
-    from flask import send_file
+    from flask import send_file, url_for
+    import os
     
     orden = Orden.query.get_or_404(id)
     
@@ -363,226 +364,609 @@ def descargar(id):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=0.4*inch, leftMargin=0.4*inch, topMargin=0.4*inch, bottomMargin=0.4*inch)
     
-    # Estilos modernos y limpios
+    # Colores corporativos que coinciden con el CSS
+    COLOR_PRIMARIO = colors.HexColor('#3498db')
+    COLOR_SECUNDARIO = colors.HexColor('#667eea')
+    COLOR_GRADIENTE = colors.HexColor('#764ba2')
+    COLOR_TEXTO = colors.HexColor('#2c3e50')
+    COLOR_TEXTO_CLARO = colors.HexColor('#7f8c8d')
+    COLOR_BORDE = colors.HexColor('#ecf0f1')
+    COLOR_HEADER_TABLA = colors.HexColor('#34495e')
+    COLOR_TOTAL_BG = colors.HexColor('#667eea')
+    COLOR_NOTAS_BG = colors.HexColor('#fff9e6')
+    COLOR_NOTAS_BORDE = colors.HexColor('#f39c12')
+    COLOR_TOTAL_TEXTO = colors.white
+    
+    # Estilos que coinciden con el CSS del recibo
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=20,
-        textColor=colors.HexColor('#1a5276'),
-        spaceAfter=8,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
+    
+    # Estilo para el nombre del taller (18pt, bold, uppercase)
+    taller_nombre_style = ParagraphStyle(
+        'TallerNombre',
+        parent=styles['Normal'],
+        fontSize=18,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        letterSpacing=0.5,
+        spaceAfter=3
     )
-    heading_style = ParagraphStyle(
-        'CustomHeading',
-        parent=styles['Heading2'],
-        fontSize=11,
-        textColor=colors.HexColor('#2e86c1'),
-        spaceAfter=4,
-        spaceBefore=4,
-        fontName='Helvetica-Bold'
-    )
-    normal_style = ParagraphStyle(
-        'CustomNormal',
+    
+    # Estilo para detalles del taller (9pt, gris)
+    taller_detalles_style = ParagraphStyle(
+        'TallerDetalles',
         parent=styles['Normal'],
         fontSize=9,
-        textColor=colors.HexColor('#2c3e50'),
-        spaceAfter=2,
-        leading=11
+        textColor=COLOR_TEXTO_CLARO,
+        spaceAfter=0
     )
-    small_style = ParagraphStyle(
-        'SmallStyle',
-        parent=normal_style,
+    
+    # Estilo para email del taller (8pt, azul)
+    taller_email_style = ParagraphStyle(
+        'TallerEmail',
+        parent=styles['Normal'],
         fontSize=8,
-        textColor=colors.grey,
-        spaceAfter=1
+        textColor=COLOR_PRIMARIO,
+        spaceAfter=0,
+        spaceBefore=2
+    )
+    
+    # Estilo para badge label (7pt, bold)
+    badge_label_style = ParagraphStyle(
+        'BadgeLabel',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        letterSpacing=1,
+        textTransform='uppercase',
+        spaceAfter=0
+    )
+    
+    # Estilo para badge number (14pt, bold)
+    badge_number_style = ParagraphStyle(
+        'BadgeNumber',
+        parent=styles['Normal'],
+        fontSize=14,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    
+    # Estilo para fecha/estado (9pt)
+    fecha_estado_style = ParagraphStyle(
+        'FechaEstado',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        spaceAfter=2
+    )
+    
+    # Estilo para titulos de seccion (9pt, bold, uppercase)
+    box_title_style = ParagraphStyle(
+        'BoxTitle',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        letterSpacing=0.5,
+        spaceAfter=8,
+        spaceBefore=0
+    )
+    
+    # Estilo para contenido de info (9pt)
+    info_content_style = ParagraphStyle(
+        'InfoContent',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        spaceAfter=3
+    )
+    
+    # Estilo para nombre cliente/dispositivo (10pt, bold)
+    nombre_destacado_style = ParagraphStyle(
+        'NombreDestacado',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        spaceAfter=3
+    )
+    
+    # Estilo para titulos de detalle (9pt, bold, uppercase)
+    detalle_title_style = ParagraphStyle(
+        'DetalleTitle',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        letterSpacing=0.5,
+        spaceAfter=5,
+        spaceBefore=0
+    )
+    
+    # Estilo para texto de detalle (9pt, justificado)
+    detalle_texto_style = ParagraphStyle(
+        'DetalleTexto',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        spaceAfter=0,
+        alignment=TA_LEFT,
+        leading=13
+    )
+    
+    # Estilo para headers de tabla (7pt, bold, uppercase, blanco)
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        letterSpacing=0.5,
+        spaceAfter=0
+    )
+    
+    # Estilo para celdas de tabla (8pt)
+    table_cell_style = ParagraphStyle(
+        'TableCell',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=COLOR_TEXTO,
+        spaceAfter=0
+    )
+    
+    # Estilo para subtotal
+    subtotal_style = ParagraphStyle(
+        'Subtotal',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    
+    # Estilo para labels de totales (9pt, bold)
+    total_label_style = ParagraphStyle(
+        'TotalLabel',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    
+    # Estilo para valores de totales (9pt, bold)
+    total_value_style = ParagraphStyle(
+        'TotalValue',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    
+    # Estilo para total principal label (10pt, bold)
+    total_principal_label_style = ParagraphStyle(
+        'TotalPrincipalLabel',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        letterSpacing=0.5,
+        spaceAfter=0
+    )
+    
+    # Estilo para total principal valor (16pt, bold)
+    total_principal_value_style = ParagraphStyle(
+        'TotalPrincipalValue',
+        parent=styles['Normal'],
+        fontSize=16,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    
+    # Estilo para descripcion mano de obra (7pt)
+    mano_obra_desc_style = ParagraphStyle(
+        'ManoObraDesc',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=colors.white,
+        spaceAfter=0
+    )
+    
+    # Estilo para titulo de notas (9pt, bold, uppercase)
+    notas_title_style = ParagraphStyle(
+        'NotasTitle',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        spaceAfter=5
+    )
+    
+    # Estilo para texto de notas (9pt)
+    notas_texto_style = ParagraphStyle(
+        'NotasTexto',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        spaceAfter=0,
+        leading=13
+    )
+    
+    # Estilo para firma label (9pt, bold, uppercase)
+    firma_label_style = ParagraphStyle(
+        'FirmaLabel',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        textTransform='uppercase',
+        spaceAfter=0
+    )
+    
+    # Estilo para firma sublabel (7pt, gris)
+    firma_sublabel_style = ParagraphStyle(
+        'FirmaSublabel',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=COLOR_TEXTO_CLARO,
+        spaceAfter=0,
+        spaceBefore=3
+    )
+    
+    # Estilo para footer (8pt, gris)
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=COLOR_TEXTO_CLARO,
+        alignment=TA_CENTER,
+        spaceAfter=3
+    )
+    
+    # Estilo para footer NIT (7pt, bold)
+    footer_nit_style = ParagraphStyle(
+        'FooterNit',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=COLOR_TEXTO,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER,
+        spaceAfter=0
     )
     
     # Construir contenido del PDF
     story = []
     
-    # Encabezado compacto
-    nombre_taller = config.get('nombre_taller', 'Taller de Impresoras')
-    story.append(Paragraph(nombre_taller, title_style))
+    # === ENCABEZADO CORPORATIVO ===
+    header_data = []
     
+    # Lado izquierdo: logo + info taller
+    left_content = []
+    
+    # Verificar si hay logotipo
+    logotipo_path = config.get('logotipo_taller')
+    if logotipo_path and os.path.exists(logotipo_path):
+        try:
+            img = Image(logotipo_path, width=1.2*inch, height=0.8*inch, kind='proportional')
+            left_content.append(img)
+        except:
+            pass
+    
+    # Nombre del taller
+    nombre_taller = config.get('nombre_taller', 'Taller de Impresoras')
+    left_content.append(Paragraph(nombre_taller, taller_nombre_style))
+    
+    # Direccion y telefono
     direccion = config.get('direccion_taller', '')
     telefono = config.get('telefono_taller', '')
+    if direccion or telefono:
+        detalles = []
+        if direccion:
+            detalles.append(direccion)
+        if telefono:
+            detalles.append(f"Tel: {telefono}")
+        left_content.append(Paragraph(" | ".join(detalles), taller_detalles_style))
+    
+    # Email
     email = config.get('email_taller', '')
-    info_contacto = f"{direccion} | Tel: {telefono}" if direccion and telefono else ""
     if email:
-        info_contacto += f" | {email}" if info_contacto else email
-    if info_contacto:
-        story.append(Paragraph(info_contacto, small_style))
+        left_content.append(Paragraph(email, taller_email_style))
     
-    story.append(Spacer(1, 0.15*inch))
+    # Lado derecho: badge de orden + fecha/estado
+    right_content = []
     
-    # Número de orden y estado en una línea
-    orden_header = f"ORDEN DE REPARACIÓN #{orden.numero_orden}"
-    estado_badge = f"Estado: {orden.estado}"
-    header_data = [[Paragraph(orden_header, heading_style), Paragraph(estado_badge, normal_style)]]
-    header_table = Table(header_data, colWidths=[4*inch, 2.5*inch])
-    header_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-    story.append(header_table)
-    story.append(Paragraph(f"Fecha de entrada: {orden.fecha_entrada}", small_style))
-    story.append(Spacer(1, 0.15*inch))
-    
-    # Información del cliente y dispositivo en tabla compacta
-    datos_cliente = [
-        [Paragraph("DATOS DEL CLIENTE", heading_style), Paragraph("EQUIPO", heading_style)],
-        [Paragraph(f"<b>Nombre:</b> {orden.cliente.nombre}", normal_style), 
-         Paragraph(f"<b>Tipo:</b> {tipo_equipo}", normal_style)],
-        [Paragraph(f"<b>Teléfono:</b> {orden.cliente.telefono}", normal_style), 
-         Paragraph(f"<b>Marca:</b> {orden.dispositivo.marca if orden.dispositivo else '-'}", normal_style)],
-        [Paragraph("", normal_style), 
-         Paragraph(f"<b>Modelo:</b> {orden.dispositivo.modelo if orden.dispositivo else '-'}", normal_style)],
-        [Paragraph("", normal_style), 
-         Paragraph(f"<b>No. Serie:</b> {orden.dispositivo.numero_serie if orden.dispositivo and orden.dispositivo.numero_serie else '-'}", normal_style)]
+    # Badge con gradiente simulado (usando color solido)
+    badge_data = [
+        [Paragraph("ORDEN DE REPARACIÓN", badge_label_style)],
+        [Paragraph(f"#{orden.numero_orden}", badge_number_style)]
     ]
-    tabla_datos = Table(datos_cliente, colWidths=[3.2*inch, 3.2*inch])
-    tabla_datos.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (1, 0), colors.HexColor('#aed6f1')),
-        ('TEXTCOLOR', (0, 0), (1, 0), colors.HexColor('#1a5276')),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+    badge_table = Table(badge_data, colWidths=[2.5*inch])
+    badge_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), COLOR_SECUNDARIO),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d6eaf8')),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LINEBELOW', (0, 0), (1, 0), 1, colors.HexColor('#1a5276')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('ROUNDEDCORNERS', [4, 4, 4, 4]),
     ]))
-    story.append(tabla_datos)
-    story.append(Spacer(1, 0.12*inch))
+    right_content.append(badge_table)
+    right_content.append(Spacer(1, 0.1*inch))
     
-    # Problema reportado y diagnóstico
+    # Fecha y estado
+    right_content.append(Paragraph(f"<b>Fecha:</b> {orden.fecha_entrada}", fecha_estado_style))
+    right_content.append(Paragraph(f"<b>Estado:</b> {orden.estado}", fecha_estado_style))
+    
+    # Tabla principal del header
+    header_table = Table([[left_content, right_content]], colWidths=[4.5*inch, 2.5*inch])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(header_table)
+    
+    # Linea divisoria azul
+    divider_line = Table([['']], colWidths=[7.4*inch])
+    divider_line.setStyle(TableStyle([
+        ('LINEBELOW', (0, 0), (-1, 0), 3, COLOR_PRIMARIO),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+    ]))
+    story.append(divider_line)
+    story.append(Spacer(1, 0.15*inch))
+    
+    # === INFORMACION DEL CLIENTE Y DISPOSITIVO ===
+    cliente_data = []
+    dispositivo_data = []
+    
+    # Box cliente
+    cliente_data.append([Paragraph("📋 DATOS DEL CLIENTE", box_title_style)])
+    cliente_data.append([Paragraph(f"<b>{orden.cliente.nombre}</b>", nombre_destacado_style)])
+    cliente_data.append([Paragraph(f"Teléfono: {orden.cliente.telefono}", info_content_style)])
+    
+    # Box dispositivo
+    if orden.dispositivo:
+        dispositivo_data.append([Paragraph("🖨️ EQUIPO", box_title_style)])
+        dispositivo_data.append([Paragraph(f"<b>{orden.dispositivo.tipo} - {orden.dispositivo.marca} {orden.dispositivo.modelo}</b>", nombre_destacado_style)])
+        if orden.dispositivo.numero_serie:
+            dispositivo_data.append([Paragraph(f"No. Serie: {orden.dispositivo.numero_serie}", info_content_style)])
+    
+    # Crear tablas individuales para cada box
+    tabla_cliente = Table(cliente_data, colWidths=[3.5*inch])
+    tabla_cliente.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LINEWIDTH', (0, 0), (0, -1), 4, COLOR_PRIMARIO),
+        ('LINEBEFORE', (0, 0), (0, -1), 4, COLOR_PRIMARIO),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    
+    tabla_dispositivo = Table(dispositivo_data, colWidths=[3.5*inch])
+    tabla_dispositivo.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LINEWIDTH', (0, 0), (0, -1), 4, COLOR_PRIMARIO),
+        ('LINEBEFORE', (0, 0), (0, -1), 4, COLOR_PRIMARIO),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    
+    info_grid = Table([[tabla_cliente, tabla_dispositivo]], colWidths=[3.5*inch, 3.5*inch])
+    info_grid.setStyle(TableStyle([
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(info_grid)
+    story.append(Spacer(1, 0.15*inch))
+    
+    # === PROBLEMA REPORTADO ===
+    story.append(Paragraph("⚠️ PROBLEMA REPORTADO", detalle_title_style))
     problema_text = orden.problema_reportado or '-'
-    diagnostico_text = orden.diagnostico or 'No registrado'
-    
-    story.append(Paragraph("PROBLEMA REPORTADO", heading_style))
-    story.append(Paragraph(problema_text, normal_style))
+    story.append(Paragraph(problema_text, detalle_texto_style))
     story.append(Spacer(1, 0.1*inch))
     
-    story.append(Paragraph("DIAGNÓSTICO TÉCNICO", heading_style))
-    story.append(Paragraph(diagnostico_text, normal_style))
-    story.append(Spacer(1, 0.1*inch))
-    
-    # Técnico responsable
-    if orden.tecnico:
-        story.append(Paragraph(f"<b>TÉCNICO RESPONSABLE:</b> {orden.tecnico.nombre}", normal_style))
+    # === DIAGNOSTICO ===
+    if orden.diagnostico:
+        story.append(Paragraph("🔍 DIAGNÓSTICO TÉCNICO", detalle_title_style))
+        story.append(Paragraph(orden.diagnostico, detalle_texto_style))
         story.append(Spacer(1, 0.1*inch))
     
-    # Piezas utilizadas - tabla compacta
+    # === TECNICO RESPONSABLE ===
+    if orden.tecnico:
+        story.append(Paragraph("👨‍🔧 TÉCNICO RESPONSABLE", detalle_title_style))
+        story.append(Paragraph(orden.tecnico.nombre, info_content_style))
+        story.append(Spacer(1, 0.1*inch))
+    
+    # === PIEZAS UTILIZADAS ===
     subtotal_piezas = 0
     if orden.piezas_usadas:
-        story.append(Paragraph("REPUESTOS UTILIZADOS", heading_style))
-        datos_piezas = [[Paragraph("DESCRIPCIÓN", heading_style), 
-                        Paragraph("CANT.", heading_style), 
-                        Paragraph("PRECIO", heading_style), 
-                        Paragraph("SUBTOTAL", heading_style)]]
+        story.append(Paragraph("📦 REPUESTOS UTILIZADOS", detalle_title_style))
+        
+        datos_piezas = [[
+            Paragraph("DESCRIPCIÓN", table_header_style),
+            Paragraph("CANT.", table_header_style),
+            Paragraph("PRECIO UNIT.", table_header_style),
+            Paragraph("SUBTOTAL", table_header_style)
+        ]]
+        
         for op in orden.piezas_usadas:
             nombre_pieza = op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual'
             subtotal = op.cantidad * op.precio_unitario
             subtotal_piezas += subtotal
             datos_piezas.append([
-                Paragraph(nombre_pieza, normal_style),
-                Paragraph(str(op.cantidad), normal_style),
-                Paragraph(f"${op.precio_unitario:.2f}", normal_style),
-                Paragraph(f"${subtotal:.2f}", normal_style)
+                Paragraph(nombre_pieza, table_cell_style),
+                Paragraph(str(op.cantidad), table_cell_style),
+                Paragraph(f"${op.precio_unitario:.2f}", table_cell_style),
+                Paragraph(f"${subtotal:.2f}", table_cell_style)
             ])
         
-        tabla_piezas = Table(datos_piezas, colWidths=[3.5*inch, 0.7*inch, 1.1*inch, 1.1*inch])
+        tabla_piezas = Table(datos_piezas, colWidths=[3.7*inch, 0.7*inch, 1.5*inch, 1.5*inch])
         tabla_piezas.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#aed6f1')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1a5276')),
+            ('BACKGROUND', (0, 0), (-1, 0), COLOR_HEADER_TABLA),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
             ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d6eaf8')),
-            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor('#1a5276')),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('GRID', (0, 0), (-1, -1), 0.5, COLOR_BORDE),
+            ('LINEBELOW', (0, 0), (-1, 0), 1, COLOR_HEADER_TABLA),
         ]))
         story.append(tabla_piezas)
-        story.append(Spacer(1, 0.08*inch))
-        story.append(Paragraph(f"<b>SUBTOTAL REPUESTOS:</b> ${subtotal_piezas:.2f}", normal_style))
-        story.append(Spacer(1, 0.1*inch))
+        
+        # Subtotal repuestos
+        subtotal_row = Table([[
+            Paragraph("<b>SUBTOTAL REPUESTOS:</b>", subtotal_style),
+            Paragraph(f"${subtotal_piezas:.2f}", subtotal_style)
+        ]], colWidths=[5.9*inch, 1.5*inch])
+        subtotal_row.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+        ]))
+        story.append(subtotal_row)
+        story.append(Spacer(1, 0.15*inch))
     
-    # Totales en tabla compacta
+    # === TOTALES ===
     mano_obra = orden.mano_obra_costo or 0
     costo_total = orden.costo_total or 0
     
-    totales_data = [
-        [Paragraph("RESUMEN DE COSTOS", heading_style), ""]
-    ]
+    totales_container_data = []
     
-    if subtotal_piezas > 0:
-        totales_data.append([Paragraph("Repuestos:", normal_style), Paragraph(f"${subtotal_piezas:.2f}", normal_style)])
-    
-    totales_data.append([Paragraph("Mano de obra:", normal_style), Paragraph(f"${mano_obra:.2f}", normal_style)])
-    
+    # Mano de obra
+    mano_obra_row = []
+    mano_obra_row.append(Paragraph("MANO DE OBRA:", total_label_style))
+    mano_obra_row.append(Paragraph(f"${mano_obra:.2f}", total_value_style))
     if orden.mano_obra_desc:
-        totales_data.append([Paragraph(f"  ({orden.mano_obra_desc})", small_style), ""])
+        mano_obra_row.append(Paragraph(f"({orden.mano_obra_desc})", mano_obra_desc_style))
+    totales_container_data.append(mano_obra_row)
     
-    totales_data.append([Paragraph("<b>TOTAL A PAGAR:</b>", ParagraphStyle('TotalBold', parent=normal_style, fontSize=12, textColor=colors.HexColor('#c0392b'), fontName='Helvetica-Bold')), 
-                        Paragraph(f"<b>${costo_total:.2f}</b>", ParagraphStyle('TotalBold', parent=normal_style, fontSize=12, textColor=colors.HexColor('#c0392b'), fontName='Helvetica-Bold'))])
+    # Separador
+    totales_container_data.append([Paragraph("", styles['Normal'])])
     
-    tabla_totales = Table(totales_data, colWidths=[4.5*inch, 1.9*inch])
-    tabla_totales.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+    # Total principal
+    total_row = []
+    total_row.append(Paragraph("TOTAL A PAGAR:", total_principal_label_style))
+    total_row.append(Paragraph(f"${costo_total:.2f}", total_principal_value_style))
+    totales_container_data.append(total_row)
+    
+    # Crear tabla de totales con fondo degradado simulado
+    totales_table = Table(totales_container_data, colWidths=[4*inch, 2*inch])
+    totales_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), COLOR_SECUNDARIO),
         ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('LINEBELOW', (0, -1), (-1, -1), 1, colors.HexColor('#c0392b')),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#fdebd0')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#d35400')),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('LINEBELOW', (0, 1), (-1, 1), 2, colors.HexColor('rgba(255,255,255,0.3)')),
+        ('TOPPADDING', (0, 2), (-1, 2), 5),
+        ('BOTTOMPADDING', (0, 2), (-1, 2), 5),
+        ('ROUNDEDCORNERS', [8, 8, 8, 8]),
     ]))
-    story.append(tabla_totales)
+    story.append(totales_table)
     story.append(Spacer(1, 0.15*inch))
     
-    # Notas adicionales
+    # === NOTAS ADICIONALES ===
     if orden.notas_cliente:
-        story.append(Paragraph("OBSERVACIONES", heading_style))
-        story.append(Paragraph(orden.notas_cliente, normal_style))
-        story.append(Spacer(1, 0.1*inch))
+        notas_data = [[
+            Paragraph("📝 OBSERVACIONES", notas_title_style),
+            Paragraph(orden.notas_cliente, notas_texto_style)
+        ]]
+        tabla_notas = Table(notas_data, colWidths=[7.4*inch])
+        tabla_notas.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), COLOR_NOTAS_BG),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LINEWIDTH', (0, 0), (0, -1), 4, COLOR_NOTAS_BORDE),
+            ('LINEBEFORE', (0, 0), (0, -1), 4, COLOR_NOTAS_BORDE),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(tabla_notas)
+        story.append(Spacer(1, 0.15*inch))
     
-    # Firmas compactas
+    # === FIRMAS ===
     story.append(Spacer(1, 0.2*inch))
-    firmas_data = [
-        [Paragraph("__________________________", normal_style), Paragraph("__________________________", normal_style)],
-        [Paragraph("FIRMA DEL TÉCNICO", small_style), Paragraph("FIRMA DEL CLIENTE", small_style)],
-        [Paragraph("Responsable del servicio", small_style), Paragraph("Conformidad del servicio", small_style)]
+    
+    firma_left_data = [
+        [Paragraph("__________________________", ParagraphStyle('FirmaLinea', parent=styles['Normal'], fontSize=12, textColor=COLOR_TEXTO, alignment=TA_CENTER))],
+        [Paragraph("FIRMA DEL TÉCNICO", firma_label_style)],
+        [Paragraph("Responsable del servicio", firma_sublabel_style)]
     ]
-    tabla_firmas = Table(firmas_data, colWidths=[3.2*inch, 3.2*inch])
-    tabla_firmas.setStyle(TableStyle([
+    tabla_firma_izq = Table(firma_left_data, colWidths=[3.2*inch])
+    tabla_firma_izq.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
     ]))
-    story.append(tabla_firmas)
     
-    # Footer compacto
+    firma_right_data = [
+        [Paragraph("__________________________", ParagraphStyle('FirmaLinea2', parent=styles['Normal'], fontSize=12, textColor=COLOR_TEXTO, alignment=TA_CENTER))],
+        [Paragraph("FIRMA DEL CLIENTE", firma_label_style)],
+        [Paragraph("Conformidad del servicio", firma_sublabel_style)]
+    ]
+    tabla_firma_der = Table(firma_right_data, colWidths=[3.2*inch])
+    tabla_firma_der.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    
+    firmas_grid = Table([[tabla_firma_izq, tabla_firma_der]], colWidths=[3.2*inch, 3.2*inch])
+    firmas_grid.setStyle(TableStyle([
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(firmas_grid)
+    
+    # === FOOTER ===
     story.append(Spacer(1, 0.2*inch))
-    nit = config.get('nit_taller', '')
+    
     footer_text = "Gracias por confiar en nuestros servicios. Este documento es su comprobante de reparación."
+    story.append(Paragraph(footer_text, footer_style))
+    
+    nit = config.get('nit_taller', '')
     if nit:
-        footer_text += f" NIT/CI: {nit}"
-    story.append(Paragraph(footer_text, ParagraphStyle(
-        'Footer',
-        parent=small_style,
-        fontSize=7,
-        textColor=colors.grey,
-        alignment=TA_CENTER
-    )))
+        story.append(Paragraph(f"NIT/CI: {nit}", footer_nit_style))
+    
+    # Linea superior del footer
+    footer_line = Table([['']], colWidths=[7.4*inch])
+    footer_line.setStyle(TableStyle([
+        ('LINEABOVE', (0, 0), (-1, 0), 2, COLOR_BORDE),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+    ]))
+    story.insert(-3, footer_line)  # Insertar antes del texto del footer
     
     # Construir PDF
     doc.build(story)
