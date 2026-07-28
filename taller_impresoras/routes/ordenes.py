@@ -477,13 +477,13 @@ def descargar(id):
         story.append(Spacer(1, 0.1*inch))
     
     # Piezas utilizadas - tabla compacta
+    subtotal_piezas = 0
     if orden.piezas_usadas:
         story.append(Paragraph("REPUESTOS UTILIZADOS", heading_style))
         datos_piezas = [[Paragraph("DESCRIPCIÓN", heading_style), 
                         Paragraph("CANT.", heading_style), 
                         Paragraph("PRECIO", heading_style), 
                         Paragraph("SUBTOTAL", heading_style)]]
-        subtotal_piezas = 0
         for op in orden.piezas_usadas:
             nombre_pieza = op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual'
             subtotal = op.cantidad * op.precio_unitario
