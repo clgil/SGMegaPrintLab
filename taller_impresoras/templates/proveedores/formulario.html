@@ -34,7 +34,7 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <select name="tipo" class="form-select">
-                                <option value="" disabled selected hidden>Seleccione una opción...</option>
+                                <option value="" selected disabled>-- Seleccionar --</option>
                                 <option value="informal" {% if proveedor and proveedor.tipo == 'informal' %}selected{% endif %}>Informal</option>
                                 <option value="formal" {% if proveedor and proveedor.tipo == 'formal' %}selected{% endif %}>Formal</option>
                             </select>
