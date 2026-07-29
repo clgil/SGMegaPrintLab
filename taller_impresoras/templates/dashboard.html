@@ -1,594 +1,635 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control - Taller de Impresoras</title>
+{% extends "base.html" %}
+
+{% block title %}Panel de Control - Taller de Impresoras{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Panel de Control</h1>
     
-    <!-- Bootstrap 5 CSS local -->
-    <link rel="stylesheet" href="/static/css/icons/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <!-- Estilos personalizados MegaPrint Lab v2.0 -->
-    <link rel="stylesheet" href="/static/css/custom.css">
-</head>
-<body>
-
-    <!-- Barra de navegación superior estilo app (SOLO móvil < 768px) -->
-    <nav class="mobile-top-nav d-flex d-md-none">
-        <div class="mobile-top-nav-container">
-            <a href="/" class="mobile-nav-item active" aria-label="Dashboard">
-                <i class="bi bi-speedometer2"></i>
-                <span>Inicio</span>
-            </a>
-            <a href="/ordenes/" class="mobile-nav-item" aria-label="Órdenes">
-                <i class="bi bi-clipboard-check"></i>
-                <span>Órdenes</span>
-            </a>
-            <a href="/clientes/" class="mobile-nav-item" aria-label="Clientes">
-                <i class="bi bi-people"></i>
-                <span>Clientes</span>
-            </a>
-            <a href="#" class="mobile-nav-item mobile-nav-more" id="moreOptionsBtn" aria-label="Más opciones">
-                <i class="bi bi-grid-3x3-gap"></i>
-                <span>Más</span>
-            </a>
+    <!-- Filtro de período - SOLO para administrador -->
+    {% if current_user.rol == 'administrador' %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📅 Filtro de Período Financiero</h5>
         </div>
-
-        <!-- Menú desplegable "Más opciones" -->
-        <div class="mobile-more-menu" id="moreOptionsMenu">
-            <div class="mobile-more-menu-content">
-                <a href="/dispositivos/" class="mobile-more-item">
-                    <i class="bi bi-printer"></i>
-                    <span>Dispositivos</span>
-                </a>
-                <a href="/inventario/" class="mobile-more-item">
-                    <i class="bi bi-box-seam"></i>
-                    <span>Inventario</span>
-                </a>
-                <a href="/tecnicos/" class="mobile-more-item">
-                    <i class="bi bi-tools"></i>
-                    <span>Técnicos</span>
-                </a>
-                <a href="/reportes/" class="mobile-more-item">
-                    <i class="bi bi-graph-up"></i>
-                    <span>Reportes</span>
-                </a>
-                <a href="/backup/" class="mobile-more-item">
-                    <i class="bi bi-hdd-stack"></i>
-                    <span>Respaldo</span>
-                </a>
-                <a href="/proveedores/" class="mobile-more-item">
-                    <i class="bi bi-truck"></i>
-                    <span>Proveedores</span>
-                </a>
-                <a href="/contratos/" class="mobile-more-item">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>Contratos</span>
-                </a>
-                <a href="/auth/configuracion_taller" class="mobile-more-item">
-                    <i class="bi bi-gear"></i>
-                    <span>Configuración</span>
-                </a>
-                <div class="mobile-more-divider"></div>
-                <a href="/auth/cambiar_password" class="mobile-more-item">
-                    <i class="bi bi-key"></i>
-                    <span>Cambiar Clave</span>
-                </a>
-                <a href="/usuarios/" class="mobile-more-item">
-                    <i class="bi bi-person-gear"></i>
-                    <span>Usuarios</span>
-                </a>
-                <a href="/ayuda/" class="mobile-more-item">
-                    <i class="bi bi-question-circle"></i>
-                    <span>Ayuda</span>
-                </a>
-                <a href="/auth/logout" class="mobile-more-item logout-item">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Cerrar Sesión</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Floating Action Button (FAB) para móvil -->
-    <div class="mobile-fab-container">
-        <button class="mobile-fab" id="mobileFab" aria-label="Nueva acción" aria-expanded="false">
-            <i class="bi bi-plus-lg fab-icon-open"></i>
-            <i class="bi bi-x-lg fab-icon-close"></i>
-        </button>
-        <div class="mobile-fab-menu" id="mobileFabMenu">
-            <a href="/ordenes/nuevo" class="mobile-fab-item">
-                <i class="bi bi-clipboard-plus"></i>
-                <span>Nueva orden</span>
-            </a>
-            <a href="/dispositivos/nuevo" class="mobile-fab-item">
-                <i class="bi bi-printer-fill"></i>
-                <span>Nuevo dispositivo</span>
-            </a>
-            <a href="/clientes/nuevo" class="mobile-fab-item">
-                <i class="bi bi-person-plus"></i>
-                <span>Nuevo cliente</span>
-            </a>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('dashboard') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Período:</label>
+                    <select name="periodo" class="form-select" id="filtroPeriodo" onchange="toggleFechaPersonalizada()">
+                        <option value="hoy" {% if filtro_periodo == 'hoy' %}selected{% endif %}>Hoy</option>
+                        <option value="este_mes" {% if filtro_periodo == 'este_mes' %}selected{% endif %}>Este Mes</option>
+                        <option value="este_anio" {% if filtro_periodo == 'este_anio' %}selected{% endif %}>Este Año</option>
+                        <option value="personalizado" {% if filtro_periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                    <label class="form-label">Fecha Inicio:</label>
+                    <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+                </div>
+                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                    <label class="form-label">Fecha Fin:</label>
+                    <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Aplicar Filtro</button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <!-- Sidebar Offcanvas para móvil -->
-    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
-        <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
-            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-        </div>
-        <div class="offcanvas-body p-0">
-            <nav class="sidebar-mobile">
-                <div class="sidebar-header">
-                    <div class="taller-brand">
-                        <div class="taller-icon"><i class="bi bi-printer-fill"></i></div>
-                        <h4 class="taller-name">Taller de Impresoras</h4>
-                    </div>
-                    <div class="user-info">
-                        <div>Administrador</div>
-                        <span class="user-role-badge">Administrador</span>
-                    </div>
+    {% endif %}
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA CLIENTE -->
+    <!-- ========================================== -->
+    {% if current_user.rol == 'cliente' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Aquí puedes ver el estado de tus órdenes y dispositivos registrados.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para cliente -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Mis Órdenes Totales</h5>
+                    <h2 class="display-4">{{ total_ordenes_cliente }}</h2>
+                    <p class="card-text">Órdenes registradas</p>
                 </div>
-                <ul class="sidebar-nav nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-speedometer2 nav-icon"></i>
-                            <span class="nav-text">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ordenes/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-clipboard nav-icon"></i>
-                            <span class="nav-text">Órdenes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/clientes/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-people nav-icon"></i>
-                            <span class="nav-text">Clientes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dispositivos/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-printer nav-icon"></i>
-                            <span class="nav-text">Dispositivos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/inventario/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-box-seam nav-icon"></i>
-                            <span class="nav-text">Inventario</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/tecnicos/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-tools nav-icon"></i>
-                            <span class="nav-text">Técnicos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/reportes/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-graph-up nav-icon"></i>
-                            <span class="nav-text">Reportes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/backup/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-hdd-stack nav-icon"></i>
-                            <span class="nav-text">Respaldo</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/proveedores/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-truck nav-icon"></i>
-                            <span class="nav-text">Proveedores</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contratos/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-file-earmark-text nav-icon"></i>
-                            <span class="nav-text">Contratos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/configuracion_taller" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-gear nav-icon"></i>
-                            <span class="nav-text">Configuración</span>
-                        </a>
-                    </li>
-                    <div class="nav-section-title">Administración</div>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/cambiar_password" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-key nav-icon"></i>
-                            <span class="nav-text">Cambiar Clave</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/usuarios/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-person-gear nav-icon"></i>
-                            <span class="nav-text">Usuarios</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ayuda/" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-question-circle nav-icon"></i>
-                            <span class="nav-text">Ayuda</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <a class="nav-link text-danger" href="/auth/logout" data-bs-dismiss="offcanvas">
-                            <i class="bi bi-box-arrow-right nav-icon"></i>
-                            <span class="nav-text">Cerrar Sesión</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes Pendientes</h5>
+                    <h2 class="display-4">{{ ordenes_pendientes_cliente }}</h2>
+                    <p class="card-text">En espera</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">En Reparación</h5>
+                    <h2 class="display-4">{{ ordenes_reparacion_cliente }}</h2>
+                    <p class="card-text">En proceso</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Completadas</h5>
+                    <h2 class="display-4">{{ ordenes_completadas_cliente }}</h2>
+                    <p class="card-text">Entregadas</p>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Sidebar fijo escritorio (md+) -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="taller-brand">
-                <div class="taller-icon"><i class="bi bi-printer-fill"></i></div>
-                <h4 class="taller-name">Taller de Impresoras</h4>
-            </div>
-            <div class="user-info">
-                <div>Administrador</div>
-                <span class="user-role-badge">Administrador</span>
-            </div>
-        </div>
-        <ul class="sidebar-nav nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="/">
-                    <i class="bi bi-speedometer2 nav-icon"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/ordenes/">
-                    <i class="bi bi-clipboard-check nav-icon"></i>
-                    <span class="nav-text">Órdenes</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/clientes/">
-                    <i class="bi bi-people nav-icon"></i>
-                    <span class="nav-text">Clientes</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/dispositivos/">
-                    <i class="bi bi-printer nav-icon"></i>
-                    <span class="nav-text">Dispositivos</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/inventario/">
-                    <i class="bi bi-box-seam nav-icon"></i>
-                    <span class="nav-text">Inventario</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/tecnicos/">
-                    <i class="bi bi-tools nav-icon"></i>
-                    <span class="nav-text">Técnicos</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/reportes/">
-                    <i class="bi bi-graph-up nav-icon"></i>
-                    <span class="nav-text">Reportes</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/backup/">
-                    <i class="bi bi-hdd-stack nav-icon"></i>
-                    <span class="nav-text">Respaldo</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/proveedores/">
-                    <i class="bi bi-truck nav-icon"></i>
-                    <span class="nav-text">Proveedores</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/contratos/">
-                    <i class="bi bi-file-earmark-text nav-icon"></i>
-                    <span class="nav-text">Contratos</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/auth/configuracion_taller">
-                    <i class="bi bi-gear nav-icon"></i>
-                    <span class="nav-text">Configuración</span>
-                </a>
-            </li>
-            <div class="nav-section-title">Administración</div>
-            <li class="nav-item">
-                <a class="nav-link" href="/auth/cambiar_password">
-                    <i class="bi bi-key nav-icon"></i>
-                    <span class="nav-text">Cambiar Clave</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/usuarios/">
-                    <i class="bi bi-person-gear nav-icon"></i>
-                    <span class="nav-text">Usuarios</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/ayuda/">
-                    <i class="bi bi-question-circle nav-icon"></i>
-                    <span class="nav-text">Ayuda</span>
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <a class="nav-link text-danger" href="/auth/logout">
-                    <i class="bi bi-box-arrow-right nav-icon"></i>
-                    <span class="nav-text">Cerrar Sesión</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Navbar Superior Escritorio -->
-    <header class="navbar-top d-none d-md-flex">
-        <div class="navbar-left">
-            <button class="btn btn-icon sidebar-toggle-btn-desktop" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
-                <i class="bi bi-list"></i>
-            </button>
-            <div class="search-global">
-                <span class="search-icon"><i class="bi bi-search"></i></span>
-                <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
-                <span class="search-shortcut">Ctrl K</span>
-            </div>
-        </div>
-        <div class="navbar-right">
-            <button class="btn-icon" type="button" aria-label="Notificaciones" id="themeToggle">
-                <i class="bi bi-moon-stars"></i>
-                <span class="notification-badge hidden" id="notificationBadge"></span>
-            </button>
-            <div class="user-menu">
-                <div class="user-avatar">A</div>
-                <span class="user-name">Administrador</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenido principal -->
-    <main class="main-content">
-        <div class="container-fluid py-3">
-            
-            <!-- Breadcrumbs -->
-            <nav class="breadcrumbs mb-3">
-                <div class="breadcrumb-item">
-                    <a href="/">Dashboard</a>
-                </div>
-            </nav>
-
-            <h1 class="mb-4 text-white">📊 Panel de Control</h1>
-
-            <!-- Filtro de período -->
-            <div class="card mb-4 border-0 shadow-sm" style="background-color: #1e293b;">
-                <div class="card-header border-bottom border-secondary bg-transparent text-white py-3">
-                    <h5 class="mb-0 fs-6 fw-bold"><i class="bi bi-calendar-event me-2 text-primary"></i>Filtro de Período Financiero</h5>
+    
+    <!-- Mis Dispositivos -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">🖨️ Mis Dispositivos</h6>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="/" class="row g-3 align-items-end">
-                        <div class="col-12 col-md-3">
-                            <label class="form-label text-muted small fw-semibold">Período:</label>
-                            <select name="periodo" class="form-select bg-dark text-white border-secondary" id="filtroPeriodo" onchange="toggleFechaPersonalizada()">
-                                <option value="hoy">Hoy</option>
-                                <option value="este_mes" selected>Este Mes</option>
-                                <option value="este_anio">Este Año</option>
-                                <option value="personalizado">Personalizado</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-3 fecha-personalizada" style="display: none;">
-                            <label class="form-label text-muted small fw-semibold">Fecha Inicio:</label>
-                            <input type="date" name="fecha_inicio" class="form-control bg-dark text-white border-secondary" value="2026-07-01">
-                        </div>
-                        <div class="col-12 col-md-3 fecha-personalizada" style="display: none;">
-                            <label class="form-label text-muted small fw-semibold">Fecha Fin:</label>
-                            <input type="date" name="fecha_fin" class="form-control bg-dark text-white border-secondary" value="2026-07-29">
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <button type="submit" class="btn btn-primary w-100 fw-semibold"><i class="bi bi-filter me-1"></i>Aplicar Filtro</button>
-                        </div>
-                    </form>
+                    <h3 class="text-secondary">{{ total_dispositivos_cliente }}</h3>
+                    <small class="text-muted">Dispositivos registrados</small>
                 </div>
             </div>
-
-            <!-- Bienvenida -->
-            <div class="alert border-0 shadow-sm text-white mb-4" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
-                <h5 class="mb-1"><i class="bi bi-hand-thumbs-up text-info me-2"></i>Bienvenido, Administrador</h5>
-                <p class="mb-0 text-muted small">Panel de control administrativo del taller.</p>
-            </div>
-
-            <!-- 1. Tarjetas Resumen KPIs -->
-            <div class="row g-3 mb-4">
-                <!-- Órdenes Totales -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
-                        <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
-                        <div class="fs-2 fw-bold my-1 text-white">1</div>
-                        <div class="small text-muted">En el sistema</div>
-                    </div>
-                </div>
-
-                <!-- Completadas -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
-                        <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
-                        <div class="fs-2 fw-bold my-1 text-white">0</div>
-                        <div class="small text-muted">Entregadas</div>
-                    </div>
-                </div>
-
-                <!-- Pendientes -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
-                        <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
-                        <div class="fs-2 fw-bold my-1 text-white">1</div>
-                        <div class="small text-muted">En espera</div>
-                    </div>
-                </div>
-
-                <!-- Total Usuarios -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #6c757d !important;">
-                        <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Total Usuarios</div>
-                        <div class="fs-2 fw-bold my-1 text-white">2</div>
-                        <div class="small text-muted">Activos</div>
-                    </div>
-                </div>
-
-                <!-- Técnicos -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
-                        <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
-                        <div class="fs-2 fw-bold my-1 text-white">1</div>
-                        <div class="small text-muted">Registrados</div>
-                    </div>
-                </div>
-
-                <!-- Proveedores -->
-                <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-                    <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #fd7e14 !important;">
-                        <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
-                        <div class="fs-2 fw-bold my-1 text-white">1</div>
-                        <div class="small text-muted">Piezas inventario</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Usuarios por rol -->
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="card h-100 border-0 shadow-sm p-3 text-center" style="background-color: #1e293b; border-left: 4px solid #6f42c1 !important;">
-                        <div class="text-purple fs-4 mb-1" style="color: #a855f7;"><i class="bi bi-person-badge"></i></div>
-                        <div class="text-muted small fw-semibold text-uppercase">Clientes</div>
-                        <div class="fs-2 fw-bold my-1 text-white">2</div>
-                        <div class="small text-muted">Registrados</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Métricas Financieras -->
-            <h4 class="mb-3 text-white"><i class="bi bi-cash-stack me-2 text-success"></i>Panel Financiero</h4>
-            <div class="row g-3 mb-4">
-                <!-- Inversión en Piezas -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #dc3545 !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Inversión en Piezas</span>
-                            <i class="bi bi-box-arrow-right text-danger fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-danger my-1">$0.00 CUP</div>
-                        <div class="small text-muted">Costo de piezas usadas (período)</div>
-                    </div>
-                </div>
-
-                <!-- Valor Inventario -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Valor Inventario</span>
-                            <i class="bi bi-boxes text-success fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-success my-1">$1000.00 CUP</div>
-                        <div class="small text-muted">Existencia × costo (actual)</div>
-                    </div>
-                </div>
-
-                <!-- Ingresos Brutos -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Ingresos Brutos</span>
-                            <i class="bi bi-graph-up-arrow text-primary fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-primary my-1">$0.00 CUP</div>
-                        <div class="small text-muted">Total facturado (período)</div>
-                    </div>
-                </div>
-
-                <!-- Ganancia Neta -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Ganancia Neta</span>
-                            <i class="bi bi-wallet2 text-warning fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-warning my-1">$0.00 CUP</div>
-                        <div class="small text-muted">Ingresos - piezas - gastos</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. Sección de Tributos -->
-            <h4 class="mb-3 text-white"><i class="bi bi-file-text me-2 text-warning"></i>Tributos Estimados (Cuba)</h4>
-            <div class="row g-3 mb-4">
-                <!-- ISIP -->
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #6c757d !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">ISIP (Ingresos Personales)</span>
-                            <i class="bi bi-receipt text-secondary fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-white my-1">$0.00 CUP</div>
-                        <div class="small text-muted">Régimen: <strong class="text-white">GENERAL</strong></div>
-                        <div class="small text-muted">Ganancia acumulada año: $0.00</div>
-                    </div>
-                </div>
-
-                <!-- Seguridad Social -->
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Seguridad Social (5%)</span>
-                            <i class="bi bi-shield-check text-info fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-info my-1">$0.00 CUP</div>
-                        <div class="small text-muted">Base de cálculo: Ganancia neta</div>
-                    </div>
-                </div>
-
-                <!-- Total a Pagar -->
-                <div class="col-12 col-md-4">
-                    <div class="card h-100 border-0 shadow-sm p-3" style="background-color: #1e293b; border-left: 4px solid #dc3545 !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-muted small fw-semibold text-uppercase">Total a Pagar</span>
-                            <i class="bi bi-exclamation-triangle text-danger fs-5"></i>
-                        </div>
-                        <div class="fs-3 fw-bold text-danger my-1">$0.00 CUP</div>
-                        <div class="small text-muted">*Cálculo estimado, sujeto a verificación oficial</div>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </main>
+    </div>
+    
+    <!-- Últimas órdenes del cliente -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5>📋 Mis Últimas Órdenes</h5>
+                </div>
+                <div class="card-body">
+                    {% if mis_ordenes %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Dispositivo</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in mis_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.dispositivo.marca }} {{ orden.dispositivo.modelo if orden.dispositivo else 'N/A' }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center">No tienes órdenes registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA PROVEEDOR -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'proveedor' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control de inventario.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para proveedor -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Piezas</h5>
+                    <h2 class="display-4">{{ total_piezas }}</h2>
+                    <p class="card-text">En inventario</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
+                    <p class="card-text">Piezas por reponer</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Valor Inventario</h5>
+                    <h2 class="display-4">${{ "%.2f"|format(valor_inventario) }} CUP</h2>
+                    <p class="card-text">Valor total a costo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA TÉCNICO -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'tecnico' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control de reparaciones.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para técnico -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Órdenes Activas</h5>
+                    <h2 class="display-4">{{ total_ordenes_activas }}</h2>
+                    <p class="card-text">En proceso actualmente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Pendientes Diagnóstico</h5>
+                    <h2 class="display-4">{{ ordenes_pendientes_diagnostico }}</h2>
+                    <p class="card-text">Requieren atención</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Listas para Entregar</h5>
+                    <h2 class="display-4">{{ ordenes_listas_entregar }}</h2>
+                    <p class="card-text">Para notificar al cliente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
+                    <p class="card-text">Piezas por reponer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resumen de dispositivos y piezas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">🖨️ Dispositivos</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-info">{{ total_dispositivos }}</h3>
+                    <small class="text-muted">Registrados en el sistema</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">📦 Piezas en Inventario</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">{{ total_piezas }}</h3>
+                    <small class="text-muted">Disponibles</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas órdenes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5>📋 Últimas Órdenes</h5>
+                </div>
+                <div class="card-body">
+                    {% if ultimas_ordenes %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in ultimas_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.cliente.nombre }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center">No hay órdenes registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VISTA PARA ADMINISTRADOR (completa) -->
+    <!-- ========================================== -->
+    {% elif current_user.rol == 'administrador' %}
+    <div class="alert alert-info">
+        <h5>👋 Bienvenido, {{ current_user.nombre }}</h5>
+        <p class="mb-0">Panel de control administrativo del taller.</p>
+    </div>
+    
+    <!-- Tarjetas resumen para administrador -->
+    <div class="row g-3 mb-4">
+        <!-- Órdenes Totales -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
+                <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_ordenes }}</div>
+                <div class="small text-muted">En el sistema</div>
+            </div>
+        </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function toggleFechaPersonalizada() {
-            const select = document.getElementById('filtroPeriodo');
-            const camposPersonalizados = document.querySelectorAll('.fecha-personalizada');
-            camposPersonalizados.forEach(el => {
-                el.style.display = select.value === 'personalizado' ? 'block' : 'none';
-            });
-        }
-    </script>
-</body>
-</html>
+        <!-- Completadas -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
+                <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_completadas }}</div>
+                <div class="small text-muted">Entregadas</div>
+            </div>
+        </div>
+
+        <!-- Pendientes -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
+                <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_pendientes }}</div>
+                <div class="small text-muted">En espera</div>
+            </div>
+        </div>
+
+        <!-- Total Usuarios -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #6c757d !important;">
+                <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Total Usuarios</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_usuarios }}</div>
+                <div class="small text-muted">Activos</div>
+            </div>
+        </div>
+
+        <!-- Técnicos -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
+                <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_tecnicos }}</div>
+                <div class="small text-muted">Registrados</div>
+            </div>
+        </div>
+
+        <!-- Proveedores -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #fd7e14 !important;">
+                <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_piezas }}</div>
+                <div class="small text-muted">Piezas inventario</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Usuarios por rol -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-light text-dark shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes</h5>
+                    <h2 class="display-4">{{ total_clientes }}</h2>
+                    <p class="card-text">Registrados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Métricas Financieras -->
+    <h4 class="mb-3">💰 Panel Financiero</h4>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Inversión en Piezas</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">${{ "%.2f"|format(inversion_piezas) }} CUP</h3>
+                    <small class="text-muted">Costo de piezas usadas (período)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Valor Inventario</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">${{ "%.2f"|format(valor_inventario) }} CUP</h3>
+                    <small class="text-muted">Existencia × costo (actual)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Ingresos Brutos</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-primary">${{ "%.2f"|format(ingresos_brutos) }} CUP</h3>
+                    <small class="text-muted">Total facturado (período)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">Ganancia Neta</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="{% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</h3>
+                    <small class="text-muted">Ingresos - piezas - gastos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de Tributos -->
+    <h4 class="mb-3">📋 Tributos Estimados (Cuba)</h4>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">ISIP (Impuesto sobre Ingresos Personales)</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-danger">${{ "%.2f"|format(isip_calculado) }} CUP</h4>
+                    <small class="text-muted">Régimen: {{ regimen_fiscal|upper }}</small>
+                    <br>
+                    <small class="text-muted">Ganancia acumulada año: ${{ "%.2f"|format(ganancia_acumulada_anio) }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Seguridad Social (5%)</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-info">${{ "%.2f"|format(seguridad_social) }} CUP</h4>
+                    <small class="text-muted">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">Total a Pagar</h6>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-danger">${{ "%.2f"|format(total_tributos) }} CUP</h3>
+                    <small class="text-muted">*Cálculo estimado, sujeto a verificación oficial</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gastos Operativos e Ingresos Mensuales -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💸 Gastos Operativos del Período</h5>
+                    <a href="{{ url_for('reportes.gastos') }}" class="btn btn-sm btn-light">Ver todos</a>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-warning">${{ "%.2f"|format(gastos_operativos) }} CUP</h3>
+                    <small>Agua, electricidad, alquiler, etc.</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico simple de ingresos mensuales (texto) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5>📈 Ingresos últimos 6 meses</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th>Ingreso (CUP)</th>
+                                <th>Gráfico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in ingresos_mensuales %}
+                            <tr>
+                                <td>{{ item.mes }}</td>
+                                <td>${{ "%.2f"|format(item.ingreso) }}</td>
+                                <td>
+                                    {% set max_ingreso = ingresos_mensuales | map(attribute='ingreso') | max %}
+                                    {% if max_ingreso > 0 %}
+                                        {% set ancho = (item.ingreso / max_ingreso * 100)|int %}
+                                        <div class="progress" style="height: 10px; width: 100px;">
+                                            <div class="progress-bar bg-success" style="width: {{ ancho }}%"></div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas órdenes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5>📋 Últimas Órdenes</h5>
+                    <a href="{{ url_for('ordenes.index') }}" class="btn btn-sm btn-light">Ver todas</a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in ultimas_ordenes %}
+                            <tr>
+                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+                                <td>{{ orden.fecha_entrada }}</td>
+                                <td>{{ orden.cliente.nombre }}</td>
+                                <td>
+                                    {% if orden.estado == 'Recibido' %}
+                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En diagnostico' %}
+                                        <span class="badge bg-warning">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Esperando piezas' %}
+                                        <span class="badge bg-info">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'En reparacion' %}
+                                        <span class="badge bg-primary">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Listo para entregar' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Entregado' %}
+                                        <span class="badge bg-success">{{ orden.estado }}</span>
+                                    {% elif orden.estado == 'Cancelado' %}
+                                        <span class="badge bg-danger">{{ orden.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No hay órdenes registradas</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Fin vista administrador -->
+</div>
+
+<script>
+function toggleFechaPersonalizada() {
+    var periodo = document.getElementById('filtroPeriodo').value;
+    var fechaDivs = document.querySelectorAll('.fecha-personalizada');
+    if (periodo === 'personalizado') {
+        fechaDivs.forEach(function(div) {
+            div.style.display = 'block';
+        });
+    } else {
+        fechaDivs.forEach(function(div) {
+            div.style.display = 'none';
+        });
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFechaPersonalizada();
+});
+</script>
+{% endblock %}
