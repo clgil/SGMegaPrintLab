@@ -2360,3 +2360,39 @@ select:-webkit-autofill:focus {
 [data-bs-theme="dark"] .card.bg-dark .text-dark {
     color: #ffffff !important;
 }
+
+/* Reglas específicas para enlaces directos dentro de tarjetas coloreadas en modo oscuro */
+[data-theme="dark"] a .card.bg-primary,
+[data-theme="dark"] a .card.bg-success,
+[data-theme="dark"] a .card.bg-info,
+[data-theme="dark"] a .card.bg-warning,
+[data-theme="dark"] a .card.bg-danger,
+[data-theme="dark"] a .card.bg-secondary,
+[data-theme="dark"] a .card.bg-dark,
+[data-bs-theme="dark"] a .card.bg-primary,
+[data-bs-theme="dark"] a .card.bg-success,
+[data-bs-theme="dark"] a .card.bg-info,
+[data-bs-theme="dark"] a .card.bg-warning,
+[data-bs-theme="dark"] a .card.bg-danger,
+[data-bs-theme="dark"] a .card.bg-secondary,
+[data-bs-theme="dark"] a .card.bg-dark {
+    color: #ffffff !important;
+}
+
+/* Forzar que todo el texto dentro de tarjetas coloreadas sea blanco en modo oscuro */
+[data-theme="dark"] .card.bg-primary *,
+[data-theme="dark"] .card.bg-success *,
+[data-theme="dark"] .card.bg-info *,
+[data-theme="dark"] .card.bg-warning *,
+[data-theme="dark"] .card.bg-danger *,
+[data-theme="dark"] .card.bg-secondary *,
+[data-theme="dark"] .card.bg-dark *,
+[data-bs-theme="dark"] .card.bg-primary *,
+[data-bs-theme="dark"] .card.bg-success *,
+[data-bs-theme="dark"] .card.bg-info *,
+[data-bs-theme="dark"] .card.bg-warning *,
+[data-bs-theme="dark"] .card.bg-danger *,
+[data-bs-theme="dark"] .card.bg-secondary *,
+[data-bs-theme="dark"] .card.bg-dark * {
+    color: #ffffff !important;
+}
