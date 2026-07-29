@@ -1,3 +1,45 @@
-The modified files are only source code files (.css and .html), which do not require any special ignore rules. No build artifacts, dependencies, or temporary files are present in the changes.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.ENV
+.ENV.local
+.python-version
+.python-dotenv
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/
 
-(empty)
+# Django specific
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+.DS_Store
+
+# Web assets
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+```

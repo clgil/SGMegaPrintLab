@@ -21,17 +21,17 @@
                 <h5 class="mb-0"><i class="fas fa-id-badge"></i> Datos del Técnico</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating">
-                            <input type="text" name="nombre" id="nombre" class="form-control py-3" 
+                            <input type="text" name="nombre" id="nombre" class="form-control" 
                                    value="{% if tecnico %}{{ tecnico.nombre }}{% endif %}" required placeholder="Nombre Completo">
                             <label for="nombre">Nombre Completo *</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating">
-                            <input type="text" name="especialidad" id="especialidad" class="form-control py-3" 
+                            <input type="text" name="especialidad" id="especialidad" class="form-control" 
                                    value="{% if tecnico %}{{ tecnico.especialidad }}{% endif %}"
                                    placeholder="Ej: Impresoras Láser, Multifuncionales...">
                             <label for="especialidad">Especialidad</label>
@@ -40,17 +40,17 @@
                 </div>
                 
                 {% if tecnico %}
-                <div class="row mt-3">
-                    <div class="col-12 col-md-6 mb-3">
-                        <div class="form-check form-switch py-3">
+                <div class="row g-3 mt-0">
+                    <div class="col-12 col-md-6">
+                        <div class="form-check form-switch">
                             <input type="checkbox" name="activo" id="activo" class="form-check-input" 
                                    value="1" {% if tecnico.activo %}checked{% endif %}>
                             <label class="form-check-label" for="activo">Activo</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating">
-                            <input type="text" class="form-control py-3" readonly value="{{ tecnico.ordenes|length }} órdenes">
+                            <input type="text" class="form-control" readonly value="{{ tecnico.ordenes|length }} órdenes">
                             <label>Órdenes Asignadas</label>
                         </div>
                     </div>
@@ -60,11 +60,11 @@
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <button type="submit" class="btn btn-primary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">
-                <i class="fas fa-save"></i> {{ accion }} Técnico
+            <button type="submit" class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
+                <i class="bi bi-floppy me-2"></i> {{ accion }} Técnico
             </button>
-            <a href="{{ url_for('tecnicos.index') }}" class="btn btn-secondary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">
-                <i class="fas fa-times"></i> Cancelar
+            <a href="{{ url_for('tecnicos.index') }}" class="btn btn-secondary px-4 py-2">
+                <i class="bi bi-x-lg me-2"></i> Cancelar
             </a>
         </div>
     </form>
