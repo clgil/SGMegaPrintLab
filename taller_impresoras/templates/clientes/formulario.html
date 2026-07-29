@@ -3,53 +3,71 @@
 {% block title %}{{ accion }} Cliente - Taller de Impresoras{% endblock %}
 
 {% block content %}
+<nav class="breadcrumbs mb-3">
+    <div class="breadcrumb-item">
+        <a href="/">Dashboard</a>
+    </div>
+    <div class="breadcrumb-item">
+        <a href="/clientes/">Clientes</a>
+    </div>
+    <div class="breadcrumb-item active">Nuevo Cliente</div>
+</nav>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4>{{ accion }} Cliente</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fs-5"><i class="bi bi-person-plus me-2"></i>Crear Cliente</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="POST" action="{% if cliente %}{{ url_for('clientes.editar', id=cliente.id) }}{% else %}{{ url_for('clientes.nuevo') }}{% endif %}">
-                        <div class="row">
-                            <div class="col-12 col-md-6 mb-3">
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-12 col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control py-3" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required autofocus placeholder="Nombre Completo">
+                                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required autofocus placeholder="Nombre Completo">
                                     <label for="nombre">Nombre Completo *</label>
                                 </div>
                             </div>
                             
-                            <div class="col-12 col-md-6 mb-3">
+                            <!-- Teléfono -->
+                            <div class="col-12 col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control py-3" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" placeholder="Teléfono">
+                                    <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" placeholder="Teléfono">
                                     <label for="telefono">Teléfono</label>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-floating">
-                                <textarea class="form-control py-3" id="direccion" name="direccion" rows="2" placeholder="Dirección">{{ cliente.direccion if cliente else '' }}</textarea>
-                                <label for="direccion">Dirección</label>
+
+                            <!-- Dirección -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="direccion" name="direccion" placeholder="Dirección" style="height: 100px;">{{ cliente.direccion if cliente else '' }}</textarea>
+                                    <label for="direccion">Dirección</label>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-floating">
-                                <select class="form-select py-3" id="tipo_cliente" name="tipo_cliente" required placeholder="Tipo de Cliente">
-                                    {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
-                                    {% for tipo in tipos %}
-                                    <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>
-                                    {% endfor %}
-                                </select>
-                                <label for="tipo_cliente">Tipo de Cliente *</label>
+
+                            <!-- Tipo de Cliente -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select class="form-select" id="tipo_cliente" name="tipo_cliente" required aria-label="Tipo de Cliente">
+                                        <option value="" disabled selected hidden>Seleccione una opción...</option>
+                                        {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
+                                        {% for tipo in tipos %}
+                                        <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="tipo_cliente">Tipo de Cliente *</label>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ url_for('clientes.index') }}" class="btn btn-secondary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">Cancelar</a>
-                            <button type="submit" class="btn btn-primary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">💾 Guardar</button>
+
+                            <!-- Botones -->
+                            <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                                <a href="{{ url_for('clientes.index') }}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
+                                <button type="submit" class="btn btn-primary px-4 py-2 d-inline-flex align-items-center">
+                                    <i class="bi bi-floppy me-2"></i> Guardar
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

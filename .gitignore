@@ -1,1 +1,3 @@
-Nothing should be ignored based on the provided file changes, as only a Python source file (`taller_impresoras/routes/ordenes.py`) was modified and no build artifacts, dependencies, or temporary files were included in the changes.
+The modified files are only source code files (.css and .html), which do not require any special ignore rules. No build artifacts, dependencies, or temporary files are present in the changes.
+
+(empty)

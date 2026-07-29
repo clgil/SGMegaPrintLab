@@ -2230,3 +2230,41 @@ i[title]:hover {
         margin-left: var(--sidebar-width-collapsed) !important;
     }
 }
+
+/* ==========================================================================
+   Ajustes para Floating Labels y Autofill en Modo Oscuro
+   ========================================================================== */
+
+/* 1. Elimina recuadros negros en el pseudoelemento ::after de las etiquetas flotantes */
+.form-floating > label,
+.form-floating > label::after {
+    background-color: transparent !important;
+}
+
+/* 2. Asegura contraste y lectura adecuada de la etiqueta flotante */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: var(--bs-primary, #0d6efd) !important;
+    opacity: 0.9;
+}
+
+/* 3. Corrección de Autofill del navegador en modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 4. Altura predeterminada del textarea flotante */
+.form-floating > textarea.form-control {
+    height: 100px;
+}
