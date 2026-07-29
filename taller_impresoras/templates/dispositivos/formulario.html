@@ -21,11 +21,11 @@
                 <h5 class="mb-0"><i class="fas fa-user"></i> Información del Propietario</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-3">
+                <div class="row g-3">
+                    <div class="col-12">
                         <div class="form-floating">
-                            <select name="cliente_id" id="cliente_id" class="form-select py-3" required>
-                                <option value="">Seleccione un cliente...</option>
+                            <select name="cliente_id" id="cliente_id" class="form-select" required>
+                                <option value="" disabled selected hidden>Seleccione una opción...</option>
                                 {% for cliente in clientes %}
                                 <option value="{{ cliente.id }}" {% if dispositivo and dispositivo.cliente_id == cliente.id %}selected{% endif %}>
                                     {{ cliente.nombre }} - {{ cliente.telefono }}
@@ -44,11 +44,11 @@
                 <h5 class="mb-0"><i class="fas fa-print"></i> Datos del Dispositivo</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-12 col-md-4 mb-3">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
                         <div class="form-floating">
-                            <select name="tipo" id="tipo" class="form-select py-3" required>
-                                <option value="">Seleccione...</option>
+                            <select name="tipo" id="tipo" class="form-select" required>
+                                <option value="" disabled selected hidden>Seleccione una opción...</option>
                                 {% for tipo_item in tipos %}
                                 <option value="{{ tipo_item }}" {% if dispositivo and dispositivo.tipo == tipo_item %}selected{% endif %}>
                                     {{ tipo_item }}
@@ -58,42 +58,42 @@
                             <label for="tipo">Tipo de Dispositivo *</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-4">
                         <div class="form-floating">
-                            <input type="text" name="marca" id="marca" class="form-control py-3" 
+                            <input type="text" name="marca" id="marca" class="form-control" 
                                    value="{% if dispositivo %}{{ dispositivo.marca }}{% endif %}" required placeholder="Marca">
                             <label for="marca">Marca *</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-4">
                         <div class="form-floating">
-                            <input type="text" name="modelo" id="modelo" class="form-control py-3" 
+                            <input type="text" name="modelo" id="modelo" class="form-control" 
                                    value="{% if dispositivo %}{{ dispositivo.modelo }}{% endif %}" placeholder="Modelo">
                             <label for="modelo">Modelo</label>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
+                <div class="row g-3 mt-0">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating">
-                            <input type="text" name="numero_serie" id="numero_serie" class="form-control py-3" 
+                            <input type="text" name="numero_serie" id="numero_serie" class="form-control" 
                                    value="{% if dispositivo %}{{ dispositivo.numero_serie }}{% endif %}" placeholder="Número de Serie">
                             <label for="numero_serie">Número de Serie</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating">
-                            <input type="text" name="problema_frecuente" id="problema_frecuente" class="form-control py-3" 
+                            <input type="text" name="problema_frecuente" id="problema_frecuente" class="form-control" 
                                    value="{% if dispositivo %}{{ dispositivo.problema_frecuente }}{% endif %}"
                                    placeholder="Ej: Se atasca el papel">
                             <label for="problema_frecuente">Problema Frecuente</label>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12 mb-3">
+                <div class="row g-3 mt-0">
+                    <div class="col-12">
                         <div class="form-floating">
-                            <textarea name="observaciones" id="observaciones" class="form-control py-3" rows="3" placeholder="Observaciones Adicionales">{% if dispositivo %}{{ dispositivo.observaciones }}{% endif %}</textarea>
+                            <textarea name="observaciones" id="observaciones" class="form-control" style="height: 100px;" placeholder="Observaciones Adicionales">{% if dispositivo %}{{ dispositivo.observaciones }}{% endif %}</textarea>
                             <label for="observaciones">Observaciones Adicionales</label>
                         </div>
                     </div>
@@ -102,11 +102,11 @@
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <button type="submit" class="btn btn-primary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">
-                <i class="fas fa-save"></i> {{ accion }} Dispositivo
+            <button type="submit" class="btn btn-primary d-inline-flex align-items-center px-4 py-2">
+                <i class="bi bi-floppy me-2"></i> {{ accion }} Dispositivo
             </button>
-            <a href="{{ url_for('dispositivos.index') }}" class="btn btn-secondary py-3 d-block d-sm-inline-block w-100 w-sm-auto" style="min-height: 48px;">
-                <i class="fas fa-times"></i> Cancelar
+            <a href="{{ url_for('dispositivos.index') }}" class="btn btn-secondary px-4 py-2">
+                <i class="bi bi-x-lg me-2"></i> Cancelar
             </a>
         </div>
     </form>
