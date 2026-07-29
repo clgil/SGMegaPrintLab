@@ -2342,3 +2342,21 @@ select:-webkit-autofill:focus {
     color: #ffffff !important;
     text-decoration: none;
 }
+
+/* Asegurar que los elementos con clase text-dark en tarjetas no interfieran */
+[data-theme="dark"] .card.bg-primary .text-dark,
+[data-theme="dark"] .card.bg-success .text-dark,
+[data-theme="dark"] .card.bg-info .text-dark,
+[data-theme="dark"] .card.bg-warning .text-dark,
+[data-theme="dark"] .card.bg-danger .text-dark,
+[data-theme="dark"] .card.bg-secondary .text-dark,
+[data-theme="dark"] .card.bg-dark .text-dark,
+[data-bs-theme="dark"] .card.bg-primary .text-dark,
+[data-bs-theme="dark"] .card.bg-success .text-dark,
+[data-bs-theme="dark"] .card.bg-info .text-dark,
+[data-bs-theme="dark"] .card.bg-warning .text-dark,
+[data-bs-theme="dark"] .card.bg-danger .text-dark,
+[data-bs-theme="dark"] .card.bg-secondary .text-dark,
+[data-bs-theme="dark"] .card.bg-dark .text-dark {
+    color: #ffffff !important;
+}
