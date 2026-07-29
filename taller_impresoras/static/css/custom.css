@@ -509,6 +509,28 @@ body {
     transition: all var(--transition-base);
 }
 
+/* Card Dashboard - Soporte para Modo Claro/Oscuro */
+.card-dashboard {
+    background-color: var(--bs-card-bg, var(--bg-card));
+    color: var(--bs-body-color, var(--text-primary));
+    border-radius: 16px;
+    border: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all var(--transition-base);
+}
+
+/* Tema Oscuro para card-dashboard */
+[data-bs-theme="dark"] .card-dashboard,
+body.dark-mode .card-dashboard {
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+
+/* Borde lateral personalizado color púrpura */
+.border-purple {
+    border-color: #a855f7 !important;
+}
+
 .card:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
