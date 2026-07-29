@@ -336,59 +336,64 @@
     </div>
     
     <!-- Tarjetas resumen para administrador -->
-    <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="card bg-primary text-white shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Órdenes Totales</h5>
-                    <h2 class="display-4">{{ total_ordenes }}</h2>
-                    <p class="card-text">En el sistema</p>
-                </div>
+    <div class="row g-3 mb-4">
+        <!-- Órdenes Totales -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
+                <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_ordenes }}</div>
+                <div class="small text-muted">En el sistema</div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-success text-white shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Completadas</h5>
-                    <h2 class="display-4">{{ ordenes_completadas }}</h2>
-                    <p class="card-text">Entregadas</p>
-                </div>
+
+        <!-- Completadas -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
+                <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_completadas }}</div>
+                <div class="small text-muted">Entregadas</div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-warning text-dark shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Pendientes</h5>
-                    <h2 class="display-4">{{ ordenes_pendientes }}</h2>
-                    <p class="card-text">En espera</p>
-                </div>
+
+        <!-- Pendientes -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
+                <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_pendientes }}</div>
+                <div class="small text-muted">En espera</div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-secondary text-white shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Total Usuarios</h5>
-                    <h2 class="display-4">{{ total_usuarios }}</h2>
-                    <p class="card-text">Activos</p>
-                </div>
+
+        <!-- Total Usuarios -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #6c757d !important;">
+                <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Total Usuarios</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_usuarios }}</div>
+                <div class="small text-muted">Activos</div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-info text-white shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Técnicos</h5>
-                    <h2 class="display-4">{{ total_tecnicos }}</h2>
-                    <p class="card-text">Registrados</p>
-                </div>
+
+        <!-- Técnicos -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
+                <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_tecnicos }}</div>
+                <div class="small text-muted">Registrados</div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-warning text-dark shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Proveedores</h5>
-                    <h2 class="display-4">{{ total_piezas }}</h2>
-                    <p class="card-text">Piezas en inventario</p>
-                </div>
+
+        <!-- Proveedores -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #fd7e14 !important;">
+                <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
+                <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
+                <div class="fs-2 fw-bold my-1 text-white">{{ total_piezas }}</div>
+                <div class="small text-muted">Piezas inventario</div>
             </div>
         </div>
     </div>
