@@ -51,7 +51,7 @@
                             <div class="col-12">
                                 <div class="form-floating">
                                     <select class="form-select" id="tipo_cliente" name="tipo_cliente" required aria-label="Tipo de Cliente">
-                                        <option value="" disabled selected hidden>Seleccione una opción...</option>
+                                        <option value="" selected disabled>-- Seleccionar --</option>
                                         {% set tipos = tipos_cliente if tipos_cliente else ['TCP', 'Mypyme', 'PDL', 'Empresa Estatal', 'CNA', 'CPA', 'Persona natural'] %}
                                         {% for tipo in tipos %}
                                         <option value="{{ tipo }}" {% if cliente and cliente.tipo_cliente == tipo %}selected{% endif %}>{{ tipo }}</option>

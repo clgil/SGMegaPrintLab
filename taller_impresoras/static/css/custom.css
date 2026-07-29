@@ -997,45 +997,50 @@ i[title]:hover {
     margin-top: var(--space-1);
 }
 
-/* Floating Labels */
-.form-floating {
-    position: relative;
+/* ==========================================================================
+   FIX DEFINITIVO: Form-Floating en Modo Oscuro (Bootstrap 5)
+   ========================================================================== */
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
 }
 
-.form-floating .form-control,
-.form-floating .form-select {
-    padding: var(--space-4) var(--space-3);
-    height: 56px;
+.form-floating > label {
+    color: #94a3b8 !important;
 }
 
-.form-floating label {
-    position: absolute;
-    left: var(--space-3);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: var(--font-size-base);
-    transition: all var(--transition-base);
-    pointer-events: none;
-    background-color: var(--bg-input);
-    padding: 0 var(--space-1);
-    z-index: 5;
+.form-floating > label::after {
+    background-color: #1e293b !important;
 }
 
-.form-floating .form-control:focus ~ label,
-.form-floating .form-control:not(:placeholder-shown) ~ label,
-.form-floating .form-select:focus ~ label,
-.form-floating .form-select:not([value=""]) ~ label {
-    top: 0;
-    font-size: var(--font-size-xs);
-    color: var(--primary);
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: #60a5fa !important;
+    opacity: 1 !important;
+    font-weight: 600;
 }
 
-/* Asegurar que los selects en form-floating no muestren tooltips nativos encima */
-.form-floating select[required]:invalid::-webkit-validation-bubble-message,
-.form-floating input[required]:invalid::-webkit-validation-bubble-message,
-.form-floating textarea[required]:invalid::-webkit-validation-bubble-message {
-    display: none;
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f8fafc !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-select option {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
 }
 
 /* ============================================
@@ -2231,63 +2236,4 @@ i[title]:hover {
     }
 }
 
-/* ==========================================================================
-   Ajustes para Floating Labels y Autofill en Modo Oscuro
-   ========================================================================== */
 
-/* 1. Elimina recuadros negros en el pseudoelemento ::after de las etiquetas flotantes */
-.form-floating > label,
-.form-floating > label::after {
-    background-color: transparent !important;
-}
-
-/* 2. Asegura contraste y lectura adecuada de la etiqueta flotante */
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-    color: var(--bs-primary, #0d6efd) !important;
-    opacity: 0.9;
-}
-
-/* 4. Altura predeterminada del textarea flotante */
-.form-floating > textarea.form-control {
-    height: 100px;
-}
-
-/* ==========================================================================
-   FIX GLOBAL: Floating Labels, Dark Mode & Browser Autofill
-   ========================================================================== */
-
-/* 1. Eliminar recuadros oscuros/negros de los pseudoelementos ::after en labels flotantes */
-.form-floating > label,
-.form-floating > label::after {
-    background-color: transparent !important;
-}
-
-/* 2. Color y visibilidad de las etiquetas cuando el campo está enfocado o lleno */
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-    color: var(--bs-primary, #0d6efd) !important;
-    opacity: 0.9;
-}
-
-/* 3. Fix de Autofill del navegador (Chrome/Edge/Brave) en modo oscuro */
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-    -webkit-text-fill-color: #ffffff !important;
-    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important; /* Ajustar a color de fondo de inputs */
-    transition: background-color 5000s ease-in-out 0s;
-}
-
-/* 4. Altura predeterminada para textareas con floating labels */
-.form-floating > textarea.form-control {
-    height: 100px;
-}

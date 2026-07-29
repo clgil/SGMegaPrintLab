@@ -25,7 +25,7 @@
                     <div class="col-12">
                         <div class="form-floating">
                             <select name="cliente_id" id="cliente_id" class="form-select" required>
-                                <option value="" disabled selected hidden>Seleccione una opción...</option>
+                                <option value="" selected disabled>-- Seleccionar --</option>
                                 {% for cliente in clientes %}
                                 <option value="{{ cliente.id }}" {% if dispositivo and dispositivo.cliente_id == cliente.id %}selected{% endif %}>
                                     {{ cliente.nombre }} - {{ cliente.telefono }}
@@ -48,7 +48,7 @@
                     <div class="col-12 col-md-4">
                         <div class="form-floating">
                             <select name="tipo" id="tipo" class="form-select" required>
-                                <option value="" disabled selected hidden>Seleccione una opción...</option>
+                                <option value="" selected disabled>-- Seleccionar --</option>
                                 {% for tipo_item in tipos %}
                                 <option value="{{ tipo_item }}" {% if dispositivo and dispositivo.tipo == tipo_item %}selected{% endif %}>
                                     {{ tipo_item }}
