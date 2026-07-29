@@ -339,60 +339,60 @@
     <div class="row g-3 mb-4">
         <!-- Órdenes Totales -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary">
                 <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ total_ordenes }}</div>
+                <div class="fs-2 fw-bold my-1">{{ total_ordenes }}</div>
                 <div class="small text-muted">En el sistema</div>
             </div>
         </div>
 
         <!-- Completadas -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success">
                 <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_completadas }}</div>
+                <div class="fs-2 fw-bold my-1">{{ ordenes_completadas }}</div>
                 <div class="small text-muted">Entregadas</div>
             </div>
         </div>
 
         <!-- Pendientes -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning">
                 <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ ordenes_pendientes }}</div>
+                <div class="fs-2 fw-bold my-1">{{ ordenes_pendientes }}</div>
                 <div class="small text-muted">En espera</div>
             </div>
         </div>
 
         <!-- Técnicos -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info">
                 <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ total_tecnicos }}</div>
+                <div class="fs-2 fw-bold my-1">{{ total_tecnicos }}</div>
                 <div class="small text-muted">Registrados</div>
             </div>
         </div>
 
         <!-- Proveedores -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #fd7e14 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-purple">
                 <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ total_piezas }}</div>
+                <div class="fs-2 fw-bold my-1">{{ total_piezas }}</div>
                 <div class="small text-muted">Piezas inventario</div>
             </div>
         </div>
 
         <!-- Clientes -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #6c757d !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-secondary">
                 <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Clientes</div>
-                <div class="fs-2 fw-bold my-1 text-white">{{ total_clientes }}</div>
+                <div class="fs-2 fw-bold my-1">{{ total_clientes }}</div>
                 <div class="small text-muted">Registrados</div>
             </div>
         </div>
@@ -403,37 +403,37 @@
     <div class="row g-3 mb-4">
         <!-- Inversión en Piezas -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #dc3545 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger">
                 <div class="text-danger fs-4 mb-1"><i class="bi bi-cash-coin"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Inversión en Piezas</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
                 <div class="small text-muted">Costo piezas usadas</div>
             </div>
         </div>
 
         <!-- Valor Inventario -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #198754 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success">
                 <div class="text-success fs-4 mb-1"><i class="bi bi-box-seam"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Valor Inventario</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(valor_inventario) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(valor_inventario) }} CUP</div>
                 <div class="small text-muted">Existencia × costo</div>
             </div>
         </div>
 
         <!-- Ingresos Brutos -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0d6efd !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary">
                 <div class="text-primary fs-4 mb-1"><i class="bi bi-graph-up-arrow"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Ingresos Brutos</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
                 <div class="small text-muted">Total facturado</div>
             </div>
         </div>
 
         <!-- Ganancia Neta -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning">
                 <div class="text-warning fs-4 mb-1"><i class="bi bi-wallet2"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Ganancia Neta</div>
                 <div class="fs-2 fw-bold my-1 {% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</div>
@@ -447,30 +447,30 @@
     <div class="row g-3 mb-4">
         <!-- ISIP -->
         <div class="col-12 col-sm-6 col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #dc3545 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger">
                 <div class="text-danger fs-4 mb-1"><i class="bi bi-receipt"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">ISIP</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(isip_calculado) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(isip_calculado) }} CUP</div>
                 <div class="small text-muted">{{ regimen_fiscal|upper }}</div>
             </div>
         </div>
 
         <!-- Seguridad Social -->
         <div class="col-12 col-sm-6 col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info">
                 <div class="text-info fs-4 mb-1"><i class="bi bi-shield-check"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Seguridad Social (5%)</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(seguridad_social) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(seguridad_social) }} CUP</div>
                 <div class="small text-muted">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</div>
             </div>
         </div>
 
         <!-- Total a Pagar -->
         <div class="col-12 col-sm-6 col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #dc3545 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger">
                 <div class="text-danger fs-4 mb-1"><i class="bi bi-calculator"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Total a Pagar</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(total_tributos) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(total_tributos) }} CUP</div>
                 <div class="small text-muted">*Estimado</div>
             </div>
         </div>
@@ -479,21 +479,21 @@
     <!-- Gastos Operativos e Ingresos Mensuales -->
     <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #ffc107 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning">
                 <div class="text-warning fs-4 mb-1"><i class="bi bi-cash-stack"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Gastos Operativos</div>
-                <div class="fs-2 fw-bold my-1 text-white">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
+                <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
                 <div class="small text-muted">Agua, electricidad, alquiler</div>
             </div>
         </div>
 
         <!-- Gráfico simple de ingresos mensuales (texto) -->
         <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #1e293b; border-left: 4px solid #0dcaf0 !important;">
+            <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info">
                 <div class="text-info fs-4 mb-1"><i class="bi bi-bar-chart-line"></i></div>
                 <div class="text-muted small fw-semibold text-uppercase">Ingresos últimos 6 meses</div>
                 <div class="my-2">
-                    <table class="table table-sm table-dark table-borderless mb-0">
+                    <table class="table table-sm table-borderless mb-0">
                         <thead>
                             <tr>
                                 <th>Mes</th>
