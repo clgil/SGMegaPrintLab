@@ -2259,3 +2259,86 @@ select:-webkit-autofill:focus {
 }
 
 
+
+/* ============================================
+   Dashboard Cards - Modo Oscuro
+   Mantener colores originales en modo oscuro
+   ============================================ */
+[data-theme="dark"] .card.bg-primary,
+[data-bs-theme="dark"] .card.bg-primary {
+    background-color: #1e40af !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-success,
+[data-bs-theme="dark"] .card.bg-success {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-info,
+[data-bs-theme="dark"] .card.bg-info {
+    background-color: #0e7490 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-warning,
+[data-bs-theme="dark"] .card.bg-warning {
+    background-color: #b45309 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-danger,
+[data-bs-theme="dark"] .card.bg-danger {
+    background-color: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-secondary,
+[data-bs-theme="dark"] .card.bg-secondary {
+    background-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-dark,
+[data-bs-theme="dark"] .card.bg-dark {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+}
+
+/* Asegurar que el texto dentro de las tarjetas sea blanco en modo oscuro */
+[data-theme="dark"] .card.bg-primary *,
+[data-theme="dark"] .card.bg-success *,
+[data-theme="dark"] .card.bg-info *,
+[data-theme="dark"] .card.bg-warning *,
+[data-theme="dark"] .card.bg-danger *,
+[data-theme="dark"] .card.bg-secondary *,
+[data-theme="dark"] .card.bg-dark *,
+[data-bs-theme="dark"] .card.bg-primary *,
+[data-bs-theme="dark"] .card.bg-success *,
+[data-bs-theme="dark"] .card.bg-info *,
+[data-bs-theme="dark"] .card.bg-warning *,
+[data-bs-theme="dark"] .card.bg-danger *,
+[data-bs-theme="dark"] .card.bg-secondary *,
+[data-bs-theme="dark"] .card.bg-dark * {
+    color: #ffffff !important;
+}
+
+/* Excepción para enlaces dentro de tarjetas - mantener blanco */
+[data-theme="dark"] .card.bg-primary a,
+[data-theme="dark"] .card.bg-success a,
+[data-theme="dark"] .card.bg-info a,
+[data-theme="dark"] .card.bg-warning a,
+[data-theme="dark"] .card.bg-danger a,
+[data-theme="dark"] .card.bg-secondary a,
+[data-theme="dark"] .card.bg-dark a,
+[data-bs-theme="dark"] .card.bg-primary a,
+[data-bs-theme="dark"] .card.bg-success a,
+[data-bs-theme="dark"] .card.bg-info a,
+[data-bs-theme="dark"] .card.bg-warning a,
+[data-bs-theme="dark"] .card.bg-danger a,
+[data-bs-theme="dark"] .card.bg-secondary a,
+[data-bs-theme="dark"] .card.bg-dark a {
+    color: #ffffff !important;
+    text-decoration: none;
+}
