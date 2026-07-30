@@ -52,7 +52,7 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Mis Órdenes Totales</h5>
                         <h2 class="display-4">{{ total_ordenes_cliente }}</h2>
@@ -63,7 +63,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Pendiente" class="text-decoration-none">
-                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Órdenes Pendientes</h5>
                         <h2 class="display-4">{{ ordenes_pendientes_cliente }}</h2>
@@ -74,7 +74,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}?estado=En reparacion" class="text-decoration-none">
-                <div class="card bg-info text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-info text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">En Reparación</h5>
                         <h2 class="display-4">{{ ordenes_reparacion_cliente }}</h2>
@@ -85,7 +85,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Entregado" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Completadas</h5>
                         <h2 class="display-4">{{ ordenes_completadas_cliente }}</h2>
@@ -100,7 +100,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <a href="{{ url_for('dispositivos.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-header bg-secondary text-white">
                         <h6 class="mb-0">🖨️ Mis Dispositivos</h6>
                     </div>
@@ -181,7 +181,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Total Piezas</h5>
                         <h2 class="display-4">{{ total_piezas }}</h2>
@@ -192,7 +192,7 @@
         </div>
         <div class="col-md-4">
             <a href="{{ url_for('inventario.index') }}?stock=bajo" class="text-decoration-none">
-                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Stock Bajo</h5>
                         <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
@@ -203,7 +203,7 @@
         </div>
         <div class="col-md-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Valor Inventario</h5>
                         <h2 class="display-4">${{ "%.2f"|format(valor_inventario) }} CUP</h2>
@@ -227,7 +227,7 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Órdenes Activas</h5>
                         <h2 class="display-4">{{ total_ordenes_activas }}</h2>
@@ -238,7 +238,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}?estado=En diagnostico" class="text-decoration-none">
-                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Pendientes Diagnóstico</h5>
                         <h2 class="display-4">{{ ordenes_pendientes_diagnostico }}</h2>
@@ -249,7 +249,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Listo para entregar" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Listas para Entregar</h5>
                         <h2 class="display-4">{{ ordenes_listas_entregar }}</h2>
@@ -260,7 +260,7 @@
         </div>
         <div class="col-md-3">
             <a href="{{ url_for('inventario.index') }}?stock=bajo" class="text-decoration-none">
-                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body">
                         <h5 class="card-title">Stock Bajo</h5>
                         <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
@@ -275,7 +275,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <a href="{{ url_for('dispositivos.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card shadow-sm border-info" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-header bg-info text-white">
                         <h6 class="mb-0">🖨️ Dispositivos</h6>
                     </div>
@@ -288,7 +288,7 @@
         </div>
         <div class="col-md-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-success" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card shadow-sm border-success" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="card-header bg-success text-white">
                         <h6 class="mb-0">📦 Piezas en Inventario</h6>
                     </div>
@@ -368,7 +368,7 @@
         <!-- Órdenes Totales -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
                     <div class="fs-2 fw-bold my-1">{{ total_ordenes }}</div>
@@ -380,7 +380,7 @@
         <!-- Completadas -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}?estado=Entregado" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
                     <div class="fs-2 fw-bold my-1">{{ ordenes_completadas }}</div>
@@ -392,7 +392,7 @@
         <!-- Pendientes -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}?estado=Pendiente" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
                     <div class="fs-2 fw-bold my-1">{{ ordenes_pendientes }}</div>
@@ -404,7 +404,7 @@
         <!-- Técnicos -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('tecnicos.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
                     <div class="fs-2 fw-bold my-1">{{ total_tecnicos }}</div>
@@ -416,7 +416,7 @@
         <!-- Proveedores -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-purple" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-purple" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
                     <div class="fs-2 fw-bold my-1">{{ total_piezas }}</div>
@@ -428,7 +428,7 @@
         <!-- Clientes -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('clientes.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-secondary" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-secondary" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Clientes</div>
                     <div class="fs-2 fw-bold my-1">{{ total_clientes }}</div>
@@ -444,7 +444,7 @@
         <!-- Inversión en Piezas -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-danger fs-4 mb-1"><i class="bi bi-cash-coin"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Inversión en Piezas</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
@@ -456,7 +456,7 @@
         <!-- Valor Inventario -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-success fs-4 mb-1"><i class="bi bi-box-seam"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Valor Inventario</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(valor_inventario) }} CUP</div>
@@ -468,7 +468,7 @@
         <!-- Ingresos Brutos -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-primary fs-4 mb-1"><i class="bi bi-graph-up-arrow"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Ingresos Brutos</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
@@ -480,7 +480,7 @@
         <!-- Ganancia Neta -->
         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-warning fs-4 mb-1"><i class="bi bi-wallet2"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Ganancia Neta</div>
                     <div class="fs-2 fw-bold my-1 {% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</div>
@@ -496,7 +496,7 @@
         <!-- ISIP -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-danger fs-4 mb-1"><i class="bi bi-receipt"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">ISIP</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(isip_calculado) }} CUP</div>
@@ -508,7 +508,7 @@
         <!-- Seguridad Social -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-info fs-4 mb-1"><i class="bi bi-shield-check"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Seguridad Social (5%)</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(seguridad_social) }} CUP</div>
@@ -520,7 +520,7 @@
         <!-- Total a Pagar -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-danger fs-4 mb-1"><i class="bi bi-calculator"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Total a Pagar</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(total_tributos) }} CUP</div>
@@ -534,7 +534,7 @@
     <div class="row g-3 mb-4">
         <div class="col-md-6">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-warning fs-4 mb-1"><i class="bi bi-cash-stack"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Gastos Operativos</div>
                     <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
@@ -546,7 +546,7 @@
         <!-- Gráfico simple de ingresos mensuales (texto) -->
         <div class="col-md-6">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
                     <div class="text-info fs-4 mb-1"><i class="bi bi-bar-chart-line"></i></div>
                     <div class="text-muted small fw-semibold text-uppercase">Ingresos últimos 6 meses</div>
                     <div class="my-2">
