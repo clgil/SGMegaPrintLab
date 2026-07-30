@@ -567,6 +567,27 @@ body.dark-mode .card-dashboard {
     color: #ffffff !important;
 }
 
+/* Asegurar que card-body dentro de cards con bg-* tenga texto blanco en modo oscuro */
+[data-theme="dark"] .card.bg-primary .card-body,
+[data-theme="dark"] .card.bg-success .card-body,
+[data-theme="dark"] .card.bg-info .card-body,
+[data-theme="dark"] .card.bg-warning .card-body,
+[data-theme="dark"] .card.bg-danger .card-body,
+[data-theme="dark"] .card.bg-secondary .card-body,
+[data-theme="dark"] .card.bg-dark .card-body {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .card.bg-primary .card-body *,
+[data-theme="dark"] .card.bg-success .card-body *,
+[data-theme="dark"] .card.bg-info .card-body *,
+[data-theme="dark"] .card.bg-warning .card-body *,
+[data-theme="dark"] .card.bg-danger .card-body *,
+[data-theme="dark"] .card.bg-secondary .card-body *,
+[data-theme="dark"] .card.bg-dark .card-body * {
+    color: #ffffff !important;
+}
+
 .card-body {
     padding: var(--space-5);
     color: var(--text-primary);
@@ -1707,6 +1728,24 @@ select:-webkit-autofill:focus {
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
 .text-white { color: #ffffff !important; }
+
+/* Asegurar que text-white funcione en modo oscuro para elementos con bg-* */
+[data-theme="dark"] .bg-primary .text-white,
+[data-theme="dark"] .bg-success .text-white,
+[data-theme="dark"] .bg-info .text-white,
+[data-theme="dark"] .bg-warning .text-white,
+[data-theme="dark"] .bg-danger .text-white,
+[data-theme="dark"] .bg-secondary .text-white,
+[data-theme="dark"] .bg-dark .text-white,
+[data-theme="dark"] .card.bg-primary .text-white,
+[data-theme="dark"] .card.bg-success .text-white,
+[data-theme="dark"] .card.bg-info .text-white,
+[data-theme="dark"] .card.bg-warning .text-white,
+[data-theme="dark"] .card.bg-danger .text-white,
+[data-theme="dark"] .card.bg-secondary .text-white,
+[data-theme="dark"] .card.bg-dark .text-white {
+    color: #ffffff !important;
+}
 .text-dark { color: var(--gray-900) !important; }
 
 /* Modo oscuro - asegurar buen contraste para texto */
@@ -1739,14 +1778,14 @@ select:-webkit-autofill:focus {
 .bg-dark { background-color: var(--gray-800) !important; }
 .bg-secondary { background-color: var(--gray-600); }
 
-/* Ajustes para modo oscuro - headers de tarjetas con colores de fondo */
-[data-theme="dark"] .bg-primary { background-color: var(--primary) !important; }
-[data-theme="dark"] .bg-success { background-color: var(--success) !important; }
-[data-theme="dark"] .bg-warning { background-color: var(--warning) !important; }
-[data-theme="dark"] .bg-danger { background-color: var(--danger) !important; }
-[data-theme="dark"] .bg-info { background-color: var(--info) !important; }
-[data-theme="dark"] .bg-secondary { background-color: var(--gray-600) !important; }
-[data-theme="dark"] .bg-dark { background-color: var(--gray-700) !important; }
+/* Ajustes para modo oscuro - colores de fondo más oscuros y visibles */
+[data-theme="dark"] .bg-primary { background-color: #1e40af !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-success { background-color: #047857 !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-warning { background-color: #b45309 !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-danger { background-color: #b91c1c !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-info { background-color: #0e7490 !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-secondary { background-color: #475569 !important; color: #ffffff !important; }
+[data-theme="dark"] .bg-dark { background-color: #0f172a !important; color: #ffffff !important; }
 
 .shadow-sm { box-shadow: var(--shadow-card); }
 .shadow-md { box-shadow: var(--shadow-elevated); }
@@ -2303,6 +2342,43 @@ select:-webkit-autofill:focus {
 [data-theme="dark"] .card.bg-dark,
 [data-bs-theme="dark"] .card.bg-dark {
     background-color: #0f172a !important;
+    color: #ffffff !important;
+}
+
+/* Reglas adicionales para elementos con clase bg-* directa (no dentro de card) */
+[data-theme="dark"] div.bg-primary:not(.card),
+[data-theme="dark"] .bg-primary:not(.card) {
+    background-color: #1e40af !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] div.bg-success:not(.card),
+[data-theme="dark"] .bg-success:not(.card) {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] div.bg-info:not(.card),
+[data-theme="dark"] .bg-info:not(.card) {
+    background-color: #0e7490 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] div.bg-warning:not(.card),
+[data-theme="dark"] .bg-warning:not(.card) {
+    background-color: #b45309 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] div.bg-danger:not(.card),
+[data-theme="dark"] .bg-danger:not(.card) {
+    background-color: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] div.bg-secondary:not(.card),
+[data-theme="dark"] .bg-secondary:not(.card) {
+    background-color: #475569 !important;
     color: #ffffff !important;
 }
 
