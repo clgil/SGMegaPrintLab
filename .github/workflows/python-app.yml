@@ -1,52 +1,39 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 # .github/workflows/python-app.yml
-
 name: CI para SGMegaPrintLab
 
-# Se activa cuando hay un 'push' a main o se abre un 'pull request'
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-# Define el trabajo (job) que se va a ejecutar
 jobs:
   build:
-
-    # El sistema operativo donde correrá el workflow
     runs-on: ubuntu-latest
-
-    # Define la versión de Python a usar
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
+    # Indica que todos los pasos se ejecuten dentro de esta carpeta
+    defaults:
+      run:
+        working-directory: taller_impresoras
+
     steps:
-    # 1. Clona tu repositorio
     - uses: actions/checkout@v4
 
-    # 2. Configura la versión de Python
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
-    # 3. Instala las dependencias desde requirements.txt
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements.txt   # Ahora existe en el directorio actual
 
-    # 4. (Opcional) Ejecuta pruebas con pytest, si las tienes
+    # (Opcional) Si tienes pruebas, descomenta:
     # - name: Run tests
-    #   run: |
-    #     pip install pytest
-    #     pytest
-
-    # 5. (Opcional) Verifica el estilo del código con flake8
-    # - name: Lint with flake8
-    #   run: |
-    #     pip install flake8
-    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    #   run: pytest
