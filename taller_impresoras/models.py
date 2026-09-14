@@ -5,15 +5,11 @@ Adaptado a la realidad cubana - Junio 2026
 Define todas las tablas según el esquema SQLite especificado en el PRD
 """
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-db = SQLAlchemy()
-
-def init_db(app):
-    """Inicializa la base de datos con la aplicación Flask"""
-    db.init_app(app)
+# Importar la instancia db única desde extensions para evitar múltiples instancias
+from services.extensions import db
 
 class Usuario(UserMixin, db.Model):
     """Tabla de usuarios con roles y autenticación"""

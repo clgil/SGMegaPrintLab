@@ -1,1 +1,13 @@
-Nothing needs to be added to .gitignore since the changes only include a template HTML file which is a source file that should be tracked in version control.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Database
+taller_impresoras/instance/*.db
+```
