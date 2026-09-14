@@ -5,9 +5,24 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Logs
-*.log
+# Environment
+.venv/
+venv/
+.env
+.env.local
+*.env.*
 
-# Database
-taller_impresoras/instance/*.db
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Editors
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+build/
+target/
 ```
