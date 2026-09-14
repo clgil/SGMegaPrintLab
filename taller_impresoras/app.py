@@ -48,6 +48,19 @@ def create_app(config_name=None):
     # Registrar comandos CLI
     register_cli_commands(app)
     
+    # Registrar context processor para configuración del taller
+    @app.context_processor
+    def inject_configuracion_taller():
+        """Inyecta la configuración del taller en todas las plantillas"""
+        from models import Configuracion
+        config = {}
+        try:
+            for c in Configuracion.query.all():
+                config[c.clave] = c.valor
+        except:
+            pass  # Si falla, usar config vacía
+        return {'config_taller': config}
+    
     return app
 
 
