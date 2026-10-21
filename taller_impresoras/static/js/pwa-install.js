@@ -2,7 +2,9 @@
  * SGMegaPrintLab — Registro del Service Worker + Instalación PWA
  * JS vanilla, sin dependencias. Incluido en base.html.
  * ------------------------------------------------------------
- * 1) Registra /static/sw.js (scope raíz para cubrir toda la app).
+ * 1) Registra /sw.js (servido desde la raíz por Flask con el header
+ *    'Service-Worker-Allowed: /' — el archivo físico vive en static/sw.js;
+ *    registrar '/static/sw.js' con scope '/' lanza SecurityError).
  * 2) Captura beforeinstallprompt y muestra el botón
  *    "Instalar Aplicación en este dispositivo" en el Dashboard.
  * 3) Ofrece instrucciones manuales si el navegador no dispara
@@ -15,7 +17,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker
-        .register('/static/sw.js', { scope: '/' })
+        .register('/sw.js', { scope: '/' })
         .then(function (reg) {
           console.info('[PWA] Service Worker registrado, scope:', reg.scope);
 
