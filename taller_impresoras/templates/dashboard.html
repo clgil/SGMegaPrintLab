@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import estado_badge, tabla_ordenes, stat_card %}
 
 {% block title %}Panel de Control - Taller de Impresoras{% endblock %}
 
@@ -128,48 +129,7 @@
                     <h5>📋 Mis Últimas Órdenes</h5>
                 </div>
                 <div class="card-body">
-                    {% if mis_ordenes %}
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Número</th>
-                                <th>Fecha</th>
-                                <th>Dispositivo</th>
-                                <th>Estado</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for orden in mis_ordenes %}
-                            <tr>
-                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
-                                <td>{{ orden.fecha_entrada }}</td>
-                                <td>{{ orden.dispositivo.marca }} {{ orden.dispositivo.modelo if orden.dispositivo else 'N/A' }}</td>
-                                <td>
-                                    {% if orden.estado == 'Recibido' %}
-                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En diagnostico' %}
-                                        <span class="badge bg-warning">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Esperando piezas' %}
-                                        <span class="badge bg-info">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En reparacion' %}
-                                        <span class="badge bg-primary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Listo para entregar' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Entregado' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Cancelado' %}
-                                        <span class="badge bg-danger">{{ orden.estado }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <p class="text-muted text-center">No tienes órdenes registradas.</p>
-                    {% endif %}
+                    {{ tabla_ordenes(mis_ordenes, mostrar_cliente=False, mostrar_total=True) }}
                 </div>
             </div>
         </div>
@@ -321,46 +281,7 @@
                     <h5>📋 Últimas Órdenes</h5>
                 </div>
                 <div class="card-body">
-                    {% if ultimas_ordenes %}
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Número</th>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for orden in ultimas_ordenes %}
-                            <tr>
-                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
-                                <td>{{ orden.fecha_entrada }}</td>
-                                <td>{{ orden.cliente.nombre }}</td>
-                                <td>
-                                    {% if orden.estado == 'Recibido' %}
-                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En diagnostico' %}
-                                        <span class="badge bg-warning">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Esperando piezas' %}
-                                        <span class="badge bg-info">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En reparacion' %}
-                                        <span class="badge bg-primary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Listo para entregar' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Entregado' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Cancelado' %}
-                                        <span class="badge bg-danger">{{ orden.estado }}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <p class="text-muted text-center">No hay órdenes registradas.</p>
-                    {% endif %}
+                    {{ tabla_ordenes(ultimas_ordenes, mostrar_cliente=True, mostrar_total=False) }}
                 </div>
             </div>
         </div>
@@ -610,48 +531,7 @@
                     <a href="{{ url_for('ordenes.index') }}" class="btn btn-sm btn-light">Ver todas</a>
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Número</th>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for orden in ultimas_ordenes %}
-                            <tr>
-                                <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
-                                <td>{{ orden.fecha_entrada }}</td>
-                                <td>{{ orden.cliente.nombre }}</td>
-                                <td>
-                                    {% if orden.estado == 'Recibido' %}
-                                        <span class="badge bg-secondary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En diagnostico' %}
-                                        <span class="badge bg-warning">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Esperando piezas' %}
-                                        <span class="badge bg-info">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'En reparacion' %}
-                                        <span class="badge bg-primary">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Listo para entregar' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Entregado' %}
-                                        <span class="badge bg-success">{{ orden.estado }}</span>
-                                    {% elif orden.estado == 'Cancelado' %}
-                                        <span class="badge bg-danger">{{ orden.estado }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>${{ "%.2f"|format(orden.costo_total) }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">No hay órdenes registradas</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {{ tabla_ordenes(ultimas_ordenes, mostrar_cliente=True, mostrar_total=True) }}
                 </div>
             </div>
         </div>
