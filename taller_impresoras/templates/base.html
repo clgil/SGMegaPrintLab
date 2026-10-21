@@ -29,6 +29,10 @@
     <!-- Barra de navegación superior estilo app (SOLO móvil < 768px) -->
     <nav class="mobile-top-nav d-flex d-md-none">
         <div class="mobile-top-nav-container">
+            <!-- Botón hamburguesa: abre el menú offcanvas en móvil -->
+            <button type="button" class="btn btn-icon mobile-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" aria-label="Abrir menú">
+                <i class="bi bi-list"></i>
+            </button>
             <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" aria-label="Dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Inicio</span>
@@ -482,10 +486,6 @@
     <!-- Navbar Superior (SOLO escritorio >= 768px) -->
     <header class="navbar-top d-none d-md-flex">
         <div class="navbar-left">
-            <!-- Botón hamburguesa para colapsar sidebar - SOLO ESCRITORIO -->
-            <button class="btn btn-icon sidebar-toggle-btn-desktop" type="button" id="sidebarToggleBtn" aria-label="Colapsar menú">
-                <i class="bi bi-list"></i>
-            </button>
             <div class="search-global">
                 <span class="search-icon"><i class="bi bi-search"></i></span>
                 <input type="text" class="search-input" placeholder="Buscar... (Ctrl+K)" id="searchGlobal">
@@ -581,43 +581,9 @@
     <!-- PWA: registro del Service Worker + botón "Instalar Aplicación" -->
     <script src="{{ url_for('static', filename='js/pwa-install.js') }}"></script>
     
-    <!-- Script para navegación móvil (FAB y menú Más opciones) y toggle sidebar escritorio -->
+    <!-- Script para navegación móvil (FAB y menú Más opciones) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle sidebar en escritorio - botón hamburguesa
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            if (sidebarToggleBtn && sidebar) {
-                sidebarToggleBtn.addEventListener('click', function() {
-                    // Alternar clase 'collapsed' en el sidebar
-                    sidebar.classList.toggle('collapsed');
-                    const isCollapsed = sidebar.classList.contains('collapsed');
-                    
-                    // Guardar estado en localStorage
-                    localStorage.setItem('sidebarCollapsed', isCollapsed);
-                    
-                    // Ajustar margen del contenido principal
-                    if (mainContent) {
-                        if (isCollapsed) {
-                            mainContent.style.marginLeft = 'var(--sidebar-width-collapsed)';
-                        } else {
-                            mainContent.style.marginLeft = 'var(--sidebar-width-expanded)';
-                        }
-                    }
-                });
-            }
-            
-            // Cargar estado del sidebar desde localStorage al iniciar
-            const savedCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (sidebar && savedCollapsed) {
-                sidebar.classList.add('collapsed');
-                if (mainContent) {
-                    mainContent.style.marginLeft = 'var(--sidebar-width-collapsed)';
-                }
-            }
-            
             // Menú "Más opciones" en barra superior móvil
             const moreOptionsBtn = document.getElementById('moreOptionsBtn');
             const moreOptionsMenu = document.getElementById('moreOptionsMenu');

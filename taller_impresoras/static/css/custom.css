@@ -249,11 +249,6 @@ body {
     border-right: 1px solid var(--sidebar-border);
 }
 
-.sidebar.collapsed {
-    width: var(--sidebar-width-collapsed);
-    padding: var(--space-4) var(--space-2);
-}
-
 .sidebar-header {
     padding: 0 0 var(--space-4) 0;
     border-bottom: 1px solid var(--sidebar-border);
@@ -299,12 +294,6 @@ body {
     transition: opacity var(--transition-base);
 }
 
-.sidebar.collapsed .taller-name,
-.sidebar.collapsed .user-info {
-    opacity: 0;
-    display: none;
-}
-
 .user-info {
     color: var(--gray-400);
     font-size: var(--font-size-sm);
@@ -338,11 +327,6 @@ body {
     padding: var(--space-3) var(--space-3) var(--space-2);
     margin-top: var(--space-3);
     transition: opacity var(--transition-base);
-}
-
-.sidebar.collapsed .nav-section-title {
-    opacity: 0;
-    display: none;
 }
 
 .nav-item {
@@ -402,11 +386,6 @@ body {
     transition: opacity var(--transition-base);
 }
 
-.sidebar.collapsed .nav-text {
-    opacity: 0;
-    display: none;
-}
-
 /* Eliminar estilos del botón toggle antiguo dentro del sidebar (ya no se usa) */
 .sidebar-toggle {
     display: none !important;
@@ -431,10 +410,6 @@ body {
     z-index: 999;
     transition: left var(--transition-slow);
     box-shadow: var(--shadow-card);
-}
-
-.sidebar.collapsed ~ .navbar-top {
-    left: var(--sidebar-width-collapsed);
 }
 
 .navbar-left {
@@ -573,17 +548,6 @@ body.dark-mode .user-menu:hover {
     padding: var(--space-5);
     min-height: calc(100vh - 60px);
     transition: margin-left var(--transition-slow);
-}
-
-/* Ajustar margen del contenido principal cuando sidebar está colapsado (escritorio) */
-@media (min-width: 768px) {
-    .sidebar.collapsed ~ .main-content {
-        margin-left: var(--sidebar-width-collapsed);
-    }
-    
-    .sidebar:not(.collapsed) ~ .main-content {
-        margin-left: var(--sidebar-width-expanded);
-    }
 }
 
 /* ============================================
@@ -2358,34 +2322,8 @@ mark.cp-highlight {
    NAVEGACIÓN SUPERIOR ESTILO APP (Móvil y Escritorio)
    ============================================ */
    
-/* Botón hamburguesa para escritorio - colapsa sidebar fijo */
-.sidebar-toggle-btn-desktop {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    box-shadow: none;
-    margin-right: var(--space-2);
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    transition: all var(--transition-base);
-}
-
-.sidebar-toggle-btn-desktop:hover {
-    background-color: var(--gray-100);
-    color: var(--primary);
-}
-
-body.dark-mode .sidebar-toggle-btn-desktop:hover {
-    background-color: var(--gray-700);
-}
-
 /* Botón hamburguesa para móvil - abre offcanvas */
-.mobile-menu-btn-mobile {
+.mobile-menu-btn {
     background-color: transparent;
     border: 1px solid var(--border-color);
     box-shadow: none;
@@ -2399,28 +2337,16 @@ body.dark-mode .sidebar-toggle-btn-desktop:hover {
     height: 40px;
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
+    flex-shrink: 0;
 }
 
-.mobile-menu-btn-mobile:hover {
+.mobile-menu-btn:hover {
     background-color: var(--gray-100);
     color: var(--primary);
 }
 
-body.dark-mode .mobile-menu-btn-mobile:hover {
+body.dark-mode .mobile-menu-btn:hover {
     background-color: var(--gray-700);
-}
-
-/* Clase de utilidad antigua - mantener por compatibilidad pero sin uso */
-.mobile-menu-btn-desktop,
-.mobile-menu-btn-mobile {
-    display: none !important;
-}
-
-/* Asegurar que sidebar-toggle-btn-desktop solo se vea en escritorio */
-@media (max-width: 767.98px) {
-    .sidebar-toggle-btn-desktop {
-        display: none !important;
-    }
 }
 
 
@@ -2690,13 +2616,6 @@ body.dark-mode .mobile-fab-item:hover {
         margin-left: var(--sidebar-width-expanded) !important;
         margin-top: 64px !important; /* Altura de navbar-top (64px) */
         padding: var(--space-5);
-    }
-    
-    /* Cuando el sidebar está colapsado */
-    .sidebar.collapsed ~ .main-content,
-    .sidebar.collapsed + .main-content,
-    body.sidebar-collapsed .main-content {
-        margin-left: var(--sidebar-width-collapsed) !important;
     }
 }
 

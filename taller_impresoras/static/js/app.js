@@ -7,18 +7,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // ========================================
-    // SIDEBAR COLAPSABLE
+    // SIDEBAR
     // ========================================
-    const sidebar = document.getElementById('sidebar');
-    
-    // Cargar estado del sidebar desde localStorage
-    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    if (sidebar && sidebarCollapsed) {
-        sidebar.classList.add('collapsed');
-    }
-    
-    // Nota: El toggle del sidebar ahora se maneja desde el botón hamburguesa
-    // en la barra superior (sidebarToggleBtn) definido en base.html
+    // El colapso del sidebar se realiza automáticamente vía media queries
+    // en custom.css (@media max-width: 1024px). Ya no existe botón de toggle
+    // en escritorio ni estado persistido en localStorage.
     
     // ========================================
     // MODO OSCURO
@@ -145,7 +138,6 @@ function initCommandPalette() {
         
         // Acciones (ejecutadas en el cliente)
         { id: 'modo-oscuro',      title: 'Alternar modo oscuro',     subtitle: 'Cambiar tema claro/oscuro',     category: 'Acciones', icon: '🌗', action: 'toggleTheme' },
-        { id: 'colapsar-sidebar', title: 'Colapsar/Expandir menú',   subtitle: 'Mostrar u ocultar sidebar',    category: 'Acciones', icon: '📐', action: 'toggleSidebar' },
         { id: 'salir',            title: 'Cerrar sesión',            subtitle: 'Salir del sistema',             category: 'Acciones', icon: '🚪', url: '/logout' },
     ];
     
@@ -370,11 +362,6 @@ function initCommandPalette() {
             case 'toggleTheme': {
                 const toggle = document.getElementById('themeToggle');
                 if (toggle) toggle.click();
-                break;
-            }
-            case 'toggleSidebar': {
-                const btn = document.getElementById('sidebarToggleBtn');
-                if (btn) btn.click();
                 break;
             }
         }
