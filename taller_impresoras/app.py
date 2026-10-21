@@ -13,7 +13,7 @@ from datetime import date, datetime
 
 # Importar configuración
 from config import config
-from services.extensions import db, login_manager, init_extensions
+from services.extensions import db, login_manager, migrate, init_extensions
 
 # Importar modelos después de inicializar db
 from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto, Proveedor, Contrato, OrdenNota
@@ -33,7 +33,9 @@ def create_app(config_name=None):
     # Cargar configuración
     app.config.from_object(config[config_name])
     
-    # Inicializar extensiones
+    # Inicializar extensiones (SQLAlchemy, Flask-Login y Flask-Migrate/Alembic).
+    # migrate.init_app() se ejecuta dentro de init_extensions: los comandos
+    # `flask db init | migrate | upgrade | downgrade` quedan disponibles.
     init_extensions(app)
     
     # Registrar blueprints
@@ -258,11 +260,25 @@ def register_cli_commands(app):
     
     @app.cli.command('init-db')
     def init_db_command():
-        """Inicializa la base de datos y crea datos iniciales"""
+        """Crea los datos iniciales: usuario admin y configuraciones por defecto.
+
+        NOTA IMPORTANTE: este comando YA NO llama a db.create_all().
+        La estructura (esquema) de la base de datos se gestiona de forma
+        exclusiva con Flask-Migrate/Alembic mediante `flask db upgrade`, para
+        que las futuras versiones del software puedan evolucionar el esquema
+        SIN perder los datos existentes de los talleres.
+        """
         from models import db, Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Configuracion
         
-        db.create_all()
-        
+        # Verificar que el esquema ya fue creado por las migraciones
+        from sqlalchemy import inspect
+        tablas = set(inspect(db.engine).get_table_names())
+        if 'usuarios' not in tablas or 'configuracion' not in tablas:
+            print("✗ La base de datos aún no tiene esquema (tablas inexistentes).")
+            print("  Ejecute primero:  flask db upgrade")
+            print("  (init-db solo crea datos iniciales, ya NO crea tablas)")
+            return
+
         # Crear administrador por defecto si no existe
         admin = Usuario.query.filter_by(usuario='admin').first()
         if not admin:
@@ -492,8 +508,14 @@ app = create_app()
 
 
 if __name__ == '__main__':
+    # El esquema de la BD se gestiona con Flask-Migrate (`flask db upgrade`).
+    # Ya NO se llama a db.create_all() aquí: crear tablas "a mano" rompería
+    # el control de versiones de Alembic y ocultaría migraciones pendientes.
+    from sqlalchemy import inspect
     with app.app_context():
-        db.create_all()
-    
+        if 'alembic_version' not in set(inspect(db.engine).get_table_names()):
+            print("⚠  ADVERTENCIA: la base de datos no parece estar migrada.")
+            print("   Ejecute:  flask db upgrade   (ver install.sh / install.bat)")
+
     # Ejecutar en localhost:5000
     app.run(host='127.0.0.1', port=5000, debug=False)

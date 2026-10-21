@@ -11,6 +11,8 @@
 
 *Adaptado a la realidad cubana - Junio 2026*
 
+> 🚀 **¿Quieres instalarlo o desplegarlo?** Consulta la guía completa con instrucciones exactas y explicadas: **[DESPLEGAR.md](DESPLEGAR.md)** (instalación local en Windows/Linux, despliegue en hosting con Gunicorn + Nginx + systemd, actualizaciones seguras con `flask db upgrade` y respaldos).
+
 [Características](#-características-principales) • [Instalación](#-instalación) • [Uso](#-uso-del-sistema) • [Módulos](#-módulos-disponibles) • [Documentación](#-documentación)
 
 </div>
