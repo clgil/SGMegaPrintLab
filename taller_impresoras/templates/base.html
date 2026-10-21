@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MegaPrint Lab{% endblock %}</title>
+
+    <!-- ===== PWA: manifest, theme-color e iconos ===== -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SGMegaPrintLab">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
     
     <!-- Bootstrap 5 CSS local -->
     <!-- Bootstrap Icons local -->
@@ -560,6 +570,8 @@
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <!-- Script personalizado MegaPrint Lab v2.0 -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <!-- PWA: registro del Service Worker + botón "Instalar Aplicación" -->
+    <script src="{{ url_for('static', filename='js/pwa-install.js') }}"></script>
     
     <!-- Script para navegación móvil (FAB y menú Más opciones) y toggle sidebar escritorio -->
     <script>

@@ -1,0 +1,58 @@
+{
+    "name": "SGMegaPrintLab — Gestión de Taller de Impresoras",
+    "short_name": "SGMegaPrintLab",
+    "description": "Sistema offline-first para talleres de impresión: órdenes, dispositivos, inventario, clientes y reportes.",
+    "id": "/dashboard",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+    "orientation": "any",
+    "background_color": "#0f172a",
+    "theme_color": "#2563eb",
+    "lang": "es",
+    "dir": "ltr",
+    "categories": ["business", "productivity", "utilities"],
+    "icons": [
+        {
+            "src": "/static/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/static/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/static/icons/icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/static/icons/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Órdenes",
+            "short_name": "Órdenes",
+            "description": "Ver órdenes de servicio",
+            "url": "/ordenes/",
+            "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Inventario",
+            "short_name": "Inventario",
+            "description": "Gestión de inventario y repuestos",
+            "url": "/inventario/",
+            "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}
