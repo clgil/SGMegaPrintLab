@@ -181,6 +181,20 @@ body.dark-mode {
        variables en :root; redefinirlas aquí evita el hack !important). */
     --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     --bs-form-select-bg-color: var(--bg-input);
+    /* Tablas Bootstrap (.table): el pintado de celdas se hace vía
+       `.table > :not(caption) > * > * { background-color: var(--bs-table-bg) }`.
+       Redefinir aquí las variables --bs-table-* es la forma arquitecturalmente
+       correcta de tematizarlas (regla 2 de mantenimiento), sin tocar los
+       overrides !important del bloque "FIX TABLAS MODO OSCURO (NO ELIMINAR)". */
+    --bs-table-color: var(--gray-100);
+    --bs-table-bg: var(--gray-800);
+    --bs-table-border-color: var(--gray-700);
+    --bs-table-striped-bg: var(--gray-750);
+    --bs-table-striped-color: var(--gray-100);
+    --bs-table-hover-bg: var(--gray-700);
+    --bs-table-hover-color: var(--gray-100);
+    --bs-table-active-bg: var(--gray-700);
+    --bs-table-active-color: var(--gray-100);
 }
 
 /* ============================================
@@ -1190,8 +1204,10 @@ body.dark-mode .form-floating > label {
     border-bottom: 2px solid var(--primary-hover);
 }
 
+/* FIX TABLAS MODO OSCURO (NO ELIMINAR) — ver bloque principal arriba:
+   el thead oscuro se fuerza con !important sobre las celdas th/td. */
 body.dark-mode .table thead {
-    background-color: var(--gray-800);
+    background-color: var(--gray-750);
     border-bottom-color: var(--gray-600);
 }
 
@@ -1209,7 +1225,7 @@ body.dark-mode .table thead {
 
 body.dark-mode .table th {
     color: var(--white);
-    background-color: var(--gray-800);
+    background-color: var(--gray-750);
 }
 
 .table td {
@@ -1251,9 +1267,10 @@ body.dark-mode .table td {
     background-color: var(--gray-50);
 }
 
-/* Modo oscuro para tablas: sin !important — Bootstrap aplica sus fondos
-   con !important solo a <tr>/<th>/<td>, nunca al tbody; por eso basta un
-   único override sobre `tbody`, que además no rompe el zebra de nth-of-type. */
+/* Modo oscuro para tablas (capa estructural, SIN !important): pinta el
+   tbody y el zebra cuando Bootstrap no llega a la celda. El pintado de
+   celdas `.table > :not(caption) > * > *` se combate en el bloque final
+   "FIX TABLAS MODO OSCURO (NO ELIMINAR)" con !important permanente. */
 body.dark-mode .table tbody {
     background-color: var(--gray-800);
 }
@@ -1279,6 +1296,55 @@ body.dark-mode .table-hover tbody tr:hover {
     background-color: var(--gray-700);
 }
 
+/* ============================================================
+ * FIX TABLAS MODO OSCURO (NO ELIMINAR)
+ * ------------------------------------------------------------
+ * Bootstrap 5 pinta TODAS las celdas de tabla con la regla
+ *   `.table > :not(caption) > * > * { background-color: var(--bs-table-bg);
+ *     color: ...; box-shadow: inset 0 0 0 9999px var(--bs-table-bg-...) }`
+ * cuya especificidad (0,1,4) gana a los selectores estructurales normales
+ * de custom.css. Por eso estas reglas usan !important de forma PERMANENTE
+ * y deliberada: NO son deuda técnica. Regla de mantenimiento:
+ *   1. NUNCA eliminar ni "limpiar" estas reglas !important.
+ *   2. Al refactorizar tablas, reasignar además las variables --bs-table-*
+ *      en body.dark-mode (ver sección 2, Token System) — nunca borrar
+ *      estos overrides.
+ * Los colores coinciden con las variables del token system:
+ * gris-800 #1F2937 · gris-750 #2a3441 · gris-700 #374151 · gris-100 #F9FAFB
+ * ============================================================ */
+
+/* tbody base: fondo gris-800, texto gris-100 */
+body.dark-mode .table > tbody > tr > td,
+body.dark-mode .table > tbody > tr > th {
+    background-color: var(--gray-800) !important;
+    color: var(--gray-100) !important;
+}
+
+/* Zebra (.table-striped): filas impares en gris-750 */
+body.dark-mode .table.table-striped > tbody > tr:nth-of-type(odd) > td,
+body.dark-mode .table.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: var(--gray-750) !important;
+    color: var(--gray-100) !important;
+}
+
+/* Hover (.table-hover y hover base de .table): fila en gris-700 */
+body.dark-mode .table.table-hover > tbody > tr:hover > td,
+body.dark-mode .table.table-hover > tbody > tr:hover > th,
+body.dark-mode .table > tbody > tr:hover > td,
+body.dark-mode .table > tbody > tr:hover > th {
+    background-color: var(--gray-700) !important;
+    color: var(--gray-100) !important;
+}
+
+/* thead: fondo gris-750 con texto blanco */
+body.dark-mode .table > thead > tr > th,
+body.dark-mode .table > thead > tr > td {
+    background-color: var(--gray-750) !important;
+    color: #ffffff !important;
+}
+
+/* Fin FIX TABLAS MODO OSCURO (NO ELIMINAR) */
+
 /* Clases de estado para filas (warning, danger, success) */
 .table tbody tr.table-warning td {
     background-color: var(--warning-light);
@@ -1301,19 +1367,31 @@ body.dark-mode .table-hover tbody tr:hover {
     background-color: transparent;
 }
 
+/* FIX TABLAS MODO OSCURO (NO ELIMINAR): las filas de estado pisan el fondo
+   del tbody con !important para ganar a `.table > :not(caption) > * > *`;
+   el hover conserva gris-700 vía box-shadow inset (independiente del bg). */
 body.dark-mode .table tbody tr.table-warning td {
-    background-color: rgba(245, 158, 11, 0.2);
-    color: var(--gray-100);
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: var(--gray-100) !important;
 }
 
 body.dark-mode .table tbody tr.table-danger td {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: var(--gray-100);
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: var(--gray-100) !important;
 }
 
 body.dark-mode .table tbody tr.table-success td {
-    background-color: rgba(16, 185, 129, 0.2);
-    color: var(--gray-100);
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: var(--gray-100) !important;
+}
+
+body.dark-mode .table.table-hover > tbody > tr.table-warning:hover td,
+body.dark-mode .table.table-hover > tbody > tr.table-danger:hover td,
+body.dark-mode .table.table-hover > tbody > tr.table-success:hover td,
+body.dark-mode .table > tbody > tr.table-warning:hover td,
+body.dark-mode .table > tbody > tr.table-danger:hover td,
+body.dark-mode .table > tbody > tr.table-success:hover td {
+    box-shadow: inset 0 0 0 9999px var(--gray-700) !important;
 }
 
 body.dark-mode .table tbody tr.table-warning,
