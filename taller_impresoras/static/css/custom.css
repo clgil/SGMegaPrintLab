@@ -2765,3 +2765,104 @@ body:not(.dark-mode) ::-webkit-scrollbar-thumb {
 body:not(.dark-mode) ::-webkit-scrollbar-thumb:hover {
     background: var(--gray-500);
 }
+
+/* ============================================
+   CONTRASTE CARD-HEADER (NO ELIMINAR)
+   Causa raiz: Bootstrap 5 fija el color de .card mediante
+   --bs-card-color / --bs-body-color (#212529). custom.css nunca
+   definia color para .card ni .card-header (.card-body si), por lo
+   que en modo oscuro los titulos h5/h6 dentro de .card-header se
+   renderizaban en texto oscuro sobre fondo oscuro (ilegibles).
+   Este bloque se anade AL FINAL para ganar por orden de cascada.
+   No modifica las reglas existentes de body.dark-mode .card-header.bg-*.
+   ============================================ */
+
+/* 1) Herencia del color tematico en la tarjeta completa */
+.card {
+    color: var(--text-primary);
+}
+
+/* 2) Header de tarjeta con color tematico explicito */
+.card-header {
+    color: var(--text-primary);
+}
+
+/* 3) Titulos dentro del header heredan y eliminan margen extra */
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+    color: inherit;
+    margin: 0;
+}
+
+/* 4) Excepcion: headers con fondo semantico conservan texto blanco
+      en ambos temas. Variante text-dark (bg-warning text-dark): la
+      utilidad .text-dark (!important, definida antes en este archivo)
+      gana a estas reglas sin !important, asi que el aviso amarillo
+      conserva texto oscuro legible sobre fondo claro. */
+.card-header.bg-primary,
+.card-header.bg-success,
+.card-header.bg-warning,
+.card-header.bg-danger,
+.card-header.bg-info,
+.card-header.bg-secondary,
+.card-header.bg-dark {
+    color: #ffffff;
+}
+
+.card-header.bg-primary *,
+.card-header.bg-success *,
+.card-header.bg-warning *,
+.card-header.bg-danger *,
+.card-header.bg-info *,
+.card-header.bg-secondary *,
+.card-header.bg-dark * {
+    color: #ffffff;
+}
+
+/* Hijos especificos mas comunes (h5, span, a) — misma excepcion */
+.card-header.bg-primary h5,
+.card-header.bg-success h5,
+.card-header.bg-warning h5,
+.card-header.bg-danger h5,
+.card-header.bg-info h5,
+.card-header.bg-secondary h5,
+.card-header.bg-dark h5,
+.card-header.bg-primary span,
+.card-header.bg-success span,
+.card-header.bg-warning span,
+.card-header.bg-danger span,
+.card-header.bg-info span,
+.card-header.bg-secondary span,
+.card-header.bg-dark span,
+.card-header.bg-primary a,
+.card-header.bg-success a,
+.card-header.bg-warning a,
+.card-header.bg-danger a,
+.card-header.bg-info a,
+.card-header.bg-secondary a,
+.card-header.bg-dark a {
+    color: #ffffff;
+}
+
+/* Complemento del bloque CONTRASTE CARD-HEADER (NO ELIMINAR):
+   .bg-light NO es un fondo semantico oscuro: conserva texto claro en
+   modo oscuro para mantener contraste sobre el fondo gris-200 de BS. */
+.card-header.bg-light {
+    color: var(--text-primary);
+}
+
+.card-header.bg-light h1,
+.card-header.bg-light h2,
+.card-header.bg-light h3,
+.card-header.bg-light h4,
+.card-header.bg-light h5,
+.card-header.bg-light h6,
+.card-header.bg-light strong,
+.card-header.bg-light span,
+.card-header.bg-light a {
+    color: inherit;
+}
