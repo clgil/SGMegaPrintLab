@@ -2642,3 +2642,25 @@ body.dark-mode .mobile-fab-item:hover {
     box-shadow: 0 10px 24px rgba(37, 99, 235, .45);
 }
 .pwa-install-btn:disabled { opacity: .8; cursor: default; }
+
+
+/* ============================================================
+ * Dashboard — Títulos de página y secciones (Bootstrap Icons)
+ * ============================================================ */
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+}
+
+.page-title-icon {
+    color: var(--primary);
+    font-size: 1.75rem;
+}
+
+.section-title-icon {
+    color: var(--primary);
+    margin-right: var(--space-2);
+}
