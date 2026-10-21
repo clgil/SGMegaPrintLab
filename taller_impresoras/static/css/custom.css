@@ -1966,6 +1966,54 @@ body.dark-mode .command-item.active {
     color: var(--text-muted);
 }
 
+/* Command Palette - grupos, resaltado y estado vacío */
+.cp-group-label {
+    padding: var(--space-2) var(--space-3) var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+mark.cp-highlight {
+    background: transparent;
+    color: var(--primary);
+    font-weight: 700;
+    padding: 0;
+}
+
+.cp-kbd {
+    font-size: 10px;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1px 5px;
+    background: transparent;
+    opacity: 0;
+}
+
+.command-item.active .cp-kbd,
+.command-item:hover .cp-kbd {
+    opacity: 1;
+}
+
+.cp-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.command-palette-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.command-palette-results::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
 /* ============================================
    6. UTILIDADES
    ============================================ */
