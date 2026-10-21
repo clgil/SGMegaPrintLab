@@ -506,11 +506,19 @@
     
     <!-- Command Palette -->
     <div class="command-palette" id="commandPalette">
-        <input type="text" class="command-palette-input" placeholder="Escribe para buscar comandos..." id="commandInput">
+        <span class="visually-hidden" id="commandPaletteTitle">Paleta de comandos</span>
+        <input type="text" class="command-palette-input" placeholder="Escribe para buscar comandos..." id="commandInput" autocomplete="off" spellcheck="false">
         <div class="command-palette-results" id="commandResults">
             <!-- Resultados dinámicos -->
         </div>
     </div>
+    
+    <!-- Rol del usuario para la Command Palette (inyectado desde Jinja2) -->
+    {% if current_user.is_authenticated %}
+    <script>window.USER_ROLE = '{{ current_user.rol }}';</script>
+    {% else %}
+    <script>window.USER_ROLE = '';</script>
+    {% endif %}
     
     <!-- Contenido principal -->
     <main class="main-content">
