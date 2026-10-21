@@ -107,6 +107,16 @@
     --bg-info: #06B6D4;
     --bg-secondary: #6B7280;
     --bg-dark: #1F2937;
+
+    /* ========================================
+       ACENTOS PARA .stat-card (tarjetas estadísticas unificadas)
+       ======================================== */
+    --stat-primary: var(--primary);
+    --stat-success: var(--success);
+    --stat-warning: var(--warning);
+    --stat-danger: var(--danger);
+    --stat-info: var(--info);
+    --stat-secondary: var(--gray-600);
     
     /* ========================================
        MODO OSCURO (variables por defecto light)
@@ -141,6 +151,13 @@ body.dark-mode {
     --bg-info: #0e7490;
     --bg-secondary: #475569;
     --bg-dark: #0f172a;
+    /* Acentos .stat-card en modo oscuro: mismos roles, mayor contraste sobre fondo oscuro */
+    --stat-primary: #60a5fa;
+    --stat-success: #34d399;
+    --stat-warning: #fbbf24;
+    --stat-danger: #f87171;
+    --stat-info: #22d3ee;
+    --stat-secondary: #94a3b8;
 }
 
 /* ============================================
@@ -528,33 +545,107 @@ body.dark-mode .user-menu:hover {
     transition: all var(--transition-base);
 }
 
-/* Card Dashboard - Soporte para Modo Claro/Oscuro */
-.card-dashboard {
+/* ============================================
+   .stat-card — TARJETA ESTADÍSTICA UNIFICADA
+   Reemplaza todas las variantes antiguas del dashboard:
+   `card bg-primary text-white` + `display-4` (cliente/proveedor/técnico)
+   y `.card-dashboard` con `border-start border-4` (administrador).
+   Soporta modo claro/oscuro mediante variables CSS, SIN !important.
+   ============================================ */
+.stat-card {
+    --stat-accent: var(--stat-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: 100%;
+    padding: var(--space-3);
     background-color: var(--bg-card);
     color: var(--text-primary);
-    border-radius: 16px;
-    border: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all var(--transition-base);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--stat-accent);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition-base),
+                box-shadow var(--transition-base),
+                background-color var(--transition-base),
+                border-color var(--transition-base);
 }
 
-/* Tema Oscuro para card-dashboard */
-body.dark-mode .card-dashboard {
-    background-color: var(--bg-card);
+/* Variantes de color por tipo (variables CSS) */
+.stat-card--primary   { --stat-accent: var(--stat-primary); }
+.stat-card--success   { --stat-accent: var(--stat-success); }
+.stat-card--warning   { --stat-accent: var(--stat-warning); }
+.stat-card--danger    { --stat-accent: var(--stat-danger); }
+.stat-card--info      { --stat-accent: var(--stat-info); }
+.stat-card--secondary { --stat-accent: var(--stat-secondary); }
+
+/* Ícono en círculo de color a la izquierda */
+.stat-card__icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    background-color: color-mix(in srgb, var(--stat-accent) 15%, transparent);
+    color: var(--stat-accent);
+    font-size: 1.5rem;
+}
+
+/* Contenido: valor grande a la derecha */
+.stat-card__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.stat-card__label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.stat-card__value {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.stat-card__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+/* Variante para contenido apilado (p. ej. tabla de ingresos mensuales) */
+.stat-card--stacked {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Hover: elevación suave (translateY -2px) y sombra más pronunciada */
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
     color: var(--text-primary);
 }
 
-/* Efecto hover para tarjetas del dashboard */
-.card-dashboard:hover,
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+/* Modo oscuro: funciona mediante variables temáticas, SIN !important */
+body.dark-mode .stat-card {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
-/* Borde lateral personalizado color púrpura */
-.border-purple {
-    border-color: #a855f7 !important;
+body.dark-mode .stat-card__icon {
+    background-color: color-mix(in srgb, var(--stat-accent) 22%, transparent);
 }
+
+
 
 .card-header {
     padding: var(--space-4) var(--space-5);
@@ -565,48 +656,6 @@ body.dark-mode .card-dashboard {
     align-items: center;
     justify-content: space-between;
     background-color: transparent;
-}
-
-/* Ajustes para headers de tarjetas con colores de fondo en modo oscuro */
-body.dark-mode .card-header.bg-primary,
-body.dark-mode .card-header.bg-success,
-body.dark-mode .card-header.bg-info,
-body.dark-mode .card-header.bg-warning,
-body.dark-mode .card-header.bg-danger,
-body.dark-mode .card-header.bg-secondary,
-body.dark-mode .card-header.bg-dark {
-    color: #ffffff !important;
-}
-
-body.dark-mode .card-header.bg-primary *,
-body.dark-mode .card-header.bg-success *,
-body.dark-mode .card-header.bg-info *,
-body.dark-mode .card-header.bg-warning *,
-body.dark-mode .card-header.bg-danger *,
-body.dark-mode .card-header.bg-secondary *,
-body.dark-mode .card-header.bg-dark * {
-    color: #ffffff !important;
-}
-
-/* Asegurar que card-body dentro de cards con bg-* tenga texto blanco en modo oscuro */
-body.dark-mode .card.bg-primary .card-body,
-body.dark-mode .card.bg-success .card-body,
-body.dark-mode .card.bg-info .card-body,
-body.dark-mode .card.bg-warning .card-body,
-body.dark-mode .card.bg-danger .card-body,
-body.dark-mode .card.bg-secondary .card-body,
-body.dark-mode .card.bg-dark .card-body {
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-primary .card-body *,
-body.dark-mode .card.bg-success .card-body *,
-body.dark-mode .card.bg-info .card-body *,
-body.dark-mode .card.bg-warning .card-body *,
-body.dark-mode .card.bg-danger .card-body *,
-body.dark-mode .card.bg-secondary .card-body *,
-body.dark-mode .card.bg-dark .card-body * {
-    color: #ffffff !important;
 }
 
 .card-body {
@@ -1750,23 +1799,6 @@ body.dark-mode .command-item.active {
 .text-secondary { color: var(--text-secondary); }
 .text-white { color: #ffffff !important; }
 
-/* Asegurar que text-white funcione en modo oscuro para elementos con bg-* */
-body.dark-mode .bg-primary .text-white,
-body.dark-mode .bg-success .text-white,
-body.dark-mode .bg-info .text-white,
-body.dark-mode .bg-warning .text-white,
-body.dark-mode .bg-danger .text-white,
-body.dark-mode .bg-secondary .text-white,
-body.dark-mode .bg-dark .text-white,
-body.dark-mode .card.bg-primary .text-white,
-body.dark-mode .card.bg-success .text-white,
-body.dark-mode .card.bg-info .text-white,
-body.dark-mode .card.bg-warning .text-white,
-body.dark-mode .card.bg-danger .text-white,
-body.dark-mode .card.bg-secondary .text-white,
-body.dark-mode .card.bg-dark .text-white {
-    color: #ffffff !important;
-}
 .text-dark { color: var(--gray-900) !important; }
 
 /* Modo oscuro - asegurar buen contraste para texto */
@@ -1791,22 +1823,17 @@ body.dark-mode strong {
     font-weight: 700;
 }
 
-.bg-primary { background-color: var(--bg-primary); }
-.bg-success { background-color: var(--bg-success); }
-.bg-warning { background-color: var(--bg-warning); }
-.bg-danger { background-color: var(--bg-danger); }
-.bg-info { background-color: var(--bg-info); }
-.bg-dark { background-color: var(--bg-dark) !important; }
-.bg-secondary { background-color: var(--bg-secondary); }
+/* Utilidades de fondo temáticas: resuelven vía variables CSS, por lo que
+   se adaptan automáticamente en modo oscuro (body.dark-mode redefine --bg-*)
+   sin necesidad de reglas duplicadas ni !important. */
+.bg-primary { background-color: var(--bg-primary); color: var(--white); }
+.bg-success { background-color: var(--bg-success); color: var(--white); }
+.bg-warning { background-color: var(--bg-warning); color: var(--white); }
+.bg-danger { background-color: var(--bg-danger); color: var(--white); }
+.bg-info { background-color: var(--bg-info); color: var(--white); }
+.bg-dark { background-color: var(--bg-dark); color: var(--white); }
+.bg-secondary { background-color: var(--bg-secondary); color: var(--white); }
 
-/* Ajustes para modo oscuro - colores de fondo más oscuros y visibles */
-body.dark-mode .bg-primary { background-color: var(--bg-primary) !important; color: #ffffff !important; }
-body.dark-mode .bg-success { background-color: var(--bg-success) !important; color: #ffffff !important; }
-body.dark-mode .bg-warning { background-color: var(--bg-warning) !important; color: #ffffff !important; }
-body.dark-mode .bg-danger { background-color: var(--bg-danger) !important; color: #ffffff !important; }
-body.dark-mode .bg-info { background-color: var(--bg-info) !important; color: #ffffff !important; }
-body.dark-mode .bg-secondary { background-color: var(--bg-secondary) !important; color: #ffffff !important; }
-body.dark-mode .bg-dark { background-color: var(--bg-dark) !important; color: #ffffff !important; }
 
 .shadow-sm { box-shadow: var(--shadow-card); }
 .shadow-md { box-shadow: var(--shadow-elevated); }
@@ -2319,180 +2346,6 @@ body.dark-mode .mobile-fab-item:hover {
 }
 
 
-
-/* ============================================
-   Dashboard Cards - Modo Oscuro
-   Mantener colores originales en modo oscuro
-   ============================================ */
-body.dark-mode .card.bg-primary,
-body.dark-mode .card.bg-primary {
-    background-color: #1e40af !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-success,
-body.dark-mode .card.bg-success {
-    background-color: #047857 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-info,
-body.dark-mode .card.bg-info {
-    background-color: #0e7490 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-warning,
-body.dark-mode .card.bg-warning {
-    background-color: #b45309 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-danger,
-body.dark-mode .card.bg-danger {
-    background-color: #b91c1c !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-secondary,
-body.dark-mode .card.bg-secondary {
-    background-color: #475569 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode .card.bg-dark,
-body.dark-mode .card.bg-dark {
-    background-color: #0f172a !important;
-    color: #ffffff !important;
-}
-
-/* Reglas adicionales para elementos con clase bg-* directa (no dentro de card) */
-body.dark-mode div.bg-primary:not(.card),
-body.dark-mode .bg-primary:not(.card) {
-    background-color: #1e40af !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode div.bg-success:not(.card),
-body.dark-mode .bg-success:not(.card) {
-    background-color: #047857 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode div.bg-info:not(.card),
-body.dark-mode .bg-info:not(.card) {
-    background-color: #0e7490 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode div.bg-warning:not(.card),
-body.dark-mode .bg-warning:not(.card) {
-    background-color: #b45309 !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode div.bg-danger:not(.card),
-body.dark-mode .bg-danger:not(.card) {
-    background-color: #b91c1c !important;
-    color: #ffffff !important;
-}
-
-body.dark-mode div.bg-secondary:not(.card),
-body.dark-mode .bg-secondary:not(.card) {
-    background-color: #475569 !important;
-    color: #ffffff !important;
-}
-
-/* Asegurar que el texto dentro de las tarjetas sea blanco en modo oscuro */
-body.dark-mode .card.bg-primary *,
-body.dark-mode .card.bg-success *,
-body.dark-mode .card.bg-info *,
-body.dark-mode .card.bg-warning *,
-body.dark-mode .card.bg-danger *,
-body.dark-mode .card.bg-secondary *,
-body.dark-mode .card.bg-dark *,
-body.dark-mode .card.bg-primary *,
-body.dark-mode .card.bg-success *,
-body.dark-mode .card.bg-info *,
-body.dark-mode .card.bg-warning *,
-body.dark-mode .card.bg-danger *,
-body.dark-mode .card.bg-secondary *,
-body.dark-mode .card.bg-dark * {
-    color: #ffffff !important;
-}
-
-/* Excepción para enlaces dentro de tarjetas - mantener blanco */
-body.dark-mode .card.bg-primary a,
-body.dark-mode .card.bg-success a,
-body.dark-mode .card.bg-info a,
-body.dark-mode .card.bg-warning a,
-body.dark-mode .card.bg-danger a,
-body.dark-mode .card.bg-secondary a,
-body.dark-mode .card.bg-dark a,
-body.dark-mode .card.bg-primary a,
-body.dark-mode .card.bg-success a,
-body.dark-mode .card.bg-info a,
-body.dark-mode .card.bg-warning a,
-body.dark-mode .card.bg-danger a,
-body.dark-mode .card.bg-secondary a,
-body.dark-mode .card.bg-dark a {
-    color: #ffffff !important;
-    text-decoration: none;
-}
-
-/* Asegurar que los elementos con clase text-dark en tarjetas no interfieran */
-body.dark-mode .card.bg-primary .text-dark,
-body.dark-mode .card.bg-success .text-dark,
-body.dark-mode .card.bg-info .text-dark,
-body.dark-mode .card.bg-warning .text-dark,
-body.dark-mode .card.bg-danger .text-dark,
-body.dark-mode .card.bg-secondary .text-dark,
-body.dark-mode .card.bg-dark .text-dark,
-body.dark-mode .card.bg-primary .text-dark,
-body.dark-mode .card.bg-success .text-dark,
-body.dark-mode .card.bg-info .text-dark,
-body.dark-mode .card.bg-warning .text-dark,
-body.dark-mode .card.bg-danger .text-dark,
-body.dark-mode .card.bg-secondary .text-dark,
-body.dark-mode .card.bg-dark .text-dark {
-    color: #ffffff !important;
-}
-
-/* Reglas específicas para enlaces directos dentro de tarjetas coloreadas en modo oscuro */
-body.dark-mode a .card.bg-primary,
-body.dark-mode a .card.bg-success,
-body.dark-mode a .card.bg-info,
-body.dark-mode a .card.bg-warning,
-body.dark-mode a .card.bg-danger,
-body.dark-mode a .card.bg-secondary,
-body.dark-mode a .card.bg-dark,
-body.dark-mode a .card.bg-primary,
-body.dark-mode a .card.bg-success,
-body.dark-mode a .card.bg-info,
-body.dark-mode a .card.bg-warning,
-body.dark-mode a .card.bg-danger,
-body.dark-mode a .card.bg-secondary,
-body.dark-mode a .card.bg-dark {
-    color: #ffffff !important;
-}
-
-/* Forzar que todo el texto dentro de tarjetas coloreadas sea blanco en modo oscuro */
-body.dark-mode .card.bg-primary *,
-body.dark-mode .card.bg-success *,
-body.dark-mode .card.bg-info *,
-body.dark-mode .card.bg-warning *,
-body.dark-mode .card.bg-danger *,
-body.dark-mode .card.bg-secondary *,
-body.dark-mode .card.bg-dark *,
-body.dark-mode .card.bg-primary *,
-body.dark-mode .card.bg-success *,
-body.dark-mode .card.bg-info *,
-body.dark-mode .card.bg-warning *,
-body.dark-mode .card.bg-danger *,
-body.dark-mode .card.bg-secondary *,
-body.dark-mode .card.bg-dark * {
-    color: #ffffff !important;
-}
 
 /* ============================================================
  * PWA — Botón "Instalar Aplicación en este dispositivo"
