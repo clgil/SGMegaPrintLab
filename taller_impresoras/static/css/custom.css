@@ -2198,88 +2198,10 @@ mark.cp-highlight {
 /* ============================================
    7. RESPONSIVE
    Puntos de ruptura: 1024px (sidebar colapsado), 768px/767.98px (layout
-   móvil con navbar superior + offcanvas + FAB). Los !important de esta
+   móvil con barra de navegación inferior + FAB). Los !important de esta
    sección son necesarios para anular el display/res positioning de las
    utilidades y componentes responsivos de Bootstrap.
    ============================================ */
-
-/* ============================================
-   SIDEBAR OFFCANVAS (Móviles)
-   ============================================ */
-.sidebar-mobile {
-    background-color: var(--sidebar-bg);
-    min-height: 100%;
-}
-
-.sidebar-mobile .sidebar-header {
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--sidebar-border);
-    margin-bottom: var(--space-4);
-}
-
-.sidebar-mobile .nav-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    color: var(--sidebar-text);
-    text-decoration: none;
-    border-radius: var(--radius-md);
-    transition: all var(--transition-base);
-    position: relative;
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-}
-
-.sidebar-mobile .nav-link:hover {
-    background-color: var(--sidebar-bg-hover);
-    color: var(--white);
-}
-
-.sidebar-mobile .nav-link.active {
-    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-    color: var(--white);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.sidebar-mobile .nav-section-title {
-    color: var(--gray-500);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: var(--space-3) var(--space-3) var(--space-2);
-    margin-top: var(--space-3);
-}
-
-.offcanvas {
-    background: linear-gradient(180deg, var(--gray-900), var(--gray-800));
-    z-index: 1050 !important;
-    /* Ya no hay barra superior que esquivar: ocupa toda la altura de la pantalla */
-    top: 0 !important;
-    height: 100vh !important;
-}
-
-.offcanvas-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), transparent);
-    border-bottom: 1px solid var(--sidebar-border);
-    /* En iPhone con status bar translúcida, separar el header del borde superior */
-    padding-top: calc(var(--bs-offcanvas-padding-y, 1rem) + env(safe-area-inset-top));
-}
-
-.offcanvas.show ~ .navbar-top {
-    left: 0;
-}
-
-/* Asegurar que el offcanvas se muestre correctamente desde la izquierda */
-.offcanvas-start {
-    left: 0;
-    transform: translateX(-100%);
-}
-
-.offcanvas.show.offcanvas-start {
-    transform: translateX(0);
-}
 
 @media (max-width: 767.98px) {
     .navbar-top {
@@ -2331,34 +2253,6 @@ mark.cp-highlight {
    NAVEGACIÓN INFERIOR ESTILO APP (Móvil)
    ============================================ */
    
-/* Botón hamburguesa para móvil - abre offcanvas */
-.mobile-menu-btn {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    box-shadow: none;
-    margin-right: var(--space-2);
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    transition: all var(--transition-base);
-    flex-shrink: 0;
-}
-
-.mobile-menu-btn:hover {
-    background-color: var(--gray-100);
-    color: var(--primary);
-}
-
-body.dark-mode .mobile-menu-btn:hover {
-    background-color: var(--gray-700);
-}
-
-
 /* Barra de navegación inferior estilo app (Facebook/Instagram) - SOLO móvil */
 .mobile-bottom-nav {
     position: fixed;
@@ -2692,8 +2586,7 @@ body.dark-mode .mobile-fab-item:hover {
 /* ============================================================
  * SCROLLBARS TEMATIZADOS (NO ELIMINAR)
  * ------------------------------------------------------------
- * El scrollbar vertical del sidebar fijo (.sidebar) y del
- * offcanvas móvil (.sidebar-mobile / .offcanvas-body) se mostraba
+ * El scrollbar vertical del sidebar fijo (.sidebar) se mostraba
  * con el estilo claro por defecto del navegador (banda blanca/gris
  * claro), rompiendo la estética en ambos temas (especialmente en
  * modo oscuro). Este bloque tematiza los scrollbars usando los
@@ -2701,36 +2594,26 @@ body.dark-mode .mobile-fab-item:hover {
  * ============================================================ */
 
 /* 1) Firefox: scrollbar delgado con thumb gris sobre track transparente */
-.sidebar,
-.sidebar-mobile,
-.offcanvas-body {
+.sidebar {
     scrollbar-width: thin;
     scrollbar-color: var(--gray-600) transparent;
 }
 
 /* 2) WebKit/Blink: Chrome, Edge, Safari (escritorio y móvil) */
-.sidebar::-webkit-scrollbar,
-.sidebar-mobile::-webkit-scrollbar,
-.offcanvas-body::-webkit-scrollbar {
+.sidebar::-webkit-scrollbar {
     width: 6px;
 }
 
-.sidebar::-webkit-scrollbar-track,
-.sidebar-mobile::-webkit-scrollbar-track,
-.offcanvas-body::-webkit-scrollbar-track {
+.sidebar::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.sidebar::-webkit-scrollbar-thumb,
-.sidebar-mobile::-webkit-scrollbar-thumb,
-.offcanvas-body::-webkit-scrollbar-thumb {
+.sidebar::-webkit-scrollbar-thumb {
     background: var(--gray-600);
     border-radius: var(--radius-full);
 }
 
-.sidebar::-webkit-scrollbar-thumb:hover,
-.sidebar-mobile::-webkit-scrollbar-thumb:hover,
-.offcanvas-body::-webkit-scrollbar-thumb:hover {
+.sidebar::-webkit-scrollbar-thumb:hover {
     background: var(--gray-500);
 }
 
