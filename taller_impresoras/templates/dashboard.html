@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="mb-4">📊 Panel de Control</h1>
+    <h1 class="mb-4 page-title"><i class="bi bi-speedometer2 page-title-icon"></i> Panel de Control</h1>
 
     <!-- Contenedor del botón "Instalar Aplicación" (PWA): lo rellena static/js/pwa-install.js
          al capturar el evento beforeinstallprompt -->
@@ -15,7 +15,7 @@
     {% if current_user.rol == 'administrador' %}
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
-            <h5 class="mb-0">📅 Filtro de Período Financiero</h5>
+            <h5 class="mb-0"><i class="bi bi-calendar-range"></i> Filtro de Período Financiero</h5>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ url_for('dashboard') }}" class="row g-3 align-items-end">
@@ -28,15 +28,15 @@
                         <option value="personalizado" {% if filtro_periodo == 'personalizado' %}selected{% endif %}>Personalizado</option>
                     </select>
                 </div>
-                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                <div class="col-md-3 fecha-personalizada d-none">
                     <label class="form-label">Fecha Inicio:</label>
                     <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
                 </div>
-                <div class="col-md-3 fecha-personalizada" style="display: none;">
+                <div class="col-md-3 fecha-personalizada d-none">
                     <label class="form-label">Fecha Fin:</label>
                     <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-auto">
                     <button type="submit" class="btn btn-primary w-100">Aplicar Filtro</button>
                 </div>
             </form>
@@ -290,7 +290,7 @@
         <div class="col-12 animate-fade-in-up animate-delay-6">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <h5>📋 Últimas Órdenes</h5>
+                    <h5><i class="bi bi-clipboard-data section-title-icon"></i> Últimas Órdenes</h5>
                 </div>
                 <div class="card-body">
                     {% if ultimas_ordenes %}
@@ -322,7 +322,7 @@
     
     <!-- Tarjetas resumen para administrador -->
     <div class="row g-3 mb-4">
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-0">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-0">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--primary">
                     <div class="stat-card__icon"><i class="bi bi-clipboard-data"></i></div>
@@ -335,7 +335,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-1">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-1">
             <a href="{{ url_for('ordenes.index') }}?estado=Entregado" class="text-decoration-none">
                 <div class="stat-card stat-card--success">
                     <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
@@ -348,7 +348,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-2">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-2">
             <a href="{{ url_for('ordenes.index') }}?estado=Pendiente" class="text-decoration-none">
                 <div class="stat-card stat-card--warning">
                     <div class="stat-card__icon"><i class="bi bi-clock-history"></i></div>
@@ -361,7 +361,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-3">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-3">
             <a href="{{ url_for('tecnicos.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--info">
                     <div class="stat-card__icon"><i class="bi bi-tools"></i></div>
@@ -374,7 +374,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-4">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--secondary">
                     <div class="stat-card__icon"><i class="bi bi-truck"></i></div>
@@ -387,7 +387,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-2 animate-fade-in-up animate-delay-5">
+<div class="col-6 col-md-4 col-xxl-2 animate-fade-in-up animate-delay-5">
             <a href="{{ url_for('clientes.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--secondary">
                     <div class="stat-card__icon"><i class="bi bi-people"></i></div>
@@ -402,9 +402,9 @@
     </div>
     
     <!-- Métricas Financieras -->
-    <h4 class="mb-3">💰 Panel Financiero</h4>
+    <h4 class="mb-3"><i class="bi bi-cash-stack section-title-icon"></i> Panel Financiero</h4>
     <div class="row g-3 mb-4">
-<div class="col-12 col-sm-6 col-md-4 col-xl-3 animate-fade-in-up animate-delay-0">
+<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-0">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-cash-coin"></i></div>
@@ -417,7 +417,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-3 animate-fade-in-up animate-delay-1">
+<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-1">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--success">
                     <div class="stat-card__icon"><i class="bi bi-box-seam"></i></div>
@@ -430,7 +430,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-3 animate-fade-in-up animate-delay-2">
+<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-2">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--primary">
                     <div class="stat-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
@@ -443,7 +443,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 col-xl-3 animate-fade-in-up animate-delay-3">
+<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--warning">
                     <div class="stat-card__icon"><i class="bi bi-wallet2"></i></div>
@@ -458,9 +458,9 @@
     </div>
 
     <!-- Sección de Tributos -->
-    <h4 class="mb-3">📋 Tributos Estimados (Cuba)</h4>
+    <h4 class="mb-3"><i class="bi bi-receipt section-title-icon"></i> Tributos Estimados (Cuba)</h4>
     <div class="row g-3 mb-4">
-<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-0">
+<div class="col-6 col-md-4 animate-fade-in-up animate-delay-0">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-receipt"></i></div>
@@ -473,7 +473,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-1">
+<div class="col-6 col-md-4 animate-fade-in-up animate-delay-1">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--info">
                     <div class="stat-card__icon"><i class="bi bi-shield-check"></i></div>
@@ -486,7 +486,7 @@
             </a>
         </div>
 
-<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-2">
+<div class="col-6 col-md-4 animate-fade-in-up animate-delay-2">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-calculator"></i></div>
@@ -551,7 +551,7 @@
         <div class="col-12 animate-fade-in-up animate-delay-6">
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>📋 Últimas Órdenes</h5>
+                    <h5><i class="bi bi-clipboard-data section-title-icon"></i> Últimas Órdenes</h5>
                     <a href="{{ url_for('ordenes.index') }}" class="btn btn-sm btn-light">Ver todas</a>
                 </div>
                 <div class="card-body">
@@ -582,11 +582,11 @@ function toggleFechaPersonalizada() {
     var fechaDivs = document.querySelectorAll('.fecha-personalizada');
     if (periodo === 'personalizado') {
         fechaDivs.forEach(function(div) {
-            div.style.display = 'block';
+            div.classList.remove('d-none');
         });
     } else {
         fechaDivs.forEach(function(div) {
-            div.style.display = 'none';
+            div.classList.add('d-none');
         });
     }
 }
