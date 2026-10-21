@@ -4,8 +4,8 @@ Adaptado a la realidad cubana - Junio 2026
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required
-from models import db, Contrato, Cliente
-from datetime import datetime
+from models import db, Contrato, Cliente, parsear_fecha_form
+from datetime import date, datetime
 from routes.decorators import rol_requerido
 
 contratos_bp = Blueprint('contratos', __name__, template_folder='../templates')
@@ -40,8 +40,16 @@ def nuevo():
         cliente_id = request.form.get('cliente_id')
         descripcion = request.form.get('descripcion')
         frecuencia = request.form.get('frecuencia')
-        fecha_inicio = request.form.get('fecha_inicio')
-        fecha_fin = request.form.get('fecha_fin') if request.form.get('fecha_fin') else None
+        
+        # Parseo validado de inputs HTML (type=date) a objetos date nativos.
+        # Nunca se guarda un string crudo en una columna db.Date.
+        try:
+            fecha_inicio = parsear_fecha_form(request.form.get('fecha_inicio'), tipo='date')
+            fecha_fin = parsear_fecha_form(request.form.get('fecha_fin'), tipo='date')
+        except ValueError as e:
+            flash(f'Fecha inválida: {e}', 'danger')
+            return redirect(url_for('contratos.nuevo'))
+        
         precio_mantenimiento = float(request.form.get('precio_mantenimiento') or 0)
         dispositivos_cubiertos = int(request.form.get('dispositivos_cubiertos') or 1)
         
@@ -53,8 +61,8 @@ def nuevo():
             cliente_id=cliente_id,
             descripcion=descripcion,
             frecuencia=frecuencia,
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin,
+            fecha_inicio=fecha_inicio,   # objeto date nativo -> SQLite ISO
+            fecha_fin=fecha_fin,         # objeto date o None
             activo=1,
             precio_mantenimiento=precio_mantenimiento,
             dispositivos_cubiertos=dispositivos_cubiertos
@@ -86,8 +94,13 @@ def editar(id):
         contrato.cliente_id = request.form.get('cliente_id')
         contrato.descripcion = request.form.get('descripcion')
         contrato.frecuencia = request.form.get('frecuencia')
-        contrato.fecha_inicio = request.form.get('fecha_inicio')
-        contrato.fecha_fin = request.form.get('fecha_fin') if request.form.get('fecha_fin') else None
+        # Parseo validado: inputs type=date -> objetos date nativos (nunca strings crudos)
+        try:
+            contrato.fecha_inicio = parsear_fecha_form(request.form.get('fecha_inicio'), tipo='date')
+            contrato.fecha_fin = parsear_fecha_form(request.form.get('fecha_fin'), tipo='date')
+        except ValueError as e:
+            flash(f'Fecha inválida: {e}', 'danger')
+            return redirect(url_for('contratos.editar', id=id))
         contrato.precio_mantenimiento = float(request.form.get('precio_mantenimiento') or 0)
         contrato.dispositivos_cubiertos = int(request.form.get('dispositivos_cubiertos') or 1)
         
@@ -137,9 +150,15 @@ def ver(id):
 def registrar_visita(id):
     """Registrar visita de mantenimiento realizada"""
     contrato = Contrato.query.get_or_404(id)
-    fecha_visita = request.form.get('fecha_visita', datetime.now().strftime('%Y-%m-%d'))
+    # Input type=date -> objeto date nativo; si viene vacío, hoy.
+    try:
+        fecha_visita = parsear_fecha_form(
+            request.form.get('fecha_visita') or None, tipo='date') or date.today()
+    except ValueError as e:
+        flash(f'Fecha de visita inválida: {e}', 'danger')
+        return redirect(url_for('contratos.ver', id=id))
     
-    contrato.ultima_visita = fecha_visita
+    contrato.ultima_visita = fecha_visita  # db.Date recibe date nativo
     db.session.commit()
     
     flash(f'Visita registrada para {contrato.cliente.nombre}', 'success')

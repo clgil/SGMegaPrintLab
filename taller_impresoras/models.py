@@ -4,12 +4,114 @@ Adaptado a la realidad cubana - Junio 2026
 
 Define todas las tablas según el esquema SQLite especificado en el PRD
 """
-from datetime import datetime
+from datetime import date, datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Importar la instancia db única desde extensions para evitar múltiples instancias
 from services.extensions import db
+
+
+def _add_months(ref: datetime, meses: int) -> datetime:
+    """Suma N meses a una fecha preservando el día (ajusta al último día del mes)."""
+    total = (ref.month - 1) + meses
+    anio, mes = ref.year + total // 12, total % 12 + 1
+    dia = min(ref.day, [31, 29 if anio % 4 == 0 and (anio % 100 != 0 or anio % 400 == 0)
+                        else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mes - 1])
+    return ref.replace(year=anio, month=mes, day=dia)
+
+
+# ----------------------------------------------------------------------
+# Utilidades de fechas para formularios (parseo string HTML -> date/datetime)
+# ----------------------------------------------------------------------
+def parsear_fecha_form(valor, tipo='date'):
+    """Convierte el valor crudo de un input HTML en date/datetime nativo.
+
+    - <input type="date">     -> 'YYYY-MM-DD'
+    - <input type="datetime"> -> 'YYYY-MM-DDTHH:MM[:SS]'
+    Devuelve None si viene vacío; lanza ValueError si el formato es inválido,
+    para que la ruta rechace el submit y NO guarde basura en SQLite.
+    """
+    if valor is None:
+        return None
+    if isinstance(valor, datetime):
+        return valor.date() if tipo == 'date' else valor
+    if isinstance(valor, date):
+        return valor if tipo == 'date' else datetime(valor.year, valor.month, valor.day)
+
+    valor = str(valor).strip()
+    if not valor:
+        return None
+
+    formatos_fecha = ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y')
+    formatos_datetime = ('%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S',
+                         '%Y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S')
+
+    if tipo == 'date':
+        for f in formatos_fecha:
+            try:
+                return datetime.strptime(valor, f).date()
+            except ValueError:
+                continue
+    else:
+        for f in formatos_datetime + formatos_fecha:
+            try:
+                return datetime.strptime(valor, f)
+            except ValueError:
+                continue
+        try:
+            return datetime.fromisoformat(valor)
+        except ValueError:
+            pass
+
+    raise ValueError(f"Formato de fecha inválido: '{valor}'")
+
+
+def fecha_input(value):
+    """Serializa date/datetime -> 'YYYY-MM-DD' para <input type=date> en Jinja."""
+    if value is None:
+        return ''
+    if isinstance(value, datetime):
+        return value.strftime('%Y-%m-%d')
+    if isinstance(value, date):
+        return value.isoformat()
+    return str(value)
+
+
+def datetime_input(value):
+    """Serializa datetime -> 'YYYY-MM-DDTHH:MM' para <input type=datetime-local>."""
+    if value is None:
+        return ''
+    if isinstance(value, (datetime, date)):
+        return value.strftime('%Y-%m-%dT%H:%M') if isinstance(value, datetime) \
+            else value.isoformat()
+    return str(value)
+
+
+def fmt_fecha(value):
+    """Formatea date/datetime/str legada -> 'DD/MM/YYYY' para mostrar en plantillas."""
+    if value is None:
+        return ''
+    if isinstance(value, (datetime, date)):
+        return value.strftime('%d/%m/%Y')
+    try:  # datos históricos sin normalizar (strings)
+        return parsear_fecha_form(value, tipo='date').strftime('%d/%m/%Y')
+    except ValueError:
+        return str(value)
+
+
+def fmt_fecha_hora(value):
+    """Formatea datetime/date/str legada -> 'DD/MM/YYYY HH:MM' para mostrar en plantillas."""
+    if value is None:
+        return ''
+    if isinstance(value, datetime):
+        return value.strftime('%d/%m/%Y %H:%M')
+    if isinstance(value, date):
+        return value.strftime('%d/%m/%Y') + ' 00:00'
+    try:  # datos históricos sin normalizar (strings)
+        return parsear_fecha_form(value, tipo='datetime').strftime('%d/%m/%Y %H:%M')
+    except ValueError:
+        return str(value)
 
 class Usuario(UserMixin, db.Model):
     """Tabla de usuarios con roles y autenticación"""
@@ -180,9 +282,11 @@ class Orden(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     numero_orden = db.Column(db.Text, unique=True, nullable=False)
-    fecha_entrada = db.Column(db.Text, nullable=False, default=datetime.now().strftime('%Y-%m-%d'))
-    fecha_prevista = db.Column(db.Text)
-    fecha_entrega = db.Column(db.Text)
+    # Fechas tipadas: db.Date para fechas puras y db.DateTime para marcas de tiempo.
+    # SQLAlchemy serializa/deserializa automáticamente contra el TEXT nativo de SQLite.
+    fecha_entrada = db.Column(db.Date, nullable=False, default=date.today)
+    fecha_prevista = db.Column(db.Date)
+    fecha_entrega = db.Column(db.Date)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
     dispositivo_id = db.Column(db.Integer, db.ForeignKey('dispositivos.id'))
     problema_reportado = db.Column(db.Text)
@@ -197,14 +301,14 @@ class Orden(db.Model):
     
     # Campos de garantía
     garantia_meses = db.Column(db.Integer, default=0)  # Duración de garantía en meses
-    fecha_fin_garantia = db.Column(db.Text)  # Fecha calculada de fin de garantía
+    fecha_fin_garantia = db.Column(db.Date)  # Fecha calculada de fin de garantía
     orden_original_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'))  # Para reingresos
     es_reingreso = db.Column(db.Integer, default=0)  # Indica si es reingreso por garantía
     tipo_orden = db.Column(db.Text, default='reparacion')  # reparacion, mantenimiento, garantia
     
-    # Campos de tiempo de reparación
-    fecha_inicio_reparacion = db.Column(db.Text)  # Cuando pasa a "En reparación"
-    fecha_fin_reparacion = db.Column(db.Text)  # Cuando pasa a "Listo para entregar" o "Entregado"
+    # Campos de tiempo de reparación (marcas de tiempo completas)
+    fecha_inicio_reparacion = db.Column(db.DateTime)  # Cuando pasa a "En reparación"
+    fecha_fin_reparacion = db.Column(db.DateTime)  # Cuando pasa a "Listo para entregar" o "Entregado"
     
     # Relaciones
     piezas_usadas = db.relationship('OrdenPieza', backref='orden', lazy=True, cascade='all, delete-orphan')
@@ -222,27 +326,38 @@ class Orden(db.Model):
     
     @property
     def tiempo_reparacion_horas(self):
-        """Calcula el tiempo de reparación en horas (decimal)"""
-        if not self.fecha_inicio_reparacion or not self.fecha_fin_reparacion:
+        """Calcula el tiempo de reparación en horas (decimal).
+
+        Trabaja directamente con objetos datetime nativos: SQLAlchemy ya
+        convierte la columna db.DateTime al deserializar el registro.
+        """
+        inicio = self.fecha_inicio_reparacion
+        fin = self.fecha_fin_reparacion
+        if not isinstance(inicio, datetime) or not isinstance(fin, datetime):
             return None
-        try:
-            inicio = datetime.strptime(self.fecha_inicio_reparacion, '%Y-%m-%d %H:%M:%S')
-            fin = datetime.strptime(self.fecha_fin_reparacion, '%Y-%m-%d %H:%M:%S')
-            delta = fin - inicio
-            return round(delta.total_seconds() / 3600, 2)
-        except:
-            return None
+        return round((fin - inicio).total_seconds() / 3600, 2)
     
     @property
     def garantia_vigente(self):
-        """Verifica si la orden tiene garantía vigente"""
-        if not self.fecha_fin_garantia:
+        """Verifica si la orden tiene garantía vigente.
+
+        Compara date.today() contra la columna db.Date fecha_fin_garantia,
+        sin necesidad de strptime ni bloques try/except.
+        """
+        fin_garantia = self.fecha_fin_garantia
+        if not isinstance(fin_garantia, date):
             return False
-        try:
-            fin_garantia = datetime.strptime(self.fecha_fin_garantia, '%Y-%m-%d')
-            return datetime.now() <= fin_garantia
-        except:
-            return False
+        # La garantía cubre todo el día de vencimiento
+        return date.today() <= fin_garantia
+    
+    def activar_garantia_desde_entrega(self):
+        """Calcula fecha_fin_garantia a partir de la entrega y garantia_meses."""
+        if self.fecha_entrega and self.garantia_meses:
+            ref = self.fecha_entrega
+            if isinstance(ref, datetime):
+                ref = ref.date()
+            self.fecha_fin_garantia = _add_months(datetime(ref.year, ref.month, ref.day),
+                                                  self.garantia_meses).date()
 
 
 class OrdenPieza(db.Model):
@@ -270,7 +385,7 @@ class MovimientoInventario(db.Model):
     pieza_id = db.Column(db.Integer, db.ForeignKey('piezas.id'), nullable=False)
     tipo = db.Column(db.Text, nullable=False)
     cantidad = db.Column(db.Float, nullable=False)
-    fecha = db.Column(db.Text, nullable=False, default=datetime.now().strftime('%Y-%m-%d'))
+    fecha = db.Column(db.Date, nullable=False, default=date.today)
     concepto = db.Column(db.Text)
     orden_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'))
     proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'))  # Proveedor de la entrada
@@ -297,7 +412,7 @@ class Gasto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     descripcion = db.Column(db.Text, nullable=False)
     monto = db.Column(db.Float, nullable=False)
-    fecha = db.Column(db.Text, nullable=False, default=datetime.now().strftime('%Y-%m-%d'))
+    fecha = db.Column(db.Date, nullable=False, default=date.today)
     
     def __repr__(self):
         return f'<Gasto {self.descripcion} - ${self.monto}>'
@@ -313,7 +428,7 @@ class Proveedor(db.Model):
     telefono = db.Column(db.Text)
     tipo = db.Column(db.Text, default='informal', server_default='informal')  # formal o informal
     activo = db.Column(db.Integer, default=1)
-    fecha_creacion = db.Column(db.Text, default=datetime.now().strftime('%Y-%m-%d'))
+    fecha_creacion = db.Column(db.Date, default=date.today)
     
     # Relaciones
     piezas = db.relationship('Pieza', backref='proveedor_rel', lazy=True)
@@ -331,12 +446,12 @@ class Contrato(db.Model):
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
     descripcion = db.Column(db.Text)
     frecuencia = db.Column(db.Text, nullable=False)  # semanal, quincenal, mensual, trimestral, semestral, anual
-    fecha_inicio = db.Column(db.Text, nullable=False)
-    fecha_fin = db.Column(db.Text)
+    fecha_inicio = db.Column(db.Date, nullable=False)
+    fecha_fin = db.Column(db.Date)
     activo = db.Column(db.Integer, default=1)
     precio_mantenimiento = db.Column(db.Float, default=0)
     dispositivos_cubiertos = db.Column(db.Integer, default=1)
-    ultima_visita = db.Column(db.Text)
+    ultima_visita = db.Column(db.Date)
     
     # Relación con cliente
     cliente = db.relationship('Cliente', backref='contratos')
@@ -345,14 +460,14 @@ class Contrato(db.Model):
         return f'<Contrato Cliente:{self.cliente_id} Frecuencia:{self.frecuencia}>'
     
     def calcular_proxima_visita(self):
-        """Calcula la fecha de la próxima visita según la frecuencia"""
+        """Calcula la fecha de la próxima visita según la frecuencia.
+
+        Opera con objetos date nativos (columnas db.Date), sin strptime.
+        Devuelve un objeto date (Jinja2 lo renderiza como 'YYYY-MM-DD' y
+        las comparaciones del dashboard funcionan directamente).
+        """
         from datetime import timedelta
-        if not self.ultima_visita:
-            return self.fecha_inicio
-        
-        try:
-            ultima = datetime.strptime(self.ultima_visita, '%Y-%m-%d')
-        except:
+        if not isinstance(self.ultima_visita, date):
             return self.fecha_inicio
         
         dias = {
@@ -364,8 +479,7 @@ class Contrato(db.Model):
             'anual': 365
         }.get(self.frecuencia, 30)
         
-        proxima = ultima + timedelta(days=dias)
-        return proxima.strftime('%Y-%m-%d')
+        return self.ultima_visita + timedelta(days=dias)
 
 
 class OrdenNota(db.Model):
@@ -375,7 +489,7 @@ class OrdenNota(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     orden_id = db.Column(db.Integer, db.ForeignKey('ordenes.id'), nullable=False)
     texto = db.Column(db.Text, nullable=False)
-    fecha_hora = db.Column(db.Text, nullable=False)
+    fecha_hora = db.Column(db.DateTime, nullable=False, default=datetime.now)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     
     # Relación con usuario
