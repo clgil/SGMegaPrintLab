@@ -43,7 +43,6 @@ pip install --upgrade pip
 pip install -r requirements.txt
 if errorlevel 1 (
     echo ERROR: No se pudieron instalar las dependencias
-    echo Para WeasyPrint en Linux, instale: libpango1.0-dev libharfbuzz-dev libffi-dev
     pause
     exit /b 1
 )
@@ -92,8 +91,5 @@ echo   3. Abra su navegador en: http://localhost:5000
 echo.
 echo Usuario por defecto: admin
 echo Contrasena: admin123   ^(cambiarla tras el primer acceso^)
-echo.
-echo NOTA: Si WeasyPrint falla en Linux, instale las dependencias del sistema:
-echo       sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev
 echo.
 pause

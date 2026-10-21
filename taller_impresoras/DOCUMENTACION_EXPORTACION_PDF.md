@@ -1,5 +1,27 @@
 # Documentación: Funcionalidad de Exportación a PDF
 
+> ## ⚠️ AVISO DE OBSOLESCENCIA (octubre 2026)
+> Este documento describe la implementación **histórica** de la exportación a
+> PDF y ha quedado **parcialmente obsoleto**. La generación de PDFs del
+> proyecto está ahora **estandarizada exclusivamente en fpdf2** a través del
+> servicio centralizado **`services/pdf_service.py`**:
+>
+> - **reportlab fue ELIMINADO**: los recibos/órdenes de reparación se generan
+>   ahora con fpdf2 mediante `pdf_service.generar_recibo_orden()`.
+> - **WeasyPrint fue ELIMINADO**: no se usa renderización HTML→PDF, por lo que
+>   ya **no se requieren dependencias nativas del sistema** (`libpango1.0-dev`,
+>   `libharfbuzz-dev`, `libffi-dev`) y el despliegue offline en Linux/Windows
+>   es directo.
+> - Las rutas `routes/ordenes.py` y `routes/reportes.py` delegan toda la
+>   lógica en `pdf_service` (márgenes A4, fuentes Unicode DejaVu Sans con
+>   soporte para á, é, í, ó, ú, ñ, ¿, ¡, tablas con zebra, pie de página
+>   numerado y manejo centralizado de errores).
+>
+> Para el estado actual de la arquitectura de PDFs, consulte el docstring de
+> `services/pdf_service.py` y la sección "Dependencias de PDF y fuentes
+> Unicode" del `README.md`. El resto de este documento se conserva solo como
+> referencia histórica.
+
 ## Resumen
 Se ha añadido funcionalidad completa de exportación a PDF para los reportes del sistema SGMegaPrintLab, utilizando la biblioteca **fpdf2**.
 
