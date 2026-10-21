@@ -50,11 +50,35 @@ if errorlevel 1 (
 echo [OK] Dependencias instaladas
 echo.
 
-REM Inicializar base de datos
-echo Inicializando base de datos...
-python app.py >nul 2>&1 &
-timeout /t 3 /nobreak >nul
-echo [OK] Base de datos inicializada
+REM ------------------------------------------------------------------
+REM Actualizar el esquema de la base de datos con Flask-Migrate (Alembic).
+REM Crea las tablas si es una instalacion nueva, o aplica solo los cambios
+REM pendientes si el taller ya tenia datos (NUNCA borra informacion).
+REM ------------------------------------------------------------------
+echo Actualizando esquema de la base de datos (flask db upgrade)...
+set FLASK_APP=app.py
+flask db upgrade
+if errorlevel 1 (
+    echo ERROR: No se pudo actualizar el esquema de la base de datos.
+    echo Revise que exista el directorio migrations\ y que DATABASE_URL sea valido.
+    echo Si es una BD legada sin tabla alembic_version, ejecute primero:
+    echo   flask db stamp 112a730df0d5 ^&^& flask db upgrade
+    pause
+    exit /b 1
+)
+echo [OK] Base de datos al ultimo esquema
+echo.
+
+REM Datos iniciales: usuario admin y configuraciones por defecto
+REM (init-db ya NO crea tablas; es idempotente y no toca datos existentes)
+echo Creando datos iniciales (admin y configuraciones)...
+flask init-db
+if errorlevel 1 (
+    echo ADVERTENCIA: No se pudieron crear los datos iniciales.
+    echo Puede ejecutarlos manualmente despues con: flask init-db
+) else (
+    echo [OK] Datos iniciales listos
+)
 echo.
 
 echo ============================================
@@ -67,7 +91,7 @@ echo   2. Ejecute: python app.py
 echo   3. Abra su navegador en: http://localhost:5000
 echo.
 echo Usuario por defecto: admin
-echo Contrasena: Taller2026
+echo Contrasena: admin123   ^(cambiarla tras el primer acceso^)
 echo.
 echo NOTA: Si WeasyPrint falla en Linux, instale las dependencias del sistema:
 echo       sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev

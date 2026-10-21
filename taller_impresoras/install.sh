@@ -63,6 +63,36 @@ fi
 echo "[OK] Dependencias instaladas"
 echo ""
 
+# ------------------------------------------------------------------
+# Actualizar el esquema de la base de datos con Flask-Migrate (Alembic)
+# Crea las tablas si es una instalacion nueva, o aplica solo los cambios
+# pendientes si el taller ya tenia datos (NUNCA borra informacion).
+# ------------------------------------------------------------------
+echo "Actualizando esquema de la base de datos (flask db upgrade)..."
+export FLASK_APP=app.py
+flask db upgrade
+if [ $? -ne 0 ]; then
+    echo "ERROR: No se pudo actualizar el esquema de la base de datos."
+    echo "Revise que exista el directorio migrations/ y que DATABASE_URL sea valido."
+    echo "Si es una BD legada sin tabla alembic_version, ejecute primero:"
+    echo "  flask db stamp 112a730df0d5 && flask db upgrade"
+    exit 1
+fi
+echo "[OK] Base de datos al ultimo esquema"
+echo ""
+
+# Datos iniciales: usuario admin y configuraciones por defecto
+# (init-db ya NO crea tablas; es idempotente y no toca datos existentes)
+echo "Creando datos iniciales (admin y configuraciones)..."
+flask init-db
+if [ $? -ne 0 ]; then
+    echo "ADVERTENCIA: No se pudieron crear los datos iniciales."
+    echo "Puede ejecutarlos manualmente despues con: flask init-db"
+else
+    echo "[OK] Datos iniciales listos"
+fi
+echo ""
+
 # Dar permisos de ejecución
 chmod +x install.sh
 
@@ -76,5 +106,5 @@ echo "  2. Ejecute: python app.py"
 echo "  3. Abra su navegador en: http://localhost:5000"
 echo ""
 echo "Usuario por defecto: admin"
-echo "Contrasena: Taller2026"
+echo "Contrasena: admin123   (cambiarla tras el primer acceso)"
 echo ""
