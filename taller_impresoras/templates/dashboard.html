@@ -13,7 +13,7 @@
     <!-- Filtro de período - SOLO para administrador -->
     {% if current_user.rol == 'administrador' %}
     <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header">
             <h5 class="mb-0">📅 Filtro de Período Financiero</h5>
         </div>
         <div class="card-body">
@@ -53,47 +53,51 @@
     </div>
     
     <!-- Tarjetas resumen para cliente -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Mis Órdenes Totales</h5>
-                        <h2 class="display-4">{{ total_ordenes_cliente }}</h2>
-                        <p class="card-text">Órdenes registradas</p>
+                <div class="stat-card stat-card--primary">
+                    <div class="stat-card__icon"><i class="bi bi-clipboard-data"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Mis Órdenes Totales</div>
+                        <div class="stat-card__value">{{ total_ordenes_cliente }}</div>
+                        <div class="stat-card__subtitle">Órdenes registradas</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Pendiente" class="text-decoration-none">
-                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Órdenes Pendientes</h5>
-                        <h2 class="display-4">{{ ordenes_pendientes_cliente }}</h2>
-                        <p class="card-text">En espera</p>
+                <div class="stat-card stat-card--warning">
+                    <div class="stat-card__icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Órdenes Pendientes</div>
+                        <div class="stat-card__value">{{ ordenes_pendientes_cliente }}</div>
+                        <div class="stat-card__subtitle">En espera</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}?estado=En reparacion" class="text-decoration-none">
-                <div class="card bg-info text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">En Reparación</h5>
-                        <h2 class="display-4">{{ ordenes_reparacion_cliente }}</h2>
-                        <p class="card-text">En proceso</p>
+                <div class="stat-card stat-card--info">
+                    <div class="stat-card__icon"><i class="bi bi-wrench-adjustable"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">En Reparación</div>
+                        <div class="stat-card__value">{{ ordenes_reparacion_cliente }}</div>
+                        <div class="stat-card__subtitle">En proceso</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Entregado" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Completadas</h5>
-                        <h2 class="display-4">{{ ordenes_completadas_cliente }}</h2>
-                        <p class="card-text">Entregadas</p>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Completadas</div>
+                        <div class="stat-card__value">{{ ordenes_completadas_cliente }}</div>
+                        <div class="stat-card__subtitle">Entregadas</div>
                     </div>
                 </div>
             </a>
@@ -101,16 +105,15 @@
     </div>
     
     <!-- Mis Dispositivos -->
-    <div class="row mb-4">
-        <div class="col-md-4">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('dispositivos.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-header bg-secondary text-white">
-                        <h6 class="mb-0">🖨️ Mis Dispositivos</h6>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="text-secondary">{{ total_dispositivos_cliente }}</h3>
-                        <small class="text-muted">Dispositivos registrados</small>
+                <div class="stat-card stat-card--secondary">
+                    <div class="stat-card__icon"><i class="bi bi-printer"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Mis Dispositivos</div>
+                        <div class="stat-card__value">{{ total_dispositivos_cliente }}</div>
+                        <div class="stat-card__subtitle">Dispositivos registrados</div>
                     </div>
                 </div>
             </a>
@@ -121,7 +124,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h5>📋 Mis Últimas Órdenes</h5>
                 </div>
                 <div class="card-body">
@@ -182,36 +185,39 @@
     </div>
     
     <!-- Tarjetas resumen para proveedor -->
-    <div class="row mb-4">
-        <div class="col-md-4">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Piezas</h5>
-                        <h2 class="display-4">{{ total_piezas }}</h2>
-                        <p class="card-text">En inventario</p>
+                <div class="stat-card stat-card--primary">
+                    <div class="stat-card__icon"><i class="bi bi-box-seam"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Total Piezas</div>
+                        <div class="stat-card__value">{{ total_piezas }}</div>
+                        <div class="stat-card__subtitle">En inventario</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-lg-4">
             <a href="{{ url_for('inventario.index') }}?stock=bajo" class="text-decoration-none">
-                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Stock Bajo</h5>
-                        <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
-                        <p class="card-text">Piezas por reponer</p>
+                <div class="stat-card stat-card--danger">
+                    <div class="stat-card__icon"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Stock Bajo</div>
+                        <div class="stat-card__value">{{ piezas_stock_bajo }}</div>
+                        <div class="stat-card__subtitle">Piezas por reponer</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-lg-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Valor Inventario</h5>
-                        <h2 class="display-4">${{ "%.2f"|format(valor_inventario) }} CUP</h2>
-                        <p class="card-text">Valor total a costo</p>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-coin"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Valor Inventario</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }} CUP</div>
+                        <div class="stat-card__subtitle">Valor total a costo</div>
                     </div>
                 </div>
             </a>
@@ -228,47 +234,51 @@
     </div>
     
     <!-- Tarjetas resumen para técnico -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card bg-primary text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Órdenes Activas</h5>
-                        <h2 class="display-4">{{ total_ordenes_activas }}</h2>
-                        <p class="card-text">En proceso actualmente</p>
+                <div class="stat-card stat-card--primary">
+                    <div class="stat-card__icon"><i class="bi bi-clipboard-data"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Órdenes Activas</div>
+                        <div class="stat-card__value">{{ total_ordenes_activas }}</div>
+                        <div class="stat-card__subtitle">En proceso actualmente</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}?estado=En diagnostico" class="text-decoration-none">
-                <div class="card bg-warning shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Pendientes Diagnóstico</h5>
-                        <h2 class="display-4">{{ ordenes_pendientes_diagnostico }}</h2>
-                        <p class="card-text">Requieren atención</p>
+                <div class="stat-card stat-card--warning">
+                    <div class="stat-card__icon"><i class="bi bi-search"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Pendientes Diagnóstico</div>
+                        <div class="stat-card__value">{{ ordenes_pendientes_diagnostico }}</div>
+                        <div class="stat-card__subtitle">Requieren atención</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('ordenes.index') }}?estado=Listo para entregar" class="text-decoration-none">
-                <div class="card bg-success text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Listas para Entregar</h5>
-                        <h2 class="display-4">{{ ordenes_listas_entregar }}</h2>
-                        <p class="card-text">Para notificar al cliente</p>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Listas para Entregar</div>
+                        <div class="stat-card__value">{{ ordenes_listas_entregar }}</div>
+                        <div class="stat-card__subtitle">Para notificar al cliente</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <a href="{{ url_for('inventario.index') }}?stock=bajo" class="text-decoration-none">
-                <div class="card bg-danger text-white shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-body">
-                        <h5 class="card-title">Stock Bajo</h5>
-                        <h2 class="display-4">{{ piezas_stock_bajo }}</h2>
-                        <p class="card-text">Piezas por reponer</p>
+                <div class="stat-card stat-card--danger">
+                    <div class="stat-card__icon"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Stock Bajo</div>
+                        <div class="stat-card__value">{{ piezas_stock_bajo }}</div>
+                        <div class="stat-card__subtitle">Piezas por reponer</div>
                     </div>
                 </div>
             </a>
@@ -276,29 +286,27 @@
     </div>
     
     <!-- Resumen de dispositivos y piezas -->
-    <div class="row mb-4">
-        <div class="col-md-4">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('dispositivos.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-info" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-header bg-info text-white">
-                        <h6 class="mb-0">🖨️ Dispositivos</h6>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="text-info">{{ total_dispositivos }}</h3>
-                        <small class="text-muted">Registrados en el sistema</small>
+                <div class="stat-card stat-card--info">
+                    <div class="stat-card__icon"><i class="bi bi-printer"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Dispositivos</div>
+                        <div class="stat-card__value">{{ total_dispositivos }}</div>
+                        <div class="stat-card__subtitle">Registrados en el sistema</div>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card shadow-sm border-success" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="card-header bg-success text-white">
-                        <h6 class="mb-0">📦 Piezas en Inventario</h6>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="text-success">{{ total_piezas }}</h3>
-                        <small class="text-muted">Disponibles</small>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-box-seam"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Piezas en Inventario</div>
+                        <div class="stat-card__value">{{ total_piezas }}</div>
+                        <div class="stat-card__subtitle">Disponibles</div>
                     </div>
                 </div>
             </a>
@@ -309,7 +317,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
+                <div class="card-header">
                     <h5>📋 Últimas Órdenes</h5>
                 </div>
                 <div class="card-body">
@@ -369,74 +377,80 @@
     
     <!-- Tarjetas resumen para administrador -->
     <div class="row g-3 mb-4">
-        <!-- Órdenes Totales -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-primary fs-4 mb-1"><i class="bi bi-clipboard-data"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Órdenes Totales</div>
-                    <div class="fs-2 fw-bold my-1">{{ total_ordenes }}</div>
-                    <div class="small text-muted">En el sistema</div>
+                <div class="stat-card stat-card--primary">
+                    <div class="stat-card__icon"><i class="bi bi-clipboard-data"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Órdenes Totales</div>
+                        <div class="stat-card__value">{{ total_ordenes }}</div>
+                        <div class="stat-card__subtitle">En el sistema</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Completadas -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}?estado=Entregado" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-success fs-4 mb-1"><i class="bi bi-check-circle"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Completadas</div>
-                    <div class="fs-2 fw-bold my-1">{{ ordenes_completadas }}</div>
-                    <div class="small text-muted">Entregadas</div>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Completadas</div>
+                        <div class="stat-card__value">{{ ordenes_completadas }}</div>
+                        <div class="stat-card__subtitle">Entregadas</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Pendientes -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('ordenes.index') }}?estado=Pendiente" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-warning fs-4 mb-1"><i class="bi bi-clock-history"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Pendientes</div>
-                    <div class="fs-2 fw-bold my-1">{{ ordenes_pendientes }}</div>
-                    <div class="small text-muted">En espera</div>
+                <div class="stat-card stat-card--warning">
+                    <div class="stat-card__icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Pendientes</div>
+                        <div class="stat-card__value">{{ ordenes_pendientes }}</div>
+                        <div class="stat-card__subtitle">En espera</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Técnicos -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('tecnicos.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-info fs-4 mb-1"><i class="bi bi-tools"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Técnicos</div>
-                    <div class="fs-2 fw-bold my-1">{{ total_tecnicos }}</div>
-                    <div class="small text-muted">Registrados</div>
+                <div class="stat-card stat-card--info">
+                    <div class="stat-card__icon"><i class="bi bi-tools"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Técnicos</div>
+                        <div class="stat-card__value">{{ total_tecnicos }}</div>
+                        <div class="stat-card__subtitle">Registrados</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Proveedores -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-purple" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-warning fs-4 mb-1"><i class="bi bi-truck"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Proveedores</div>
-                    <div class="fs-2 fw-bold my-1">{{ total_piezas }}</div>
-                    <div class="small text-muted">Piezas inventario</div>
+                <div class="stat-card stat-card--secondary">
+                    <div class="stat-card__icon"><i class="bi bi-truck"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Proveedores</div>
+                        <div class="stat-card__value">{{ total_piezas }}</div>
+                        <div class="stat-card__subtitle">Piezas inventario</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Clientes -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+<div class="col-12 col-sm-6 col-md-4 col-xl-2">
             <a href="{{ url_for('clientes.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-secondary" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-secondary fs-4 mb-1"><i class="bi bi-people"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Clientes</div>
-                    <div class="fs-2 fw-bold my-1">{{ total_clientes }}</div>
-                    <div class="small text-muted">Registrados</div>
+                <div class="stat-card stat-card--secondary">
+                    <div class="stat-card__icon"><i class="bi bi-people"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Clientes</div>
+                        <div class="stat-card__value">{{ total_clientes }}</div>
+                        <div class="stat-card__subtitle">Registrados</div>
+                    </div>
                 </div>
             </a>
         </div>
@@ -445,50 +459,54 @@
     <!-- Métricas Financieras -->
     <h4 class="mb-3">💰 Panel Financiero</h4>
     <div class="row g-3 mb-4">
-        <!-- Inversión en Piezas -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+<div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-danger fs-4 mb-1"><i class="bi bi-cash-coin"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Inversión en Piezas</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
-                    <div class="small text-muted">Costo piezas usadas</div>
+                <div class="stat-card stat-card--danger">
+                    <div class="stat-card__icon"><i class="bi bi-cash-coin"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Inversión en Piezas</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
+                        <div class="stat-card__subtitle">Costo piezas usadas</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Valor Inventario -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+<div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-success" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-success fs-4 mb-1"><i class="bi bi-box-seam"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Valor Inventario</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(valor_inventario) }} CUP</div>
-                    <div class="small text-muted">Existencia × costo</div>
+                <div class="stat-card stat-card--success">
+                    <div class="stat-card__icon"><i class="bi bi-box-seam"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Valor Inventario</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }} CUP</div>
+                        <div class="stat-card__subtitle">Existencia × costo</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Ingresos Brutos -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+<div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-primary" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-primary fs-4 mb-1"><i class="bi bi-graph-up-arrow"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Ingresos Brutos</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
-                    <div class="small text-muted">Total facturado</div>
+                <div class="stat-card stat-card--primary">
+                    <div class="stat-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Ingresos Brutos</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
+                        <div class="stat-card__subtitle">Total facturado</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Ganancia Neta -->
-        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+<div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-warning fs-4 mb-1"><i class="bi bi-wallet2"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Ganancia Neta</div>
-                    <div class="fs-2 fw-bold my-1 {% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</div>
-                    <div class="small text-muted">Ingresos - gastos</div>
+                <div class="stat-card stat-card--warning">
+                    <div class="stat-card__icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Ganancia Neta</div>
+                        <div class="stat-card__value"><span class="{% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</span></div>
+                        <div class="stat-card__subtitle">Ingresos - gastos</div>
+                    </div>
                 </div>
             </a>
         </div>
@@ -497,38 +515,41 @@
     <!-- Sección de Tributos -->
     <h4 class="mb-3">📋 Tributos Estimados (Cuba)</h4>
     <div class="row g-3 mb-4">
-        <!-- ISIP -->
-        <div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-danger fs-4 mb-1"><i class="bi bi-receipt"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">ISIP</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(isip_calculado) }} CUP</div>
-                    <div class="small text-muted">{{ regimen_fiscal|upper }}</div>
+                <div class="stat-card stat-card--danger">
+                    <div class="stat-card__icon"><i class="bi bi-receipt"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">ISIP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(isip_calculado) }} CUP</div>
+                        <div class="stat-card__subtitle">{{ regimen_fiscal|upper }}</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Seguridad Social -->
-        <div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-info fs-4 mb-1"><i class="bi bi-shield-check"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Seguridad Social (5%)</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(seguridad_social) }} CUP</div>
-                    <div class="small text-muted">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</div>
+                <div class="stat-card stat-card--info">
+                    <div class="stat-card__icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Seguridad Social (5%)</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(seguridad_social) }} CUP</div>
+                        <div class="stat-card__subtitle">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Total a Pagar -->
-        <div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-4">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-danger" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-danger fs-4 mb-1"><i class="bi bi-calculator"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Total a Pagar</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(total_tributos) }} CUP</div>
-                    <div class="small text-muted">*Estimado</div>
+                <div class="stat-card stat-card--danger">
+                    <div class="stat-card__icon"><i class="bi bi-calculator"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Total a Pagar</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(total_tributos) }} CUP</div>
+                        <div class="stat-card__subtitle">*Estimado</div>
+                    </div>
                 </div>
             </a>
         </div>
@@ -536,23 +557,26 @@
 
     <!-- Gastos Operativos e Ingresos Mensuales -->
     <div class="row g-3 mb-4">
-        <div class="col-md-6">
+        <div class="col-12 col-md-6">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-warning" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-warning fs-4 mb-1"><i class="bi bi-cash-stack"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Gastos Operativos</div>
-                    <div class="fs-2 fw-bold my-1">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
-                    <div class="small text-muted">Agua, electricidad, alquiler</div>
+                <div class="stat-card stat-card--warning">
+                    <div class="stat-card__icon"><i class="bi bi-cash-stack"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Gastos Operativos</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
+                        <div class="stat-card__subtitle">Agua, electricidad, alquiler</div>
+                    </div>
                 </div>
             </a>
         </div>
 
         <!-- Gráfico simple de ingresos mensuales (texto) -->
-        <div class="col-md-6">
+        <div class="col-12 col-md-6">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
-                <div class="card card-dashboard h-100 shadow-sm text-center p-3 border-start border-4 border-info" style="cursor: pointer; transition: transform 0.2s;">
-                    <div class="text-info fs-4 mb-1"><i class="bi bi-bar-chart-line"></i></div>
-                    <div class="text-muted small fw-semibold text-uppercase">Ingresos últimos 6 meses</div>
+                <div class="stat-card stat-card--info stat-card--stacked">
+                    <div class="stat-card__icon"><i class="bi bi-bar-chart-line"></i></div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__label">Ingresos últimos 6 meses</div>
                     <div class="my-2">
                         <table class="table table-sm table-borderless mb-0">
                             <thead>
@@ -571,6 +595,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>
             </a>
         </div>
@@ -580,7 +605,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>📋 Últimas Órdenes</h5>
                     <a href="{{ url_for('ordenes.index') }}" class="btn btn-sm btn-light">Ver todas</a>
                 </div>
