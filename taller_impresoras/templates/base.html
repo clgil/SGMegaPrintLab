@@ -285,6 +285,14 @@
                     </li>
                     {% if current_user.rol == 'administrador' %}
                     <li class="nav-item">
+                        <a data-bs-dismiss="offcanvas" class="nav-link {% if 'auditoria' in request.endpoint %}active{% endif %}" href="{{ url_for('auditoria.index') }}">
+                            <i class="bi bi-shield-lock nav-icon"></i>
+                            <span class="nav-text">Auditoría</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.rol == 'administrador' %}
+                    <li class="nav-item">
                         <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}" data-bs-dismiss="offcanvas">
                             <i class="bi bi-person-gear nav-icon"></i>
                             <span class="nav-text">Usuarios</span>
@@ -430,6 +438,14 @@
                     <span class="nav-text">Cambiar Clave</span>
                 </a>
             </li>
+            {% if current_user.rol == 'administrador' %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'auditoria' in request.endpoint %}active{% endif %}" href="{{ url_for('auditoria.index') }}">
+                    <i class="bi bi-shield-lock nav-icon"></i>
+                    <span class="nav-text">Auditoría</span>
+                </a>
+            </li>
+            {% endif %}
             {% if current_user.rol == 'administrador' %}
             <li class="nav-item">
                 <a class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}" href="{{ url_for('usuarios.index') }}">

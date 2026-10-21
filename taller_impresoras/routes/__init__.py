@@ -15,6 +15,7 @@ from routes.proveedores import proveedores_bp
 from routes.contratos import contratos_bp
 from routes.reportes import reportes_bp
 from routes.backup import backup_bp
+from routes.auditoria import auditoria_bp
 from routes.ayuda.ayuda import ayuda_bp
 
 
@@ -37,4 +38,5 @@ def register_blueprints(app):
     # Reportes y utilidades
     app.register_blueprint(reportes_bp, url_prefix='/reportes')
     app.register_blueprint(backup_bp, url_prefix='/backup')
+    app.register_blueprint(auditoria_bp, url_prefix='/admin/auditoria')
     app.register_blueprint(ayuda_bp, url_prefix='/ayuda')

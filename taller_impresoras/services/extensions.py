@@ -10,7 +10,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
-db = SQLAlchemy()
+# Convención de nombres para constraints: necesario para que Alembic pueda
+# generar migraciones correctas (DROP CONSTRAINT con nombre) en SQLite.
+import sqlalchemy as sa
+naming_convention = {
+    'ix': 'ix_%(column_0_label)s',
+    'uq': 'uq_%(table_name)s_%(column_0_name)s',
+    'ck': 'ck_%(table_name)s_%(constraint_name)s',
+    'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+    'pk': 'pk_%(table_name)s',
+}
+metadata = sa.MetaData(naming_convention=naming_convention)
+
+db = SQLAlchemy(metadata=metadata)
 login_manager = LoginManager()
 migrate = Migrate()
 
