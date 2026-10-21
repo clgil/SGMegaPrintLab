@@ -1,0 +1,654 @@
+{#-
+    ============================================================================
+    DOCUMENTO IMPRIMIBLE DE ORDEN DE SERVICIO  /ordenes/imprimir/<id>
+    ============================================================================
+    Plantilla INDEPENDIENTE: NO extiende base.html a propósito, para que el
+    preview de impresión contenga SOLO el documento (sin sidebar, sin barra
+    móvil .mobile-top-nav, sin breadcrumb "Dashboard", sin command palette).
+
+    Contexto Jinja2 provisto por la vista `ordenes.imprimir`:
+      - orden        : objeto Orden (numero_orden, estado, fecha_entrada, cliente,
+                       dispositivo, problema_reportado, diagnostico, tecnico,
+                       piezas_usadas, mano_obra_costo/desc, costo_total, notas_cliente)
+      - config       : dict con la configuración del taller (nombre, dirección,
+                       teléfono, email, logotipo, NIT)
+      - config_taller: mismo dict, inyectado globalmente por el context processor
+    -}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Imprimir Orden {{ orden.numero_orden }} — {{ (config | default(config_taller, true) | default({}, true)).get('nombre_taller', 'Taller de Impresoras') }}</title>
+    <style>
+    /* ==========================================================
+       1) CONFIGURACIÓN DE PÁGINA
+       ========================================================== */
+    @page {
+        size: letter portrait;
+        margin: 10mm;
+    }
+
+    /* ==========================================================
+       2) VISTA EN PANTALLA (pre-impresión): hoja con sombra
+          sobre fondo gris + barra de acciones fija
+       ========================================================== */
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        background: #e9edf2;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #000;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Barra superior de acciones: SOLO en pantalla */
+    .toolbar-imprimir {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 16px;
+        background: #1f2a37;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+    }
+
+    .btn-toolbar {
+        display: inline-block;
+        padding: 9px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        line-height: 1.2;
+    }
+
+    .btn-print {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-back {
+        background: #e9ecef;
+        color: #1f2a37;
+        border-color: #adb5bd;
+    }
+
+    /* Hoja simulada en pantalla */
+    .hoja {
+        width: 210mm;
+        max-width: 100%;
+        min-height: 270mm;
+        margin: 84px auto 40px;
+        padding: 12mm;
+        background: #fff;
+        color: #000;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
+    }
+
+    /* ---------- Documento ---------- */
+    .doc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 8px;
+        margin-bottom: 14px;
+    }
+
+    .taller-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo-corporativo {
+        height: 52px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .taller-nombre {
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 0 0 2px;
+    }
+
+    .taller-detalles {
+        font-size: 11px;
+        margin: 0;
+    }
+
+    .doc-meta {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* Badge ink-safe: borde negro + texto negro, SIN fondo */
+    .orden-badge {
+        display: inline-block;
+        border: 1.5px solid #000;
+        border-radius: 4px;
+        padding: 4px 10px;
+        color: #000;
+        background: none;
+        margin-bottom: 6px;
+    }
+
+    .badge-label {
+        display: block;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .badge-number {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .fecha-linea {
+        font-size: 11px;
+        margin: 2px 0;
+    }
+
+    /* Badge de estado ink-safe: negro sobre blanco como respaldo;
+       el color solo se luce si el usuario activa "Gráficos de fondo"
+       (print-color-adjust: exact está en el body). */
+    .estado-badge {
+        display: inline-block;
+        border: 1.5px solid #000;
+        border-radius: 3px;
+        padding: 1px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #000;
+        background: none;
+    }
+
+    .estado-Recibido          { background: #eef2f7; }
+    .estado-Diagnostico       { background: #fffbe6; }
+    .estado-Enreparacion      { background: #fff4e6; }
+    .estado-Enreparación      { background: #fff4e6; }
+    .estado-Listoparaentregar { background: #e9f7ef; }
+    .estado-Listo             { background: #e9f7ef; }
+    .estado-Entregado         { background: #e6f4ea; }
+    .estado-Cancelado         { background: #fdecec; }
+
+    /* Cajas DATOS DEL CLIENTE / EQUIPO: borde negro, sin fondo */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .caja-datos {
+        border: 1px solid #000;
+        background: none;
+        padding: 8px 10px;
+    }
+
+    .box-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 0 0 5px;
+    }
+
+    .caja-datos p {
+        font-size: 11px;
+        margin: 2px 0;
+    }
+
+    .seccion-detalle {
+        margin-bottom: 12px;
+    }
+
+    .detalle-item {
+        margin-bottom: 8px;
+    }
+
+    .detalle-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 0 0 3px;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2px;
+    }
+
+    .detalle-texto {
+        font-size: 11px;
+        margin: 0;
+        line-height: 1.45;
+        text-align: justify;
+    }
+
+    /* Tabla de repuestos */
+    .seccion-tabla {
+        margin-bottom: 12px;
+    }
+
+    .tabla-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 0 0 5px;
+    }
+
+    .tabla-piezas {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+    }
+
+    .tabla-piezas thead th {
+        background: none;               /* sin relleno de tinta */
+        color: #000;                    /* SIEMPRE legible sin gráficos de fondo */
+        font-weight: 700;
+        text-transform: uppercase;
+        text-align: left;
+        font-size: 10px;
+        padding: 5px 6px;
+        border-bottom: 2px solid #000;  /* separador fuerte en vez de banda oscura */
+    }
+
+    .col-desc     { width: 52%; }
+    .col-cant     { width: 10%; text-align: center; }
+    .col-precio   { width: 19%; text-align: right; }
+    .col-subtotal { width: 19%; text-align: right; }
+
+    .tabla-piezas tbody td {
+        padding: 4px 6px;
+        border-bottom: 1px solid #777;
+    }
+
+    .td-center { text-align: center; }
+    .td-right  { text-align: right; }
+
+    .tabla-piezas tfoot td {
+        padding: 5px 6px;
+        border-top: 2px solid #000;
+        font-weight: 700;
+    }
+
+    /* Bloque MANO DE OBRA / TOTAL A PAGAR: ink-safe, sin gradiente */
+    .bloque-totales {
+        border-top: 3px double #000;
+        padding-top: 8px;
+        margin: 10px 0 12px;
+        color: #000;
+        background: none;
+    }
+
+    .totales-fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .totales-fila .label {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .totales-fila .valor {
+        font-weight: 700;
+    }
+
+    .totales-fila .desc {
+        font-size: 10px;
+        font-weight: 400;
+        margin-left: 4px;
+    }
+
+    .total-principal {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 2px solid #000;
+        padding: 7px 10px;
+        margin-top: 6px;
+        background: none;
+        color: #000;
+    }
+
+    .total-principal .label {
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .total-principal .valor {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    /* Observaciones */
+    .seccion-notas {
+        border: 1px solid #000;
+        padding: 7px 10px;
+        margin-bottom: 12px;
+        background: none;
+    }
+
+    .notas-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0 0 3px;
+    }
+
+    .notas-texto {
+        font-size: 11px;
+        margin: 0;
+        line-height: 1.45;
+    }
+
+    /* Firmas: dos líneas de 45% cada una, borde negro fijo */
+    .bloque-firmas {
+        margin-top: 24px;
+    }
+
+    .firmas-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10%;
+    }
+
+    .firma-block {
+        width: 45%;
+        text-align: center;
+    }
+
+    .firma-linea {
+        border-top: 1px solid #000;
+        height: 34px;
+    }
+
+    .firma-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 3px 0 0;
+    }
+
+    .firma-sublabel {
+        font-size: 9px;
+        margin: 1px 0 0;
+    }
+
+    /* Pie de documento (mensaje de cortesía) */
+    .doc-footer {
+        margin-top: 16px;
+        border-top: 1px solid #000;
+        padding-top: 6px;
+        text-align: center;
+        font-size: 10px;
+        color: #000;
+    }
+
+    .doc-footer p {
+        margin: 2px 0;
+        font-size: 10px;
+        color: #000;
+    }
+
+    /* ==========================================================
+       3) MEDIA PRINT — TODO el documento es ya ink-safe; aquí solo
+          se oculta el chrome y se limpia la simulación de hoja.
+       ========================================================== */
+    @media print {
+        /* Ocultar TODO el chrome de la app (por si esta hoja se embebiera
+           dentro del layout base en el futuro): */
+        .no-print,
+        .sidebar,
+        .navbar-top,
+        .mobile-top-nav,
+        .mobile-fab-container,
+        .offcanvas,
+        .breadcrumbs,
+        .command-palette,
+        .alert {
+            display: none !important;
+        }
+
+        /* Body de impresión: negro sobre blanco, compacto */
+        html, body {
+            background: #fff !important;
+            color: #000;
+            font-size: 12px;
+            line-height: 1.4;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* La hoja pasa a ser la propia página del navegador */
+        .hoja {
+            width: auto;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            background: #fff;
+        }
+
+        /* ---- PAGINACIÓN ---- */
+        tr,
+        .firma-block,
+        .caja-datos,
+        .bloque-totales {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /* El encabezado de la tabla se repite en cada página */
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-row-group;
+        }
+
+        .bloque-firmas {
+            margin-top: 24px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+    }
+    </style>
+</head>
+<body>
+
+    {#- cfg: diccionario de configuración del taller. Viene de `config` en la
+        vista; si faltara, se usa el global `config_taller` inyectado por el
+        context processor de app.py. -#}
+    {% set cfg = config | default(config_taller, true) | default({}, true) %}
+
+    {# ===== Barra de acciones: SOLO en pantalla (.no-print) ===== #}
+    <div class="toolbar-imprimir no-print">
+        <button type="button" class="btn-toolbar btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <a href="{{ url_for('ordenes.ver', id=orden.id) }}" class="btn-toolbar btn-back">← Volver a la orden</a>
+    </div>
+
+    {# ===== Documento imprimible ===== #}
+    <main class="hoja">
+
+        {# --- Encabezado corporativo --- #}
+        <header class="doc-header">
+            <div class="taller-brand">
+                {% if cfg.get('logotipo_taller') %}
+                <img src="{{ url_for('static', filename=cfg.get('logotipo_taller').replace('static/', '')) }}"
+                     alt="Logotipo del taller" class="logo-corporativo">
+                {% endif %}
+                <div>
+                    <h1 class="taller-nombre">{{ cfg.get('nombre_taller', 'Taller de Impresoras') }}</h1>
+                    <p class="taller-detalles">
+                        {%- if cfg.get('direccion_taller') %}{{ cfg.get('direccion_taller') }}{% endif -%}
+                        {%- if cfg.get('telefono_taller') %} · Tel: {{ cfg.get('telefono_taller') }}{% endif %}
+                    </p>
+                    {% if cfg.get('email_taller') %}
+                    <p class="taller-detalles">{{ cfg.get('email_taller') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="doc-meta">
+                <div class="orden-badge">
+                    <span class="badge-label">Orden de reparación</span>
+                    <span class="badge-number">#{{ orden.numero_orden }}</span>
+                </div>
+                <p class="fecha-linea"><strong>Fecha:</strong> {{ orden.fecha_entrada | fecha if orden.fecha_entrada else '—' }}</p>
+                <p class="fecha-linea">
+                    <strong>Estado:</strong>
+                    <span class="estado-badge estado-{{ orden.estado | replace(' ', '') | replace('í', 'i') | replace('é', 'e') | replace('á', 'a') }}">{{ orden.estado }}</span>
+                </p>
+            </div>
+        </header>
+
+        {# --- Datos del cliente y equipo --- #}
+        <section class="info-grid">
+            <div class="caja-datos">
+                <h2 class="box-title">Datos del cliente</h2>
+                <p><strong>{{ orden.cliente.nombre }}</strong></p>
+                <p>Teléfono: {{ orden.cliente.telefono or '—' }}</p>
+            </div>
+            {% if orden.dispositivo %}
+            <div class="caja-datos">
+                <h2 class="box-title">Equipo</h2>
+                <p><strong>{{ orden.dispositivo.tipo }} — {{ orden.dispositivo.marca }} {{ orden.dispositivo.modelo }}</strong></p>
+                {% if orden.dispositivo.numero_serie %}
+                <p>No. Serie: {{ orden.dispositivo.numero_serie }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+
+        {# --- Problema / diagnóstico / técnico --- #}
+        <section class="seccion-detalle">
+            <div class="detalle-item">
+                <h2 class="detalle-title">Problema reportado</h2>
+                <p class="detalle-texto">{{ orden.problema_reportado or '—' }}</p>
+            </div>
+            {% if orden.diagnostico %}
+            <div class="detalle-item">
+                <h2 class="detalle-title">Diagnóstico técnico</h2>
+                <p class="detalle-texto">{{ orden.diagnostico }}</p>
+            </div>
+            {% endif %}
+            {% if orden.tecnico %}
+            <div class="detalle-item">
+                <h2 class="detalle-title">Técnico responsable</h2>
+                <p class="detalle-texto">{{ orden.tecnico.nombre }}</p>
+            </div>
+            {% endif %}
+        </section>
+
+        {# --- Repuestos utilizados --- #}
+        {% set piezas = orden.piezas_usadas %}
+        {% if piezas %}
+        <section class="seccion-tabla">
+            <h2 class="tabla-title">Repuestos utilizados</h2>
+            <table class="tabla-piezas">
+                <thead>
+                    <tr>
+                        <th class="col-desc">Descripción</th>
+                        <th class="col-cant td-center">Cant.</th>
+                        <th class="col-precio td-right">Precio unit.</th>
+                        <th class="col-subtotal td-right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set subtotal_piezas = namespace(total=0) %}
+                    {% for op in piezas %}
+                    <tr>
+                        <td>{{ op.pieza_rel.nombre if op.pieza_rel else 'Pieza manual' }}</td>
+                        <td class="td-center">{{ op.cantidad }}</td>
+                        <td class="td-right">${{ "%.2f" | format(op.precio_unitario) }}</td>
+                        <td class="td-right">${{ "%.2f" | format(op.cantidad * op.precio_unitario) }}</td>
+                        {% set subtotal_piezas.total = subtotal_piezas.total + (op.cantidad * op.precio_unitario) %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="td-right">Subtotal repuestos:</td>
+                        <td class="td-right">${{ "%.2f" | format(subtotal_piezas.total) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+        {% endif %}
+
+        {# --- Mano de obra / total a pagar --- #}
+        {% set totales = orden.costo_total if orden.costo_total is not none else (orden.mano_obra_costo or 0) + subtotal_piezas.total %}
+        <section class="bloque-totales">
+            <div class="totales-fila">
+                <span class="label">Mano de obra:</span>
+                <span class="valor">${{ "%.2f" | format(orden.mano_obra_costo or 0) }}
+                    {%- if orden.mano_obra_desc %}<span class="desc">({{ orden.mano_obra_desc }})</span>{% endif -%}
+                </span>
+            </div>
+            <div class="total-principal">
+                <span class="label">Total a pagar:</span>
+                <span class="valor">${{ "%.2f" | format(totales or 0) }}</span>
+            </div>
+        </section>
+
+        {# --- Observaciones --- #}
+        {% if orden.notas_cliente %}
+        <section class="seccion-notas">
+            <h2 class="notas-title">Observaciones</h2>
+            <p class="notas-texto">{{ orden.notas_cliente }}</p>
+        </section>
+        {% endif %}
+
+        {# --- Firmas --- #}
+        <section class="bloque-firmas">
+            <div class="firmas-row">
+                <div class="firma-block">
+                    <div class="firma-linea"></div>
+                    <p class="firma-label">Firma del técnico</p>
+                    <p class="firma-sublabel">Responsable del servicio</p>
+                </div>
+                <div class="firma-block">
+                    <div class="firma-linea"></div>
+                    <p class="firma-label">Firma del cliente</p>
+                    <p class="firma-sublabel">Conformidad del servicio</p>
+                </div>
+            </div>
+        </section>
+
+        {# --- Pie de documento --- #}
+        <footer class="doc-footer">
+            <p>Gracias por confiar en nuestros servicios. Este documento es su comprobante de reparación.</p>
+            {% if cfg.get('nit_taller') %}
+            <p>NIT/CI: {{ cfg.get('nit_taller') }}</p>
+            {% endif %}
+        </footer>
+    </main>
+</body>
+</html>

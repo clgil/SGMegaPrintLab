@@ -356,7 +356,7 @@ def imprimir(id):
     for c in Configuracion.query.all():
         config[c.clave] = c.valor
     
-    return render_template('ordenes/recibo.html', orden=orden, config=config)
+    return render_template('ordenes/imprimir.html', orden=orden, config=config)
 
 
 @ordenes_bp.route('/descargar/<int:id>')
