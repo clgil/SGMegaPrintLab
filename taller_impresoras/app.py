@@ -16,7 +16,7 @@ from config import config
 from services.extensions import db, login_manager, migrate, init_extensions
 
 # Importar modelos después de inicializar db
-from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto, Proveedor, Contrato, OrdenNota
+from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto, Proveedor, Contrato, OrdenNota, AuditLog
 
 # Re-exportar el parser desde models para mantener una única implementación
 from models import parsear_fecha_form as parsear_datetime_form
@@ -81,6 +81,11 @@ def create_app(config_name=None):
 
     app.template_filter('fecha')(fmt_fecha)
     app.template_filter('fecha_hora')(fmt_fecha_hora)
+    # Alias con prefijo fmt_ (usado por templates/auditoria/*.html): sin este
+    # registro el uso como filtro {{ x | fmt_fecha_hora }} lanza
+    # TemplateAssertionError: No filter named 'fmt_fecha_hora'.
+    app.template_filter('fmt_fecha')(fmt_fecha)
+    app.template_filter('fmt_fecha_hora')(fmt_fecha_hora)
     app.template_filter('fecha_input')(fecha_input)
     app.template_filter('datetime_input')(datetime_input)
 
@@ -327,6 +332,35 @@ def register_cli_commands(app):
         db.session.commit()
         print("✓ Base de datos inicializada correctamente.")
     
+    @app.cli.command('purge-audit-log')
+    @click.option('--dias', default=365, type=int,
+                  help='Conservar solo los registros de auditoría de los últimos N días (defecto: 365)')
+    @click.option('--si', is_flag=True, default=False,
+                  help='Omitir la confirmación interactiva (uso en cron/automatización)')
+    def purge_audit_log_command(dias, si):
+        """Purga la bitácora de auditoría (mantenimiento por retención).
+
+        ÚNICA vía autorizada para eliminar AuditLog: línea de comandos del
+        servidor, fuera del alcance de cualquier rol desde la interfaz web.
+        Así un administrador malintencionado no puede borrar sus propios
+        rastros por HTTP; necesitaría acceso al sistema de archivos/servidor.
+        """
+        from datetime import timedelta
+        from models import AuditLog
+        corte = datetime.now() - timedelta(days=dias)
+        antiguos = AuditLog.query.filter(AuditLog.timestamp < corte).count()
+        if antiguos == 0:
+            click.echo(f'No hay registros de auditoría anteriores a {dias} días.')
+            return
+        if not si and not click.confirm(
+                f'¿Eliminar DEFINITIVAMENTE {antiguos} registro(s) de auditoría '
+                f'más antiguos a {corte:%d/%m/%Y %H:%M}?'):
+            click.echo('Operación cancelada. La bitácora NO se modificó.')
+            return
+        AuditLog.query.filter(AuditLog.timestamp < corte).delete()
+        db.session.commit()
+        click.echo(f'✓ Purga completa: {antiguos} registro(s) eliminados (retención {dias} días).')
+
     @app.cli.command('crear-usuario')
     @click.option('--nombre', prompt='Nombre del usuario', help='Nombre completo del usuario')
     @click.option('--usuario', prompt='Nombre de usuario (login)', help='Nombre de usuario para iniciar sesión')

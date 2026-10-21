@@ -3,10 +3,18 @@ Modelos de base de datos para el Sistema de Gestión de Taller de Impresoras
 Adaptado a la realidad cubana - Junio 2026
 
 Define todas las tablas según el esquema SQLite especificado en el PRD
+
+Seguridad (anti-fraude interno): al final de este módulo se registran los
+eventos `after_insert` / `after_update` / `after_delete` de SQLAlchemy sobre
+los modelos críticos (Orden, Pieza, MovimientoInventario, ...) que escriben
+automáticamente cada cambio en la tabla inmutable `audit_log`.
 """
+import json
 from datetime import date, datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import event
+from sqlalchemy.orm import object_session
 
 # Importar la instancia db única desde extensions para evitar múltiples instancias
 from services.extensions import db
@@ -148,9 +156,9 @@ class Usuario(UserMixin, db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+        
     def tiene_permiso(self, permiso):
-        """Verifica si el usuario tiene un permiso específico según su rol"""
+        """Verifica si el usuario tiene un permiso específico según su rol."""
         if not self.rol or self.rol not in self.PERMISOS_POR_ROL:
             return False
         permisos_usuario = self.PERMISOS_POR_ROL.get(self.rol, [])
@@ -497,3 +505,286 @@ class OrdenNota(db.Model):
     
     def __repr__(self):
         return f'<Nota Orden:{self.orden_id} {self.fecha_hora}>'
+
+
+# ======================================================================
+# AUDITORÍA (anti-fraude interno) — bitácora inmutable append-only
+# ======================================================================
+class AuditLog(db.Model):
+    """Registro inmutable de auditoría (append-only).
+
+    Cada creación, actualización o eliminación sobre un modelo crítico
+    (Orden, Pieza, MovimientoInventario, ...) genera automáticamente una
+    fila aquí mediante los eventos ORM `after_insert` / `after_update` /
+    `after_delete` registrados más abajo (con la fotografía previa del
+    evento `before_flush` para poder reconstruir `old_values`).
+
+    SEGURIDAD:
+    - La clase NO define ningún método de edición ni eliminación: la
+      bitácora es solo lectura. El blueprint `/admin/auditoria` únicamente
+      consulta; no existe ninguna vista POST/PUT/DELETE para alterar logs.
+    - `username` se guarda desnormalizado: sobrevive aunque borren la
+      cuenta del usuario auditado.
+    - `old_values` / `new_values` se serializan como String JSON.
+    """
+    __tablename__ = 'audit_log'
+
+    ACCIONES_VALIDAS = ['CREATE', 'UPDATE', 'DELETE']
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
+    username = db.Column(db.Text)                    # copia del login al momento del cambio
+    action = db.Column(db.Text, nullable=False)      # CREATE | UPDATE | DELETE
+    table_name = db.Column(db.Text, nullable=False)  # tabla afectada (p.ej. 'ordenes')
+    record_id = db.Column(db.Text)                   # PK del registro (texto: soporta PK compuestas)
+    old_values = db.Column(db.Text)                  # JSON valores anteriores (UPDATE/DELETE)
+    new_values = db.Column(db.Text)                  # JSON valores nuevos (CREATE/UPDATE)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    ip_address = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<AuditLog {self.action} {self.table_name}:{self.record_id} por {self.username}>'
+
+    # --- Utilidades de SOLO LECTURA para la vista ---------------------
+    def valores_antiguos(self):
+        """Decodifica old_values (JSON -> dict)."""
+        try:
+            return json.loads(self.old_values) if self.old_values else {}
+        except (ValueError, TypeError):
+            return {}
+
+    def valores_nuevos(self):
+        """Decodifica new_values (JSON -> dict)."""
+        try:
+            return json.loads(self.new_values) if self.new_values else {}
+        except (ValueError, TypeError):
+            return {}
+
+    def resumen_cambios(self):
+        """[(campo, valor_antes, valor_despues)] para mostrar en la tabla."""
+        if self.action == 'CREATE':
+            return [(k, None, v) for k, v in sorted(self.valores_nuevos().items())]
+        if self.action == 'DELETE':
+            return [(k, v, None) for k, v in sorted(self.valores_antiguos().items())]
+        antes, despues = self.valores_antiguos(), self.valores_nuevos()
+        return [(k, antes.get(k), despues.get(k))
+                for k in sorted(set(antes) | set(despues))
+                if antes.get(k) != despues.get(k)]
+
+
+# ----------------------------------------------------------------------
+# Hooks de SQLAlchemy: captura automática de cambios en modelos críticos
+# ----------------------------------------------------------------------
+# Modelos cuyas mutaciones deben quedar registradas (fraude interno:
+# borrar órdenes, manipular stock, alterar facturación, etc.).
+MODELOS_AUDITADOS = (
+    'Orden', 'Pieza', 'MovimientoInventario', 'OrdenPieza', 'Gasto',
+    'Proveedor', 'Cliente', 'Dispositivo', 'Tecnico', 'Contrato',
+    'Configuracion', 'Usuario', 'OrdenNota',
+)
+
+# Campos que NUNCA se copian al log (material de autenticación).
+CAMPOS_SENSIBLES = {'password_hash'}
+
+
+def _valor_serializable(valor):
+    """Convierte un valor de columna a algo JSON-serializable."""
+    if isinstance(valor, datetime):
+        return valor.isoformat(sep=' ', timespec='seconds')
+    if isinstance(valor, date):
+        return valor.isoformat()
+    if isinstance(valor, (int, float, str, bool)) or valor is None:
+        return valor
+    return str(valor)
+
+
+def _valores_actuales(mapper, target):
+    """Fotografía los valores corrientes de todas las columnas del objeto."""
+    vals = {}
+    for prop in mapper.column_attrs:
+        clave = prop.key
+        if clave in CAMPOS_SENSIBLES:
+            continue
+        try:
+            raw = getattr(target, clave, None)
+        except Exception:
+            raw = None
+        vals[clave] = _valor_serializable(raw)
+    return vals
+
+
+def _contexto_usuario():
+    """Identifica al usuario/IP responsables del cambio.
+
+    Devuelve (user_id, username, ip). Fuera de contexto de request (CLI,
+    scripts de migración) registra 'sistema'.
+    """
+    user_id, username, ip = None, 'sistema', None
+    try:
+        from flask import has_request_context, request
+        from flask_login import current_user
+        if has_request_context():
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+            if ip:
+                ip = ip.split(',')[0].strip()
+            try:
+                if current_user.is_authenticated:
+                    user_id = current_user.id
+                    username = current_user.usuario
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return user_id, username, ip
+
+
+def _record_id_de(mapper, target):
+    """PK del registro como texto (soporta claves primarias compuestas)."""
+    try:
+        partes = []
+        for col in mapper.primary_key:
+            # resolver la columna -> atributo ORM por su nombre de columna;
+            # si no hay atributo directo, leer el valor desde la identidad.
+            attr = None
+            for a in mapper.attrs:
+                if getattr(a, 'key', None) == col.key or getattr(a, 'key', None) == col.name:
+                    attr = a
+                    break
+            if attr is not None:
+                valor = getattr(target, attr.key, None)
+            else:
+                valor = getattr(target, col.key, None)
+            partes.append('' if valor is None else str(valor))
+        return ','.join(partes)
+    except Exception:
+        return ''
+
+
+def _historial_update(mapper, target):
+    """Reconstruye (old, new) de un UPDATE desde la historia de atributos.
+
+    Los hooks after_* se ejecutan DESPUÉS de que SQLAlchemy aplicó los
+    cambios en la BD y limpió la historia; por eso `before_flush` guarda
+    una copia del historial por clave primaria (ver `_auditar_before_flush`).
+    Si no hay copia (p.ej. flush sin paso previo), se degrada con gracia:
+    `new_values` = estado actual y `old_values` = None.
+    """
+    state_key = None
+    try:
+        ident = db.inspect(target).identity
+        if ident is not None:
+            state_key = ','.join(str(v) for v in (ident if isinstance(ident, tuple) else (ident,)))
+    except Exception:
+        state_key = None
+    snapshot = _SNAPSHOTS_UPDATE.pop(state_key, None) if state_key else None
+    if snapshot:
+        return snapshot
+    # Fallback: solo valores nuevos (no poderemos saber los antiguos)
+    return None, _valores_actuales(mapper, target)
+
+
+# Copia temporal del historial de atributos tomada en before_flush:
+#   {record_id: (old_values_dict, new_values_dict)}
+# Se consume en after_update (mismo flush) y se descarta si hay rollback.
+_SNAPSHOTS_UPDATE = {}
+
+
+@event.listens_for(db.session, 'before_flush')
+def _auditar_before_flush(session, flush_context, instances):
+    """Fotografía ANTES del flush el historial old/new de cada objeto dirty.
+
+    Necesario porque after_update corre después de que SQLAlchemy limpia
+    la `AttributeHistory`; sin esta copia no podríamos llenar old_values.
+    """
+    _SNAPSHOTS_UPDATE.clear()
+    for obj in list(session.dirty):
+        if not session.is_modified(obj, include_collections=False):
+            continue
+        mapper = db.inspect(type(obj))
+        if mapper.class_.__name__ not in MODELOS_AUDITADOS:
+            continue
+        old, new = {}, {}
+        for prop in mapper.column_attrs:
+            clave = prop.key
+            if clave in CAMPOS_SENSIBLES:
+                continue
+            hist_state = db.inspect(obj).attrs[clave].history
+            if hist_state.has_changes():
+                antes = hist_state.deleted[0] if hist_state.deleted else None
+                despues = hist_state.added[0] if hist_state.added else None
+                old[clave] = _valor_serializable(antes)
+                new[clave] = _valor_serializable(despues)
+        if old or new:
+            ident = db.inspect(obj).identity
+            if ident is not None:
+                rid = ','.join(str(v) for v in (ident if isinstance(ident, tuple) else (ident,)))
+                _SNAPSHOTS_UPDATE[rid] = (old, new)
+
+
+@event.listens_for(db.session, 'after_rollback')
+def _auditar_tras_rollback(session):
+    """Si el cambio auditado se revirtió, descartamos su instantánea."""
+    _SNAPSHOTS_UPDATE.clear()
+
+
+def _escribir_log(action, target, mapper, old=None, new=None):
+    """Inserta la fila de auditoría en la MISMA transacción del cambio.
+
+    Usa connection.execute() con un INSERT de nivel Core (no ORM) para:
+    1) mantener el log atómicamente unido al cambio auditado (si el commit
+       falla, el log tampoco existe; si alguien borra el dato, la prueba
+       queda escrita en el mismo COMMIT), y
+    2) evitar recursión sobre los propios listeners de AuditLog.
+    """
+    user_id, username, ip = _contexto_usuario()
+    session = object_session(target) or db.session
+    conn = session.connection()
+    stmt = AuditLog.__table__.insert().values(
+        user_id=user_id,
+        username=username,
+        action=action,
+        table_name=mapper.local_table.name,
+        record_id=_record_id_de(mapper, target),
+        old_values=json.dumps(old, ensure_ascii=False, default=str) if old is not None else None,
+        new_values=json.dumps(new, ensure_ascii=False, default=str) if new is not None else None,
+        timestamp=datetime.now(),
+        ip_address=ip,
+    )
+    conn.execute(stmt)
+
+
+# --- Hooks por modelo crítico -----------------------------------------
+# Un listener por evento se registra sobre la CLASE BASE (db.Model) y se
+# filtra por nombre de modelo: así cubrimos Orden, Pieza,
+# MovimientoInventario y el resto de MODELOS_AUDITADOS con un solo juego
+# de eventos, tal como exige la política anti-fraude.
+
+@event.listens_for(db.Model, 'after_insert', propagate=True)
+def _audit_after_insert(mapper, connection, target):
+    """CREATE: guarda la fotografía completa del registro nuevo."""
+    if type(target).__name__ in MODELOS_AUDITADOS:
+        _escribir_log('CREATE', target, mapper, old=None,
+                      new=_valores_actuales(mapper, target))
+
+
+@event.listens_for(db.Model, 'after_update', propagate=True)
+def _audit_after_update(mapper, connection, target):
+    """UPDATE: guarda SOLO los campos que cambiaron (old -> new)."""
+    if type(target).__name__ not in MODELOS_AUDITADOS:
+        return
+    old, new = _historial_update(mapper, target)
+    if old is None and new is None:
+        return
+    _escribir_log('UPDATE', target, mapper, old=old, new=new)
+
+
+@event.listens_for(db.Model, 'after_delete', propagate=True)
+def _audit_after_delete(mapper, connection, target):
+    """DELETE: conserva el contenido íntegro del registro borrado.
+
+    Clave contra el fraude interno (ej. técnico que elimina una orden):
+    incluso si el borrado es físico, la bitácora permite reconstruirlo.
+    """
+    if type(target).__name__ in MODELOS_AUDITADOS:
+        _escribir_log('DELETE', target, mapper,
+                      old=_valores_actuales(mapper, target), new=None)
