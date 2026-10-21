@@ -9,7 +9,7 @@ import click
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import date, datetime
 
 # Importar configuración
 from config import config
@@ -17,6 +17,9 @@ from services.extensions import db, login_manager, init_extensions
 
 # Importar modelos después de inicializar db
 from models import Usuario, Cliente, Dispositivo, Tecnico, CategoriaPieza, Pieza, Orden, OrdenPieza, MovimientoInventario, Configuracion, Gasto, Proveedor, Contrato, OrdenNota
+
+# Re-exportar el parser desde models para mantener una única implementación
+from models import parsear_fecha_form as parsear_datetime_form
 
 
 def create_app(config_name=None):
@@ -60,7 +63,25 @@ def create_app(config_name=None):
         except:
             pass  # Si falla, usar config vacía
         return {'config_taller': config}
-    
+
+    # Helpers de fechas disponibles en TODAS las plantillas sin pasarlos por render_template
+    from models import fecha_input, datetime_input, fmt_fecha, fmt_fecha_hora
+
+    @app.context_processor
+    def inject_fecha_helpers():
+        """Expone serializadores/formateadores de fecha a nivel de plantilla."""
+        return {
+            'fecha_input': fecha_input,       # date -> 'YYYY-MM-DD' (<input type=date>)
+            'datetime_input': datetime_input, # datetime -> 'YYYY-MM-DDTHH:MM' (datetime-local)
+            'fmt_fecha': fmt_fecha,           # visualización DD/MM/YYYY
+            'fmt_fecha_hora': fmt_fecha_hora, # visualización DD/MM/YYYY HH:MM
+        }
+
+    app.template_filter('fecha')(fmt_fecha)
+    app.template_filter('fecha_hora')(fmt_fecha_hora)
+    app.template_filter('fecha_input')(fecha_input)
+    app.template_filter('datetime_input')(datetime_input)
+
     return app
 
 
@@ -317,6 +338,153 @@ def register_cli_commands(app):
         db.session.commit()
         
         click.echo(click.style(f'Usuario "{usuario}" creado exitosamente con rol "{rol}".', fg='green'))
+
+    # ------------------------------------------------------------------
+    # MIGRACIÓN DE DATOS: db.Text -> db.Date / db.DateTime
+    # ------------------------------------------------------------------
+    # Tabla -> {columna: 'date' | 'datetime'}
+    COLUMNAS_FECHA = {
+        'ordenes': {
+            'fecha_entrada': 'date',
+            'fecha_prevista': 'date',
+            'fecha_entrega': 'date',
+            'fecha_fin_garantia': 'date',
+            'fecha_inicio_reparacion': 'datetime',
+            'fecha_fin_reparacion': 'datetime',
+        },
+        'movimientos_inventario': {'fecha': 'date'},
+        'gastos': {'fecha': 'date'},
+        'proveedores': {'fecha_creacion': 'date'},
+        'contratos': {
+            'fecha_inicio': 'date',
+            'fecha_fin': 'date',
+            'ultima_visita': 'date',
+        },
+        'orden_notas': {'fecha_hora': 'datetime'},
+    }
+
+    @app.cli.command('fix-dates')
+    @click.option('--dry-run', is_flag=True, default=False,
+                  help='Solo muestra qué se convertiría, sin escribir en la BD.')
+    def fix_dates_command(dry_run):
+        """Convierte los strings de fecha/hora históricos a date/datetime nativos.
+
+        SQLite almacena db.Date/db.DateTime como TEXT en formato ISO, por lo que
+        NO se necesita ALTER TABLE (migración "in-place"): este comando reescribe
+        cada fila para que SQLAlchemy pueda deserializarlas como objetos date y
+        datetime. Es idempotente: puede ejecutarse varias veces sin dañar datos.
+        """
+        from sqlalchemy import inspect, text
+
+        def _parse(valor, tipo):
+            """Acepta los formatos legados observados en producción."""
+            if valor is None:
+                return None
+            if isinstance(valor, (date, datetime)):  # ya migrada
+                return valor
+            s = str(valor).strip()
+            if not s or s.upper() in ('NONE', 'NULL'):
+                return None
+            candidatos = (
+                '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M',
+                '%Y-%m-%dT%H:%M', '%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%Y-%m',
+            )
+            for f in candidatos:
+                try:
+                    dt = datetime.strptime(s, f)
+                    return dt.date() if tipo == 'date' else dt
+                except ValueError:
+                    continue
+            try:  # último recurso: ISO con microsegundos/timezone-less
+                dt = datetime.fromisoformat(s)
+                return dt.date() if tipo == 'date' and not s.count(':') else dt
+            except ValueError:
+                raise ValueError(f"Valor no convertible: '{valor}'")
+
+        def _serializar(v):
+            """Cómo queda el valor en SQLite tras la migración."""
+            if v is None:
+                return None
+            if isinstance(v, datetime):
+                return v.isoformat(sep=' ', timespec='seconds')
+            return v.isoformat()  # date -> 'YYYY-MM-DD'
+
+        engine = db.engine
+        tablas_existentes = set(inspect(engine).get_table_names())
+        total_actualizados, total_validos, total_invalidos = 0, 0, 0
+        estilo = click.style
+
+        for tabla, columnas in COLUMNAS_FECHA.items():
+            if tabla not in tablas_existentes:
+                click.echo(estilo(f'– Tabla "{tabla}" no existe, se omite.', fg='yellow'))
+                continue
+
+            # Solo columnas que realmente sean TEXT en el esquema legado
+            cols_reales = {c['name']: c for c in inspect(engine).get_columns(tabla)}
+            col_pk = next((c['name'] for c in cols_reales.values() if c['primary_key']), 'id')
+
+            a_convertir = {}
+            for col, tipo in columnas.items():
+                if col not in cols_reales:
+                    click.echo(estilo(f'– {tabla}.{col} no existe, se omite.', fg='yellow'))
+                    continue
+                tipo_sql = (cols_reales[col]['type'] or '').upper()
+                if tipo_sql in ('DATE', 'DATETIME', 'TIMESTAMP'):
+                    click.echo(estilo(f'✓ {tabla}.{col} ya está tipada ({tipo_sql}).', fg='green'))
+                    total_validos += 1
+                    continue
+                a_convertir[col] = tipo
+
+            if not a_convertir:
+                continue
+
+            filas = engine.execute(text(f'SELECT * FROM "{tabla}"')).mappings().all()
+            click.echo(f'\n→ Migrando tabla "{tabla}" ({len(filas)} filas, '
+                       f'columnas: {", ".join(a_convertir)})')
+
+            for fila in filas:
+                cambios = {}
+                for col, tipo in a_convertir.items():
+                    try:
+                        convertido = _parse(fila[col], tipo)
+                    except ValueError as e:
+                        total_invalidos += 1
+                        click.echo(estilo(
+                            f'  ✗ {tabla}#{fila[col_pk]}.{col}: {e} (se conserva el valor original)',
+                            fg='red'))
+                        continue
+                    original = fila[col]
+                    if isinstance(original, (date, datetime)) or original == _serializar(convertido):
+                        continue  # ya tiene forma ISO correcta
+                    cambios[col] = _serializar(convertido)
+
+                if cambios:
+                    total_actualizados += 1
+                    if dry_run:
+                        click.echo(f'  [dry-run] #{fila[col_pk]} -> '
+                                   + ', '.join(f'{k}={v}' for k, v in cambios.items()))
+                    else:
+                        sets = ', '.join(f'"{c}" = :{c}' for c in cambios)
+                        params = dict(cambios)
+                        params['_pk'] = fila[col_pk]
+                        engine.execute(
+                            text(f'UPDATE "{tabla}" SET {sets} WHERE "{col_pk}" = :_pk'),
+                            params)
+
+        if dry_run:
+            db.session.rollback()
+            click.echo(estilo(f'\n[dry-run] Sin cambios escritos. Filas que se '
+                              f'actualizarían: {total_actualizados}', fg='cyan'))
+        else:
+            # SQLAlchemy 2.x: el commit se hace a través de la conexión de la sesión
+            db.session.commit()
+            click.echo(estilo(f'\n✓ Migración fix-dates completada: '
+                              f'{total_actualizados} filas actualizadas, '
+                              f'{total_validos} columnas ya tipadas, '
+                              f'{total_invalidos} valores ilegibles conservados.',
+                              fg='green'))
+            click.echo('Nota: verifique que el modelo use db.Date/db.DateTime y '
+                       'ejecute `flask db-upgrade` si adopta Flask-Migrate.')
 
 
 # Crear instancia de la aplicación

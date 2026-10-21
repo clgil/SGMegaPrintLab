@@ -5,7 +5,7 @@ Adaptado a la realidad cubana - Junio 2026
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required
 from models import db, Pieza, CategoriaPieza, MovimientoInventario
-from datetime import datetime
+from datetime import date, datetime
 from routes.decorators import rol_requerido
 
 inventario_bp = Blueprint('inventario', __name__, template_folder='../templates')
@@ -92,7 +92,7 @@ def nuevo():
                 tipo='entrada',
                 cantidad=cantidad,
                 concepto='Stock inicial',
-                fecha=datetime.now().strftime('%Y-%m-%d')
+                fecha=date.today()
             )
             db.session.add(movimiento)
             db.session.commit()
@@ -187,7 +187,7 @@ def entrada(id):
             tipo='entrada',
             cantidad=cantidad,
             concepto=f'{concepto} - {proveedor}',
-            fecha=datetime.now().strftime('%Y-%m-%d')
+            fecha=date.today()
         )
         
         db.session.add(movimiento)

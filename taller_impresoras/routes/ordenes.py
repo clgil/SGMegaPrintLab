@@ -7,7 +7,8 @@ Este es el módulo principal del sistema, maneja el ciclo completo de las órden
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from models import db, Orden, Cliente, Dispositivo, Tecnico, Pieza, OrdenPieza, MovimientoInventario
-from datetime import datetime
+from models import parsear_fecha_form, fecha_input, datetime_input
+from datetime import date, datetime
 from routes.decorators import rol_requerido
 
 ordenes_bp = Blueprint('ordenes', __name__, template_folder='../templates')
@@ -79,11 +80,17 @@ def nuevo():
         dispositivo_id = request.form.get('dispositivo_id') if request.form.get('dispositivo_id') else None
         problema_reportado = request.form.get('problema_reportado')
         tecnico_id = request.form.get('tecnico_id') if request.form.get('tecnico_id') else None
-        fecha_prevista = request.form.get('fecha_prevista')
         notas_cliente = request.form.get('notas_cliente')
         
         if not cliente_id or not problema_reportado:
             flash('El cliente y el problema reportado son obligatorios', 'warning')
+            return redirect(url_for('ordenes.nuevo'))
+        
+        # Parsear el input <input type="date"> a objeto date nativo
+        try:
+            fecha_prevista = parsear_fecha_form(request.form.get('fecha_prevista'), tipo='date')
+        except ValueError as e:
+            flash(f'Fecha prevista inválida: {e}', 'danger')
             return redirect(url_for('ordenes.nuevo'))
         
         numero_orden = generar_numero_orden()
@@ -97,7 +104,7 @@ def nuevo():
             fecha_prevista=fecha_prevista,
             estado='Recibido',
             notas_cliente=notas_cliente,
-            fecha_entrada=datetime.now().strftime('%Y-%m-%d')
+            fecha_entrada=date.today()  # objeto date nativo -> columna db.Date
         )
         
         db.session.add(orden)
@@ -113,6 +120,7 @@ def nuevo():
                          orden=None, 
                          clientes=clientes,
                          tecnicos=tecnicos,
+                         fecha_input=fecha_input,
                          accion='Crear')
 
 
@@ -121,7 +129,9 @@ def nuevo():
 def ver(id):
     """Ver detalle completo de una orden"""
     orden = Orden.query.get_or_404(id)
-    return render_template('ordenes/detalle.html', orden=orden)
+    return render_template('ordenes/detalle.html', orden=orden,
+                           fecha_input=fecha_input,
+                           datetime_input=datetime_input)
 
 
 @ordenes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
@@ -148,15 +158,32 @@ def editar(id):
         orden.diagnostico = request.form.get('diagnostico')
         orden.estado = request.form.get('estado')
         orden.tecnico_id = request.form.get('tecnico_id') if request.form.get('tecnico_id') else None
-        orden.fecha_prevista = request.form.get('fecha_prevista')
+        # Parsear fecha del formulario a date nativo (rechazar formatos inválidos)
+        try:
+            orden.fecha_prevista = parsear_fecha_form(request.form.get('fecha_prevista'), tipo='date')
+        except ValueError as e:
+            db.session.rollback()
+            flash(f'Fecha prevista inválida: {e}', 'danger')
+            return redirect(url_for('ordenes.editar', id=orden.id))
         orden.mano_obra_desc = request.form.get('mano_obra_desc')
         orden.mano_obra_costo = float(request.form.get('mano_obra_costo') or 0)
         orden.notas_internas = request.form.get('notas_internas')
         orden.notas_cliente = request.form.get('notas_cliente')
         
-        # Si se marca como entregada, registrar fecha de entrega
+        # Si se marca como entregada, registrar fecha de entrega (objeto date nativo)
         if orden.estado == 'Entregado' and not orden.fecha_entrega:
-            orden.fecha_entrega = datetime.now().strftime('%Y-%m-%d')
+            orden.fecha_entrega = date.today()
+        
+        # Control de marcas de tiempo del ciclo de reparación (db.DateTime):
+        # al entrar en reparación se fija inicio; al terminar se fija fin.
+        if orden.estado == 'En reparacion' and not orden.fecha_inicio_reparacion:
+            orden.fecha_inicio_reparacion = datetime.now()
+        if orden.estado in ('Listo para entregar', 'Entregado') and not orden.fecha_fin_reparacion:
+            orden.fecha_fin_reparacion = datetime.now()
+        
+        # Garantía: calcular fecha_fin_garantia cuando se entrega con garantía
+        if orden.estado == 'Entregado' and orden.garantia_meses and not orden.fecha_fin_garantia:
+            orden.activar_garantia_desde_entrega()
         
         # PASO 3: Procesar piezas usadas (enviadas como JSON desde el frontend)
         piezas_json = request.form.get('piezas_usadas', '[]')
@@ -180,7 +207,7 @@ def editar(id):
                         cantidad=op.cantidad,
                         concepto=f'Devolución por edición/cancelación - Orden {orden.numero_orden}',
                         orden_id=orden.id,
-                        fecha=datetime.now().strftime('%Y-%m-%d')
+                        fecha=date.today()
                     )
                     db.session.add(movimiento)
             db.session.delete(op)  # Eliminar registro de OrdenPieza
@@ -242,7 +269,7 @@ def editar(id):
                         cantidad=cantidad,
                         concepto=f'Usada en orden {orden.numero_orden}',
                         orden_id=orden.id,
-                        fecha=datetime.now().strftime('%Y-%m-%d')
+                        fecha=date.today()
                     )
                     db.session.add(movimiento)
                     
@@ -284,6 +311,8 @@ def editar(id):
                          orden=orden, 
                          clientes=clientes,
                          tecnicos=tecnicos,
+                         fecha_input=fecha_input,
+                         datetime_input=datetime_input,
                          dispositivos=dispositivos,
                          piezas_usadas_json=piezas_usadas_json,
                          accion='Editar')
@@ -703,7 +732,7 @@ def descargar(id):
     right_content.append(Spacer(1, 0.1*inch))
     
     # Fecha y estado
-    right_content.append(Paragraph(f"<b>Fecha:</b> {orden.fecha_entrada}", fecha_estado_style))
+    right_content.append(Paragraph(f"<b>Fecha:</b> {fecha_input(orden.fecha_entrada)}", fecha_estado_style))
     right_content.append(Paragraph(f"<b>Estado:</b> {orden.estado}", fecha_estado_style))
     
     # Tabla principal del header

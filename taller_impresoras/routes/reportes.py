@@ -4,12 +4,23 @@ Adaptado a la realidad cubana - Junio 2026
 """
 from flask import Blueprint, render_template, request, make_response, jsonify, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
-from models import db, Orden, Pieza, MovimientoInventario, Cliente, Gasto, Configuracion
-from datetime import datetime
+from models import db, Orden, Pieza, MovimientoInventario, Cliente, Gasto, Configuracion, parsear_fecha_form
+from datetime import date, datetime
 import io
 from routes.decorators import rol_requerido
 
 reportes_bp = Blueprint('reportes', __name__, template_folder='../templates')
+
+
+def _rango_fechas_form(fecha_inicio_raw, fecha_fin_raw):
+    """Convierte los inputs type=date de los reportes en objetos date nativos.
+
+    SQLAlchemy serializa date -> ISO para comparar contra columnas db.Date.
+    Lanza ValueError si el formato es inválido.
+    """
+    fi = parsear_fecha_form(fecha_inicio_raw, tipo='date')
+    ff = parsear_fecha_form(fecha_fin_raw, tipo='date')
+    return fi, ff
 
 
 @reportes_bp.route('/')
@@ -27,7 +38,13 @@ def gastos():
         # Añadir nuevo gasto
         descripcion = request.form.get('descripcion')
         monto = float(request.form.get('monto', 0))
-        fecha = request.form.get('fecha', datetime.now().strftime('%Y-%m-%d'))
+        # Input type=date -> objeto date nativo (columna db.Date); vacío = hoy
+        try:
+            fecha = parsear_fecha_form(
+                request.form.get('fecha') or None, tipo='date') or date.today()
+        except ValueError as e:
+            flash(f'Fecha del gasto inválida: {e}', 'danger')
+            return redirect(url_for('reportes.gastos'))
         
         if not descripcion or monto <= 0:
             flash('Descripción y monto válido son obligatorios', 'warning')
@@ -43,7 +60,7 @@ def gastos():
     # Listar gastos (últimos 50)
     gastos_lista = Gasto.query.order_by(Gasto.fecha.desc()).limit(50).all()
     total_gastos = sum(g.monto for g in gastos_lista)
-    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    fecha_actual = date.today().isoformat()  # valor por defecto para <input type=date>
     
     return render_template('reportes/gastos.html', gastos=gastos_lista, total_gastos=total_gastos, fecha_actual=fecha_actual)
 
@@ -106,6 +123,13 @@ def ingresos():
             flash('Ambas fechas son obligatorias', 'warning')
             return redirect(url_for('reportes.ingresos'))
         
+        # Parsear inputs type=date a objetos date nativos (comparables con db.Date)
+        try:
+            fecha_inicio, fecha_fin = _rango_fechas_form(fecha_inicio, fecha_fin)
+        except ValueError as e:
+            flash(f'Rango de fechas inválido: {e}', 'danger')
+            return redirect(url_for('reportes.ingresos'))
+
         # Consultar órdenes entregadas en el rango
         ordenes = Orden.query.filter(
             Orden.estado == 'Entregado',
@@ -118,8 +142,8 @@ def ingresos():
         return render_template('reportes/ingresos.html', 
                              ordenes=ordenes, 
                              total_ingresos=total_ingresos,
-                             fecha_inicio=fecha_inicio,
-                             fecha_fin=fecha_fin)
+                             fecha_inicio=fecha_inicio.isoformat(),
+                             fecha_fin=fecha_fin.isoformat())
     
     return render_template('reportes/ingresos_form.html')
 
@@ -153,6 +177,13 @@ def piezas_utilizadas():
             flash('Ambas fechas son obligatorias', 'warning')
             return redirect(url_for('reportes.piezas_utilizadas'))
         
+        # Parsear inputs type=date a objetos date nativos (comparables con db.Date)
+        try:
+            fecha_inicio, fecha_fin = _rango_fechas_form(fecha_inicio, fecha_fin)
+        except ValueError as e:
+            flash(f'Rango de fechas inválido: {e}', 'danger')
+            return redirect(url_for('reportes.piezas_utilizadas'))
+
         # Consultar movimientos de salida en el rango
         from sqlalchemy import func
         
@@ -168,8 +199,8 @@ def piezas_utilizadas():
         
         return render_template('reportes/piezas_utilizadas.html', 
                              resultados=resultados,
-                             fecha_inicio=fecha_inicio,
-                             fecha_fin=fecha_fin)
+                             fecha_inicio=fecha_inicio.isoformat(),
+                             fecha_fin=fecha_fin.isoformat())
     
     return render_template('reportes/piezas_utilizadas.html')
 
