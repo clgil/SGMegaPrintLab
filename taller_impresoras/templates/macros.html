@@ -1,0 +1,104 @@
+{# ============================================
+   macros.html — Macros reutilizables de SGMegaPrintLab
+   --------------------------------------------
+   Uso en cualquier template:
+     {% from "macros.html" import estado_badge, tabla_ordenes, stat_card %}
+
+   Componentes:
+     1. estado_badge(estado)  -> badge semántico con clases propias (.badge--*)
+     2. tabla_ordenes(...)    -> tabla completa de órdenes con empty state
+     3. stat_card(...)        -> tarjeta estadística unificada (.stat-card)
+   ============================================ #}
+
+{#- ------------------------------------------------------------
+   MACRO 1: estado_badge(estado)
+   Renderiza un <span class="badge badge--*"> con la clase CSS
+   personalizada que corresponde al estado de la orden.
+   No usa clases bg-* de Bootstrap: los colores provienen de
+   custom.css y funcionan en modo claro/oscuro vía variables CSS.
+   ------------------------------------------------------------ #}
+{%- macro estado_badge(estado) -%}
+  {%- set clases = {
+      'Recibido':            'badge--pending',
+      'En diagnostico':      'badge--diagnosis',
+      'Esperando piezas':    'badge--waiting',
+      'En reparacion':       'badge--repair',
+      'Listo para entregar': 'badge--ready',
+      'Entregado':           'badge--delivered',
+      'Cancelado':           'badge--cancelled'
+  } -%}
+  {%- set clase = clases.get(estado, 'badge--pending') -%}
+  <span class="badge {{ clase }}">{{ estado }}</span>
+{%- endmacro -%}
+
+{#- ------------------------------------------------------------
+   MACRO 2: tabla_ordenes(ordenes, mostrar_cliente=True, mostrar_total=True)
+   Tabla completa de órdenes usando .table-container + .table de
+   custom.css. Columnas opcionales: Cliente y Total.
+   Incluye empty state accesible cuando no hay órdenes.
+   ------------------------------------------------------------ #}
+{%- macro tabla_ordenes(ordenes, mostrar_cliente=True, mostrar_total=True) -%}
+  {%- if ordenes %}
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Fecha</th>
+            {%- if mostrar_cliente %}
+            <th>Cliente</th>
+            {%- endif %}
+            <th>Estado</th>
+            {%- if mostrar_total %}
+            <th>Total</th>
+            {%- endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {%- for orden in ordenes %}
+          <tr>
+            <td><a href="{{ url_for('ordenes.ver', id=orden.id) }}">{{ orden.numero_orden }}</a></td>
+            <td>{{ orden.fecha_entrada }}</td>
+            {%- if mostrar_cliente %}
+            <td>{{ orden.cliente.nombre if orden.cliente else 'N/A' }}</td>
+            {%- endif %}
+            <td>{{ estado_badge(orden.estado) }}</td>
+            {%- if mostrar_total %}
+            <td>${{ "%.2f"|format(orden.costo_total) }}</td>
+            {%- endif %}
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {%- else %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+    <p class="empty-state-title">Sin resultados</p>
+    <p class="empty-state-text mb-0">No hay órdenes registradas.</p>
+  </div>
+  {%- endif %}
+{%- endmacro -%}
+
+{#- ------------------------------------------------------------
+   MACRO 3: stat_card(icono, label, value, subtitle, tipo='primary')
+   Tarjeta estadística moderna (.stat-card de custom.css).
+   Tipos soportados: primary, success, warning, danger, info
+   (y secondary como variante neutra adicional).
+   ------------------------------------------------------------ #}
+{%- macro stat_card(icono, label, value, subtitle, tipo='primary') -%}
+  {%- set tipos = ['primary', 'success', 'warning', 'danger', 'info'] -%}
+  {%- set tipo_ok = tipo if tipo in tipos else 'primary' -%}
+  <div class="stat-card stat-card--{{ tipo_ok }}">
+    <div class="stat-card__icon"><i class="bi bi-{{ icono }}"></i></div>
+    <div class="stat-card__content">
+      <div class="stat-card__label">{{ label }}</div>
+      <div class="stat-card__value">{{ value }}</div>
+      {%- if subtitle %}
+      <div class="stat-card__subtitle">{{ subtitle }}</div>
+      {%- endif %}
+    </div>
+  </div>
+{%- endmacro -%}

@@ -3,6 +3,18 @@
    Design System basado en estándares SaaS modernos
    ============================================ */
 
+/* ============================================================
+   ÍNDICE DE SECCIONES
+   1. Variables CSS            2. Modo oscuro - Variables
+   3. Estilos base             4. Componentes
+   5. Modo oscuro - Overrides  6. Utilidades
+   7. Responsive
+   ============================================================ */
+
+/* ============================================
+   1. VARIABLES CSS
+   Tokens de diseño: paleta, tipografía, espaciado, sombras, radios.
+   ============================================ */
 :root {
     /* ========================================
        PALETA DE COLORES PRINCIPAL
@@ -132,6 +144,13 @@
 }
 
 /* Modo Oscuro - Variables de colores de fondo para tarjetas */
+/* ============================================
+   2. MODO OSCURO - VARIABLES
+   Mecanismo principal de tematización: body.dark-mode redefine los tokens
+   (--bg-*, --text-*, --border-color...). Los componentes que usan variables
+   cambian de tema solos; solo necesitan reglas explícitas los elementos que
+   chocan con utilidades !important de Bootstrap (ver sección 5).
+   ============================================ */
 body.dark-mode {
     --bg-body: var(--gray-900);
     --bg-card: var(--gray-800);
@@ -158,10 +177,14 @@ body.dark-mode {
     --stat-danger: #f87171;
     --stat-info: #22d3ee;
     --stat-secondary: #94a3b8;
+    /* Flecha y fondo nativos de .form-select (bootstrap.min.css usa estas
+       variables en :root; redefinirlas aquí evita el hack !important). */
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    --bs-form-select-bg-color: var(--bg-input);
 }
 
 /* ============================================
-   ESTILOS BASE
+   3. ESTILOS BASE
    ============================================ */
 * {
     box-sizing: border-box;
@@ -176,6 +199,22 @@ body {
     padding: 0;
     transition: background-color var(--transition-base), color var(--transition-base);
 }
+
+/* ============================================
+   4. COMPONENTES
+   Sidebar, navbar, tarjetas, botones, formularios, tablas, badges,
+   alertas, modales, skeleton loaders, empty states, breadcrumbs,
+   command palette, offcanvas, FAB... Cada bloque de componente incluye
+   sus propios overrides de modo oscuro junto a sus estilos base.
+   ============================================ */
+
+/* ============================================
+   5. MODO OSCURO - OVERRIDES
+   Reglas explícitas de dark mode para lo que no se resuelve solo con
+   variables (fondos de <tbody>, flecha de selects, textos sobre fondos
+   fijos de Bootstrap). Ninguna usa !important sobre colores: se gana por
+   especificidad natural o redefiniendo variables internas del componente.
+   ============================================ */
 
 /* ============================================
    SIDEBAR MODERNO
@@ -536,7 +575,11 @@ body.dark-mode .user-menu:hover {
 /* ============================================
    TARJETAS MODERNAS
    ============================================ */
+/* `background` shorthand con valor initial anula el `background-color` de las
+   utilidades bg-* de Bootstrap sin necesidad de !important; luego la utilidad
+   temática .bg-* (sección UTILIDADES) reaplica el color correcto por cascada. */
 .card {
+    background: initial;
     background-color: var(--bg-card);
     border-radius: 16px;
     border: 1px solid var(--border-color);
@@ -1110,55 +1153,19 @@ body.dark-mode label span.text-danger {
     margin-top: var(--space-1);
 }
 
-/* ==========================================================================
-   FIX DEFINITIVO: Form-Floating en Modo Oscuro (Bootstrap 5)
-   ========================================================================== */
-
-.form-floating > .form-control,
-.form-floating > .form-select {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-    border: 1px solid #334155 !important;
-}
-
-.form-floating > label {
-    color: #94a3b8 !important;
-}
-
-.form-floating > label::after {
-    background-color: #1e293b !important;
-}
-
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-    color: #60a5fa !important;
-    opacity: 1 !important;
-    font-weight: 600;
-}
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-    -webkit-text-fill-color: #f8fafc !important;
-    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
-    transition: background-color 5000s ease-in-out 0s;
-}
-
-.form-select option {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-}
-
 /* ============================================
-   TABLAS PROFESIONALES
+   FORM-FLOATING EN MODO OSCURO (Bootstrap 5)
+   Bootstrap dibuja la flecha del select y su fondo mediante las variables
+   --bs-form-select-bg-img / --bs-form-select-bg-color (definidas en :root).
+   En lugar de anular sus reglas con !important, redefinimos esas variables
+   en dark mode: texto claro y flecha clara se heredan automáticamente a
+   todos los .form-control/.form-select, también dentro de .form-floating.
    ============================================ */
+
+body.dark-mode .form-floating > label {
+    color: var(--text-secondary);
+}
+
 .table-container {
     background-color: var(--bg-card);
     border-radius: var(--radius-lg);
@@ -1227,40 +1234,15 @@ body.dark-mode .table td {
     background-color: var(--gray-50);
 }
 
-/* Modo Oscuro - Forzar fondos oscuros en tablas */
-body.dark-mode .table tbody tr {
-    background-color: var(--gray-800) !important;
+/* Modo oscuro para tablas: sin !important — Bootstrap aplica sus fondos
+   con !important solo a <tr>/<th>/<td>, nunca al tbody; por eso basta un
+   único override sobre `tbody`, que además no rompe el zebra de nth-of-type. */
+body.dark-mode .table tbody {
+    background-color: var(--gray-800);
 }
 
 body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: var(--gray-750) !important;
-}
-
-body.dark-mode .table-striped tbody tr:nth-of-type(even) {
-    background-color: var(--gray-800) !important;
-}
-
-/* Asegurar que todas las celdas hereden el fondo en modo oscuro */
-body.dark-mode .table tbody tr td,
-body.dark-mode .table tbody tr th {
-    background-color: transparent !important;
-}
-
-/* Mejora de visibilidad en modo oscuro - mayor contraste entre filas */
-body.dark-mode .table tbody tr {
-    border-bottom: 1px solid var(--gray-700);
-}
-
-body.dark-mode .table tbody tr td,
-body.dark-mode .table tbody tr th {
-    color: var(--gray-100) !important;
-}
-
-/* Asegurar que el header de la tabla tenga buen contraste */
-body.dark-mode .table thead th {
-    background-color: var(--gray-750) !important;
-    color: var(--white) !important;
-    border-bottom: 2px solid var(--gray-600);
+    background-color: var(--gray-750);
 }
 
 .table tbody tr:hover td {
@@ -1335,7 +1317,12 @@ body.dark-mode .table tbody tr.table-success {
 }
 
 /* ============================================
-   BADGES
+   BADGES PERSONALIZADOS
+   Base .badge + variantes genéricas (.badge-success, etc.)
+   y badges semánticos de estados de orden (.badge--*)
+   usados por templates/macros.html → estado_badge().
+   Todos resuelven color vía variables CSS, por lo que
+   funcionan en modo oscuro SIN !important.
    ============================================ */
 .badge {
     display: inline-flex;
@@ -1372,9 +1359,112 @@ body.dark-mode .table tbody tr.table-success {
     color: var(--gray-700);
 }
 
+/* Modo oscuro: solo se redefinen las variables internas — sin !important */
 body.dark-mode .badge-neutral {
     background-color: var(--gray-700);
     color: var(--gray-300);
+}
+
+/* ------------------------------------------------------------
+   Badges de ESTADO DE ORDEN (macros.html: estado_badge)
+   Colores semánticos por etapa del flujo de reparación.
+   Cada variante define sus propias variables internas; en modo
+   oscuro simplemente se redefinen esas variables — sin reglas
+   específicas ni !important.
+   ------------------------------------------------------------ */
+.badge--pending,
+.badge--diagnosis,
+.badge--waiting,
+.badge--repair,
+.badge--ready,
+.badge--delivered,
+.badge--cancelled {
+    --badge-bg: var(--gray-200);
+    --badge-fg: var(--gray-700);
+    background-color: var(--badge-bg);
+    color: var(--badge-fg);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Recibido -> neutro/pendiente (gris) */
+.badge--pending {
+    --badge-bg: var(--gray-200);
+    --badge-fg: var(--gray-700);
+}
+
+/* En diagnostico -> advertencia (ámbar) */
+.badge--diagnosis {
+    --badge-bg: var(--warning-light);
+    --badge-fg: var(--warning-hover);
+}
+
+/* Esperando piezas -> información (cian) */
+.badge--waiting {
+    --badge-bg: var(--info-light);
+    --badge-fg: var(--info-hover);
+}
+
+/* En reparacion -> acción/principal (azul) */
+.badge--repair {
+    --badge-bg: var(--primary-light);
+    --badge-fg: var(--primary-hover);
+}
+
+/* Listo para entregar -> éxito (verde) */
+.badge--ready {
+    --badge-bg: var(--success-light);
+    --badge-fg: var(--success-hover);
+}
+
+/* Entregado -> éxito confirmado (verde sólido) */
+.badge--delivered {
+    --badge-bg: var(--success);
+    --badge-fg: var(--white);
+}
+
+/* Cancelado -> peligro (rojo) */
+.badge--cancelled {
+    --badge-bg: var(--danger-light);
+    --badge-fg: var(--danger-hover);
+}
+
+/* Modo oscuro: se redefinen SOLO las variables internas de cada
+   badge (fondos translúcidos + texto claro). No se toca ninguna
+   propiedad directamente y no se usa !important. */
+body.dark-mode .badge--pending {
+    --badge-bg: var(--gray-700);
+    --badge-fg: var(--gray-300);
+}
+
+body.dark-mode .badge--diagnosis {
+    --badge-bg: rgba(245, 158, 11, 0.18);
+    --badge-fg: #fbbf24;
+}
+
+body.dark-mode .badge--waiting {
+    --badge-bg: rgba(6, 182, 212, 0.18);
+    --badge-fg: #22d3ee;
+}
+
+body.dark-mode .badge--repair {
+    --badge-bg: rgba(37, 99, 235, 0.22);
+    --badge-fg: #60a5fa;
+}
+
+body.dark-mode .badge--ready {
+    --badge-bg: rgba(16, 185, 129, 0.18);
+    --badge-fg: #34d399;
+}
+
+body.dark-mode .badge--delivered {
+    --badge-bg: var(--bg-success);
+    --badge-fg: var(--white);
+}
+
+body.dark-mode .badge--cancelled {
+    --badge-bg: rgba(239, 68, 68, 0.18);
+    --badge-fg: #f87171;
 }
 
 /* ============================================
@@ -1728,100 +1818,22 @@ body.dark-mode .command-item.active {
 }
 
 /* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: var(--sidebar-width-collapsed);
-        padding: var(--space-4) var(--space-2);
-    }
-    
-    .sidebar .taller-name,
-    .sidebar .user-info,
-    .sidebar .nav-text,
-    .sidebar .nav-section-title {
-        display: none;
-    }
-    
-    .navbar-top {
-        left: var(--sidebar-width-collapsed);
-    }
-    
-    .main-content {
-        margin-left: var(--sidebar-width-collapsed);
-    }
-    
-    .search-global {
-        width: 200px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Ocultar sidebar fijo en móvil - nunca debe ser visible */
-    .sidebar {
-        display: none !important;
-    }
-    
-    .navbar-top {
-        left: 0;
-    }
-    
-    .main-content {
-        margin-left: 0 !important;
-        padding-top: calc(60px + var(--space-4)); /* Ajustar por la mobile-top-nav (60px de altura) */
-        padding-bottom: var(--space-4);
-        padding-left: var(--space-3);
-        padding-right: var(--space-3);
-    }
-    
-    .search-global {
-        display: none;
-    }
-    
-    .kpi-card {
-        padding: var(--space-4);
-    }
-    
-    .kpi-value {
-        font-size: var(--font-size-2xl);
-    }
-}
-
-/* ============================================
-   UTILIDADES
+   6. UTILIDADES
    ============================================ */
 .text-primary { color: var(--primary); }
 .text-success { color: var(--success); }
 .text-warning { color: var(--warning); }
 .text-danger { color: var(--danger); }
 .text-info { color: var(--info); }
+/* Variables temáticas (--text-muted/--text-secondary) ya cambian con
+   body.dark-mode, así que estas utilidades no necesitan overrides oscuros.
+   .text-white/.text-dark son excepciones legítimas: replican exactamente lo
+   que Bootstrap impone con !important (color fijo), por lo que conservan la
+   bandera para no perder la batalla de especificidad contra bootstrap.min.css. */
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
 .text-white { color: #ffffff !important; }
-
 .text-dark { color: var(--gray-900) !important; }
-
-/* Modo oscuro - asegurar buen contraste para texto */
-body.dark-mode .text-muted {
-    color: var(--gray-400) !important;
-}
-
-body.dark-mode .text-secondary {
-    color: var(--gray-300) !important;
-}
-
-body.dark-mode .text-dark {
-    color: var(--gray-100) !important;
-}
-
-body.dark-mode em {
-    color: var(--gray-300) !important;
-}
-
-body.dark-mode strong {
-    color: var(--text-primary) !important;
-    font-weight: 700;
-}
 
 /* Utilidades de fondo temáticas: resuelven vía variables CSS, por lo que
    se adaptan automáticamente en modo oscuro (body.dark-mode redefine --bg-*)
@@ -1881,6 +1893,74 @@ body.dark-mode strong {
 
 .cursor-pointer { cursor: pointer; }
 .overflow-hidden { overflow: hidden; }
+
+/* ============================================
+   RESPONSIVE (sidebar y contenido)
+   ============================================ */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: var(--sidebar-width-collapsed);
+        padding: var(--space-4) var(--space-2);
+    }
+    
+    .sidebar .taller-name,
+    .sidebar .user-info,
+    .sidebar .nav-text,
+    .sidebar .nav-section-title {
+        display: none;
+    }
+    
+    .navbar-top {
+        left: var(--sidebar-width-collapsed);
+    }
+    
+    .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+    }
+    
+    .search-global {
+        width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Ocultar sidebar fijo en móvil - nunca debe ser visible */
+    .sidebar {
+        display: none !important;
+    }
+    
+    .navbar-top {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: calc(60px + var(--space-4)); /* Ajustar por la mobile-top-nav (60px de altura) */
+        padding-bottom: var(--space-4);
+        padding-left: var(--space-3);
+        padding-right: var(--space-3);
+    }
+    
+    .search-global {
+        display: none;
+    }
+    
+    .kpi-card {
+        padding: var(--space-4);
+    }
+    
+    .kpi-value {
+        font-size: var(--font-size-2xl);
+    }
+}
+
+/* ============================================
+   7. RESPONSIVE
+   Puntos de ruptura: 1024px (sidebar colapsado), 768px/767.98px (layout
+   móvil con navbar superior + offcanvas + FAB). Los !important de esta
+   sección son necesarios para anular el display/res positioning de las
+   utilidades y componentes responsivos de Bootstrap.
+   ============================================ */
 
 /* ============================================
    SIDEBAR OFFCANVAS (Móviles)
