@@ -188,7 +188,7 @@
                     <div class="stat-card__icon"><i class="bi bi-coin"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Valor Inventario</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Valor total a costo</div>
                     </div>
                 </div>
@@ -404,52 +404,52 @@
     <!-- Métricas Financieras -->
     <h4 class="mb-3"><i class="bi bi-cash-stack section-title-icon"></i> Panel Financiero</h4>
     <div class="row g-3 mb-4">
-<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-0">
+<div class="col-12 col-sm-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-0">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-cash-coin"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Inversión en Piezas</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(inversion_piezas) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(inversion_piezas) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Costo piezas usadas</div>
                     </div>
                 </div>
             </a>
         </div>
 
-<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-1">
+<div class="col-12 col-sm-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-1">
             <a href="{{ url_for('inventario.index') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--success">
                     <div class="stat-card__icon"><i class="bi bi-box-seam"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Valor Inventario</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(valor_inventario) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Existencia × costo</div>
                     </div>
                 </div>
             </a>
         </div>
 
-<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-2">
+<div class="col-12 col-sm-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-2">
             <a href="{{ url_for('reportes.ingresos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--primary">
                     <div class="stat-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Ingresos Brutos</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(ingresos_brutos) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(ingresos_brutos) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Total facturado</div>
                     </div>
                 </div>
             </a>
         </div>
 
-<div class="col-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-3">
+<div class="col-12 col-sm-6 col-md-6 col-xxl-3 animate-fade-in-up animate-delay-3">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--warning">
                     <div class="stat-card__icon"><i class="bi bi-wallet2"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Ganancia Neta</div>
-                        <div class="stat-card__value"><span class="{% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }} CUP</span></div>
+                        <div class="stat-card__value"><span class="{% if ganancia_neta >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(ganancia_neta) }}<span class="d-none d-sm-inline"> CUP</span></span></div>
                         <div class="stat-card__subtitle">Ingresos - gastos</div>
                     </div>
                 </div>
@@ -460,39 +460,39 @@
     <!-- Sección de Tributos -->
     <h4 class="mb-3"><i class="bi bi-receipt section-title-icon"></i> Tributos Estimados (Cuba)</h4>
     <div class="row g-3 mb-4">
-<div class="col-6 col-md-4 animate-fade-in-up animate-delay-0">
+<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-0">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-receipt"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">ISIP</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(isip_calculado) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(isip_calculado) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">{{ regimen_fiscal|upper }}</div>
                     </div>
                 </div>
             </a>
         </div>
 
-<div class="col-6 col-md-4 animate-fade-in-up animate-delay-1">
+<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-1">
             <a href="{{ url_for('reportes.configuracion_financiera') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--info">
                     <div class="stat-card__icon"><i class="bi bi-shield-check"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Seguridad Social (5%)</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(seguridad_social) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(seguridad_social) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Base: {{ config.get('seguridad_social_base', 'ganancia') }}</div>
                     </div>
                 </div>
             </a>
         </div>
 
-<div class="col-6 col-md-4 animate-fade-in-up animate-delay-2">
+<div class="col-12 col-sm-6 col-md-4 animate-fade-in-up animate-delay-2">
             <a href="{{ url_for('reportes.gastos') }}" class="text-decoration-none">
                 <div class="stat-card stat-card--danger">
                     <div class="stat-card__icon"><i class="bi bi-calculator"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Total a Pagar</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(total_tributos) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(total_tributos) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">*Estimado</div>
                     </div>
                 </div>
@@ -508,7 +508,7 @@
                     <div class="stat-card__icon"><i class="bi bi-cash-stack"></i></div>
                     <div class="stat-card__content">
                         <div class="stat-card__label">Gastos Operativos</div>
-                        <div class="stat-card__value">${{ "%.2f"|format(gastos_operativos) }} CUP</div>
+                        <div class="stat-card__value">${{ "%.2f"|format(gastos_operativos) }}<span class="d-none d-sm-inline"> CUP</span></div>
                         <div class="stat-card__subtitle">Agua, electricidad, alquiler</div>
                     </div>
                 </div>

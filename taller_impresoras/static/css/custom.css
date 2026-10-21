@@ -602,7 +602,8 @@ body.dark-mode .user-menu:hover {
 
 /* Ícono en círculo de color a la izquierda */
 .stat-card__icon {
-    flex-shrink: 0;
+    flex: 0 0 auto;
+    align-self: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -625,7 +626,9 @@ body.dark-mode .user-menu:hover {
     font-size: var(--font-size-xs);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    white-space: normal;
+    overflow-wrap: break-word;
+    letter-spacing: .03em;
     color: var(--text-muted);
 }
 
@@ -634,7 +637,11 @@ body.dark-mode .user-menu:hover {
     font-weight: 700;
     line-height: 1.2;
     color: var(--text-primary);
-    overflow-wrap: anywhere;
+    /* Importante: NO usar break-word/anywhere aquí — parte cifras como
+       "$1000.00 CUP" carácter por carácter en columnas estrechas (col-6 móvil). */
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: nowrap;
 }
 
 .stat-card__subtitle {
@@ -2764,4 +2771,28 @@ body:not(.dark-mode) ::-webkit-scrollbar-thumb:hover {
 .card-header.bg-light span,
 .card-header.bg-light a {
     color: inherit;
+}
+
+/* ============================================
+   MOVIL (<=575.98px): stat-cards legibles
+   - El valor baja de tamaño y permite wrap por palabras
+     (nunca carácter por carácter) para que "$1000.00" se lea completo.
+   - " CUP" se oculta con d-none d-sm-inline en el template; aquí solo
+     se ajustan tamaños/espaciados.
+   ============================================ */
+@media (max-width: 575.98px) {
+    .stat-card__value {
+        font-size: var(--font-size-xl);
+        white-space: normal;
+        overflow-wrap: normal;
+    }
+    .stat-card__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    .stat-card {
+        gap: var(--space-2);
+        padding: var(--space-3);
+    }
 }
