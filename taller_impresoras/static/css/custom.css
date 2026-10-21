@@ -1227,7 +1227,24 @@ body.dark-mode .table td {
 }
 
 .table tbody tr {
-    transition: background-color var(--transition-base);
+    transition: background-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* Animación 3 — Hover mejorado para filas de tabla:
+   transición suave de color de fondo + realce sutil. */
+.table tbody tr:hover td {
+    background-color: var(--gray-100);
+}
+
+/* Filas clickeables: cursor pointer y feedback visual extra */
+.table tbody tr.is-clickable,
+.table tbody tr[data-href] {
+    cursor: pointer;
+}
+
+.table tbody tr.is-clickable:hover td:first-child,
+.table tbody tr[data-href]:hover td:first-child {
+    box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -1332,6 +1349,8 @@ body.dark-mode .table tbody tr.table-success {
     font-size: var(--font-size-xs);
     font-weight: 500;
     border-radius: var(--radius-full);
+    /* Transición suave cuando el badge cambia de estado/clase */
+    transition: all 0.2s ease;
 }
 
 .badge-success {
@@ -1661,6 +1680,103 @@ body.dark-mode .alert-info {
     padding: var(--space-4);
 }
 
+/* ------------------------------------------------------------
+   Variantes de skeleton para tablas (Animación 2)
+   .skeleton--row simula una fila completa de tabla con celdas
+   internas de ancho variable; las variantes de texto permiten
+   construir filas y encabezados placeholder realistas.
+   ------------------------------------------------------------ */
+.skeleton--row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    height: 49px; /* ≈ altura de una .table tr (padding + línea) */
+    padding: 0 var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+}
+
+.skeleton--row > .skeleton {
+    flex-shrink: 0;
+}
+
+.skeleton--text-short {
+    height: 14px;
+    width: 80px;
+    margin: 0;
+}
+
+.skeleton--text-medium {
+    height: 14px;
+    width: 160px;
+    margin: 0;
+}
+
+.skeleton--text-long {
+    height: 14px;
+    width: 280px;
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Fila skeleton con celdas "fantasma" listas para usar en <tbody>:
+   <tr class="skeleton-row"><td><span class="skeleton skeleton--text-medium"></span></td>…</tr> */
+.skeleton-row td {
+    padding: 0.75rem var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ============================================
+   ANIMACIONES DE ENTRADA (microinteracciones)
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out both;
+}
+
+/* Delays incrementales para efecto cascada (stagger):
+   0ms, 50ms, 100ms, 150ms … hasta 600ms */
+.animate-delay-0 { animation-delay: 0ms; }
+.animate-delay-1 { animation-delay: 50ms; }
+.animate-delay-2 { animation-delay: 100ms; }
+.animate-delay-3 { animation-delay: 150ms; }
+.animate-delay-4 { animation-delay: 200ms; }
+.animate-delay-5 { animation-delay: 250ms; }
+.animate-delay-6 { animation-delay: 300ms; }
+.animate-delay-7 { animation-delay: 350ms; }
+.animate-delay-8 { animation-delay: 400ms; }
+.animate-delay-9 { animation-delay: 450ms; }
+.animate-delay-10 { animation-delay: 500ms; }
+.animate-delay-11 { animation-delay: 550ms; }
+.animate-delay-12 { animation-delay: 600ms; }
+
+/* Accesibilidad: respeta la preferencia del usuario de reducir
+   movimiento — desactiva fade-in, shimmer y transiciones suaves. */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up {
+        animation: none;
+    }
+
+    .skeleton {
+        animation: none;
+    }
+
+    .table tbody tr,
+    .badge {
+        transition: none !important;
+    }
+}
+
 /* ============================================
    EMPTY STATES
    ============================================ */
@@ -1686,6 +1802,39 @@ body.dark-mode .alert-info {
 .empty-state-text {
     font-size: var(--font-size-sm);
     margin-bottom: var(--space-4);
+}
+
+/* ------------------------------------------------------------
+   Empty state mejorado (BEM) — jerarquía visual moderna estilo
+   SaaS (Linear/Notion): icono grande, título destacado,
+   descripción secundaria y acción CTA. Entra con fadeInUp.
+   ------------------------------------------------------------ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInUp 0.4s ease-out both;
+}
+
+.empty-state__icon {
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--text-muted);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state__title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state__description {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    max-width: 420px;
 }
 
 /* ============================================
