@@ -26,9 +26,9 @@
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <!-- Barra de navegación superior estilo app (SOLO móvil < 768px) -->
-    <nav class="mobile-top-nav d-flex d-md-none">
-        <div class="mobile-top-nav-container">
+    <!-- Barra de navegación inferior estilo app (SOLO móvil < 768px) -->
+    <nav class="mobile-bottom-nav d-flex d-md-none">
+        <div class="mobile-bottom-nav-container">
             <!-- Botón hamburguesa: abre el menú offcanvas en móvil -->
             <button type="button" class="btn btn-icon mobile-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" aria-label="Abrir menú">
                 <i class="bi bi-list"></i>
@@ -170,8 +170,8 @@
     </div>
     
     <!-- Sidebar Offcanvas para móvil - OCULTO en desktop -->
-    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="top: 60px; height: calc(100vh - 60px);">
-        <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border);">
+    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header" style="border-bottom: 1px solid var(--sidebar-border); padding-top: calc(var(--bs-offcanvas-padding-y) + env(safe-area-inset-top));">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
         </div>

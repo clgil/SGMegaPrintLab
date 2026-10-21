@@ -12,13 +12,13 @@ Se ha adaptado la interfaz de SGMegaPrintLab para dispositivos móviles con un l
 ## Archivos Modificados
 
 ### 1. `templates/base.html`
-- Se agregó la barra de navegación móvil (`mobile-top-nav`)
+- Se agregó la barra de navegación móvil (`mobile-bottom-nav`)
 - Se implementó el menú desplegable "Más opciones"
 - Se añadió el FAB con sus opciones contextuales
 - Se incluyó el JavaScript para la interacción de los menús
 
 ### 2. `static/css/custom.css`
-- Estilos para `.mobile-top-nav` y sus elementos
+- Estilos para `.mobile-bottom-nav` y sus elementos
 - Estilos para `.mobile-more-menu` (menú desplegable)
 - Estilos para `.mobile-fab` y `.mobile-fab-menu`
 - Ajustes responsive para el contenido principal
@@ -54,7 +54,7 @@ Se ha adaptado la interfaz de SGMegaPrintLab para dispositivos móviles con un l
 
 ## Qué Verificar en Móvil
 
-### 1. Barra de Navegación Superior (Mobile Top Nav)
+### 1. Barra de Navegación Superior (Mobile Bottom Nav)
 
 **Para Administradores:**
 - ✅ Icono "Inicio" (Dashboard)
@@ -153,21 +153,21 @@ Se ha adaptado la interfaz de SGMegaPrintLab para dispositivos móviles con un l
 **Verificar:**
 - ✅ El botón es visible solo en móvil
 - ✅ Al abrir, el sidebar aparece desde la izquierda
-- ✅ El sidebar comienza debajo de la mobile-top-nav (60px)
+- ✅ El sidebar ocupa toda la altura de la pantalla (top: 0, height: 100vh)
 - ✅ Las opciones del sidebar cierran el menú al seleccionar
 
 ### 5. Contenido Principal
 
 **Verificar:**
-- ✅ El contenido no queda oculto detrás de la mobile-top-nav
-- ✅ Hay espacio suficiente arriba (padding-top ajustado)
+- ✅ El último contenido no queda oculto detrás de la mobile-bottom-nav (padding-bottom compensado)
+- ✅ Hay espacio suficiente arriba (padding-top: var(--space-4), sin barra superior fija)
 - ✅ El FAB no tapa contenido importante
 - ✅ Las tablas y tarjetas son legibles en móvil
 
 ### 6. Desktop (Pantallas ≥ 768px)
 
 **Verificar:**
-- ✅ La mobile-top-nav NO es visible
+- ✅ La mobile-bottom-nav NO es visible
 - ✅ El FAB NO es visible
 - ✅ El botón hamburguesa NO es visible
 - ✅ El sidebar tradicional funciona normalmente
@@ -213,7 +213,7 @@ Para documentación, captura:
 - **Iconos**: Se utilizan Bootstrap Icons (bi-*)
 - **Animaciones**: Transiciones CSS suaves (200-300ms)
 - **Z-index**: 
-  - mobile-top-nav: 1048
+  - mobile-bottom-nav: 1048
   - mobile-more-menu: 1047
   - mobile-fab-container: 1046
   - mobile-menu-btn: 1049
