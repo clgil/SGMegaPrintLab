@@ -73,6 +73,27 @@ pip install -r requirements.txt
 python app.py
 ```
 
+> **Nota:** `pip install -r requirements.txt` ya **no requiere dependencias del
+> sistema operativo** (ni libpango, ni cairo, ni libharfbuzz). La generación de
+> PDFs usa únicamente **fpdf2**, una librería 100% Python puro, pensada para
+> despliegues offline tanto en Linux como en Windows.
+
+### Dependencias de PDF y fuentes Unicode
+
+Toda la renderización de PDFs (recibos de órdenes de reparación y reportes
+administrativos) está centralizada en `services/pdf_service.py` y se basa
+exclusivamente en **fpdf2**:
+
+- **Sin dependencias nativas**: no es necesario instalar paquetes del sistema
+  como los que exigiría WeasyPrint (`libpango1.0-dev`, `libharfbuzz-dev`,
+  `libffi-dev`), lo que simplifica el despliegue offline.
+- **Fuentes Unicode**: para soportar correctamente los caracteres del español
+  (á, é, í, ó, ú, ñ, ¿, ¡) el servicio registra las fuentes **DejaVu Sans**
+  incluidas en el proyecto dentro de `static/fonts/` (`DejaVuSans.ttf` y
+  `DejaVuSans-Bold.ttf`). No se requiere ninguna instalación adicional; si
+  esas fuentes no estuvieran disponibles, el servicio busca alternativas del
+  sistema y, en último caso, recurre a Helvetica con sanitización de texto.
+
 ## Uso del Sistema
 
 ### Acceso Inicial
