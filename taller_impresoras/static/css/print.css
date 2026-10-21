@@ -1,0 +1,527 @@
+/* ==========================================================================
+   print.css — Documento imprimible /ordenes/imprimir/<id>
+   (templates/ordenes/imprimir.html: div.toolbar-imprimir.no-print + main.hoja)
+   ==========================================================================
+   Estructura en DOS CAPAS OBLIGATORIAS:
+
+     1) CAPA PANTALLA ....... reglas SIN media query, al inicio del archivo.
+                              Aplica el diseño de "hoja blanca centrada sobre
+                              fondo gris" que DevTools debe mostrar como
+                              "Inherited/Author styles" (no solo user agent).
+     2) CAPA IMPRESIÓN ...... TODO dentro de @media print, al FINAL del archivo.
+
+   REGLA DURA: ninguna regla de la CAPA PANTALLA puede quedar anidada dentro
+   del bloque "@media print". Al reorganizar este archivo, mover SIEMPRE los
+   selectores base fuera y dejar dentro del bloque de impresion unicamente
+   las SOBRESCRITURAS.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   CAPA 1 — PANTALLA (reglas base, SIN media query)
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+    background: #F3F4F6;
+    padding: 24px;
+    margin: 0;
+    color: #111827;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    /* Los colores oscuros del thead/totales se conservan incluso con
+       "Gráficos de fondo" DESACTIVADO gracias a print-color-adjust. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* ---------- Hoja del documento ---------- */
+main.hoja {
+    background: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 48px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    color: #111827;
+    font-family: system-ui, sans-serif;
+}
+
+/* ---------- Barra superior de acciones (solo pantalla) ---------- */
+/* Visibilidad garantizada en pantalla: display:flex explicito + override
+   !important que neutraliza cualquier "display:none" heredado de otras
+   hojas; el bloque de impresion de abajo la vuelve a ocultar via .no-print. */
+.toolbar-imprimir {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 16px;
+    background: #1F2937;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+
+.btn-toolbar {
+    display: inline-block;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1.2;
+    font-family: inherit;
+}
+
+.btn-print {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.btn-back {
+    background: #e9ecef;
+    color: #1f2a37;
+    border-color: #adb5bd;
+}
+
+/* Compensar la toolbar fija para que la hoja no quede tapada en pantalla */
+main.hoja {
+    margin-top: 84px;
+}
+
+/* ---------- Encabezado del documento (.doc-header) ---------- */
+.doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 2px solid #111827;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+}
+
+.taller-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-corporativo {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+}
+
+.taller-nombre {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0 0 4px;
+    color: #111827;
+}
+
+.taller-detalles {
+    font-size: 12px;
+    margin: 0;
+    color: #4B5563;
+}
+
+/* ---------- Meta del documento (.doc-meta) ---------- */
+.doc-meta {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.orden-badge {
+    display: inline-block;
+    border: 1.5px solid #111827;
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: #111827;
+    background: none;
+    margin-bottom: 6px;
+}
+
+.badge-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6B7280;
+}
+
+.badge-number {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.fecha-linea {
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+.estado-badge {
+    display: inline-block;
+    border: 1.5px solid #111827;
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #111827;
+    background: none;
+}
+
+.estado-Recibido          { background: #eef2f7; }
+.estado-Diagnostico       { background: #fffbe6; }
+.estado-Enreparacion      { background: #fff4e6; }
+.estado-Enreparación      { background: #fff4e6; }
+.estado-Listoparaentregar { background: #e9f7ef; }
+.estado-Listo             { background: #e9f7ef; }
+.estado-Entregado         { background: #e6f4ea; }
+.estado-Cancelado         { background: #fdecec; }
+
+/* ---------- Cajas de información (.info-grid) ---------- */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.caja-datos {
+    border: 1px solid #D1D5DB;
+    border-left: 3px solid #1F2937;
+    border-radius: 6px;
+    background: none;
+    padding: 10px 12px;
+}
+
+.box-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0 0 6px;
+    color: #1F2937;
+}
+
+.caja-datos p {
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+/* ---------- Secciones de detalle (problema / diagnóstico / técnico) ---------- */
+.seccion-detalle,
+.seccion-detalles {
+    margin-bottom: 16px;
+}
+
+.detalle-item {
+    margin-bottom: 10px;
+}
+
+.detalle-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0 0 4px;
+    border-bottom: 1px solid #111827;
+    padding-bottom: 2px;
+    color: #1F2937;
+}
+
+.detalle-texto {
+    font-size: 12px;
+    margin: 0;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+/* ---------- Tabla de repuestos ---------- */
+.seccion-tabla {
+    margin-bottom: 16px;
+}
+
+.tabla-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0 0 6px;
+    color: #1F2937;
+}
+
+.tabla-piezas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+/* Banda oscura del encabezado: blanco sobre #1F2937. Con print-color-adjust
+   (body) se conserva en impresión aunque "Gráficos de fondo" esté OFF; el
+   fallback de @media print garantiza legibilidad si el navegador lo ignora. */
+.tabla-piezas thead th {
+    background: #1F2937;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: .5px;
+    padding: 7px 8px;
+    border-bottom: 2px solid #111827;
+}
+
+.col-desc     { width: 52%; }
+.col-cant     { width: 10%; text-align: center; }
+.col-precio   { width: 19%; text-align: right; }
+.col-subtotal { width: 19%; text-align: right; }
+
+.tabla-piezas tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.tabla-piezas tbody tr:nth-child(even) td {
+    background: #F9FAFB;
+}
+
+.td-center { text-align: center; }
+.td-right  { text-align: right; }
+
+.tabla-piezas tfoot td {
+    padding: 7px 8px;
+    border-top: 2px solid #111827;
+    font-weight: 700;
+}
+
+/* ---------- Bloque de totales ---------- */
+.bloque-totales {
+    border-top: 3px double #111827;
+    padding-top: 10px;
+    margin: 12px 0 16px;
+    color: #111827;
+    background: none;
+}
+
+.totales-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.totales-fila .label {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.totales-fila .valor {
+    font-weight: 700;
+}
+
+.totales-fila .desc {
+    font-size: 10px;
+    font-weight: 400;
+    margin-left: 4px;
+    color: #6B7280;
+}
+
+.total-principal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1F2937;
+    color: #fff;
+    border: 2px solid #111827;
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin-top: 8px;
+}
+
+.total-principal .label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.total-principal .valor {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+/* ---------- Observaciones ---------- */
+.seccion-notas {
+    border: 1px solid #D1D5DB;
+    border-left: 3px solid #1F2937;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    background: none;
+}
+
+.notas-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 0 4px;
+    color: #1F2937;
+}
+
+.notas-texto {
+    font-size: 12px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ---------- Firmas (.firma-block) ---------- */
+.bloque-firmas {
+    margin-top: 28px;
+}
+
+.firmas-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10%;
+}
+
+.firma-block {
+    width: 45%;
+    text-align: center;
+}
+
+.firma-linea {
+    border-top: 1px solid #111827;
+    height: 34px;
+}
+
+.firma-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 3px 0 0;
+    color: #111827;
+}
+
+.firma-sublabel {
+    font-size: 9px;
+    margin: 1px 0 0;
+    color: #6B7280;
+}
+
+/* ---------- Pie de documento ---------- */
+.doc-footer {
+    margin-top: 18px;
+    border-top: 1px solid #111827;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 10px;
+    color: #111827;
+}
+
+.doc-footer p {
+    margin: 2px 0;
+    font-size: 10px;
+    color: #111827;
+}
+
+
+/* ==========================================================================
+   CAPA 2 — IMPRESIÓN (@media print, al final del archivo)
+   Solo SOBRESCRITURAS: nada de la capa de pantalla vive anidado aquí.
+   ========================================================================== */
+
+@page {
+    size: letter portrait;
+    margin: 10mm;
+}
+
+@media print {
+    body {
+        background: #fff;
+        padding: 0;
+        color: #000;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    main.hoja {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        background: #fff;
+    }
+
+    /* Chrome de pantalla: toolbar y cualquier elemento marcado .no-print.
+       !important gana al "display:flex !important" de la capa de pantalla,
+       por eso la toolbar se ve en pantalla y desaparece al imprimir. */
+    .no-print,
+    .toolbar-imprimir,
+    .sidebar,
+    .navbar-top,
+    .mobile-top-nav,
+    .mobile-fab-container,
+    .offcanvas,
+    .breadcrumbs,
+    .command-palette,
+    .alert {
+        display: none !important;
+    }
+
+    /* ---- Paginación ---- */
+    tr,
+    .firma-block,
+    .caja-datos,
+    .seccion-detalles,
+    .detalle-item,
+    .bloque-totales {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* El encabezado de la tabla se repite en cada página */
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-row-group;
+    }
+
+    .bloque-firmas {
+        margin-top: 24px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* Fallback ink-safe: si el navegador omite los fondos oscuros al
+       imprimir ("Gráficos de fondo" OFF), el texto nunca queda invisible. */
+    .tabla-piezas thead th {
+        color: #000;
+        background: none;
+        border-bottom: 2px solid #000;
+    }
+
+    .total-principal {
+        color: #000;
+        background: none;
+        border: 2px solid #000;
+    }
+}
