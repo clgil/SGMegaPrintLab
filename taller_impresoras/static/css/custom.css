@@ -2742,3 +2742,13 @@ body.dark-mode .mobile-fab-item:hover {
     color: var(--primary);
     margin-right: var(--space-2);
 }
+
+/* ============================================================
+ * Utilitaria de impresión: .no-print
+ * Visible (sin efecto) en pantalla; oculta al imprimir.
+ * ============================================================ */
+.no-print { /* visible en pantalla — sin estilos */ }
+
+@media print {
+    .no-print { display: none !important; }
+}
