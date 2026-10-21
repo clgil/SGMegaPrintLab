@@ -5,6 +5,10 @@
 {% block content %}
 <div class="container-fluid">
     <h1 class="mb-4">📊 Panel de Control</h1>
+
+    <!-- Contenedor del botón "Instalar Aplicación" (PWA): lo rellena static/js/pwa-install.js
+         al capturar el evento beforeinstallprompt -->
+    <div id="pwaInstallMount" class="mb-3"></div>
     
     <!-- Filtro de período - SOLO para administrador -->
     {% if current_user.rol == 'administrador' %}
