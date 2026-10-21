@@ -2671,3 +2671,97 @@ body.dark-mode .mobile-fab-item:hover {
 @media print {
     .no-print { display: none !important; }
 }
+
+
+/* ============================================================
+ * SCROLLBARS TEMATIZADOS (NO ELIMINAR)
+ * ------------------------------------------------------------
+ * El scrollbar vertical del sidebar fijo (.sidebar) y del
+ * offcanvas móvil (.sidebar-mobile / .offcanvas-body) se mostraba
+ * con el estilo claro por defecto del navegador (banda blanca/gris
+ * claro), rompiendo la estética en ambos temas (especialmente en
+ * modo oscuro). Este bloque tematiza los scrollbars usando los
+ * tokens existentes y mantiene el comportamiento de scroll intacto.
+ * ============================================================ */
+
+/* 1) Firefox: scrollbar delgado con thumb gris sobre track transparente */
+.sidebar,
+.sidebar-mobile,
+.offcanvas-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-600) transparent;
+}
+
+/* 2) WebKit/Blink: Chrome, Edge, Safari (escritorio y móvil) */
+.sidebar::-webkit-scrollbar,
+.sidebar-mobile::-webkit-scrollbar,
+.offcanvas-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.sidebar-mobile::-webkit-scrollbar-track,
+.offcanvas-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.sidebar-mobile::-webkit-scrollbar-thumb,
+.offcanvas-body::-webkit-scrollbar-thumb {
+    background: var(--gray-600);
+    border-radius: var(--radius-full);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.sidebar-mobile::-webkit-scrollbar-thumb:hover,
+.offcanvas-body::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+/* 3) Scrollbar global de la página en modo oscuro */
+body.dark-mode {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-600) var(--gray-900);
+}
+
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: var(--gray-900);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: var(--gray-600);
+    border-radius: var(--radius-full);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+/* 4) Modo claro: thumb gris medio sobre track gris muy claro */
+body:not(.dark-mode) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-400) var(--gray-100);
+}
+
+body:not(.dark-mode) ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body:not(.dark-mode) ::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+body:not(.dark-mode) ::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: var(--radius-full);
+}
+
+body:not(.dark-mode) ::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
