@@ -182,10 +182,10 @@ pip install fpdf2==2.8.7
 ```
 
 ### Error con caracteres especiales
-Los caracteres como ñ, á, é, í, ó, ú pueden no mostrarse correctamente. Soluciones:
-1. Usar fuentes TrueType con soporte UTF-8
-2. Reemplazar caracteres especiales antes de generar el PDF
-3. Migrar a WeasyPrint para esos reportes específicos
+Los caracteres como ñ, á, é, í, ó, ú pueden no mostrarse correctamente. Solución actual (v1.2.0):
+1. `services/pdf_service.py` registra automáticamente las fuentes **DejaVu Sans** incluidas en `static/fonts/` (soporte UTF-8 completo, sin instalación adicional).
+2. Si esas fuentes no estuvieran disponibles, el servicio busca alternativas del sistema y, en último caso, recurre a Helvetica con sanitización de texto.
+3. ~~Migrar a WeasyPrint~~ **No aplica**: WeasyPrint fue eliminado del proyecto; no se requieren dependencias nativas.
 
 ### Error: "Permission denied" al descargar
 Verificar que la ruta de descarga del navegador tenga permisos de escritura.
@@ -202,4 +202,4 @@ Verificar que la ruta de descarga del navegador tenga permisos de escritura.
 
 Para dudas o problemas relacionados con esta funcionalidad, consultar la documentación oficial:
 - fpdf2: https://py-pdf.github.io/fpdf2/
-- WeasyPrint: https://weasyprint.org/
+- ~~WeasyPrint~~ (eliminado del proyecto; no se usa renderización HTML→PDF)
