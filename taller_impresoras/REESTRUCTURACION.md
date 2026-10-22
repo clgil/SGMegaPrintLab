@@ -86,11 +86,21 @@ taller_impresoras/
 ## Comandos CLI Disponibles
 
 ```bash
-# Inicializar base de datos
+# Aplicar el esquema de base de datos (Flask-Migrate/Alembic) — necesario la primera vez
+flask db upgrade
+
+# Inicializar datos por defecto (admin/admin123 + configuración tributaria).
+# NOTA: init-db ya NO crea tablas; requiere `flask db upgrade` previo.
 flask init-db
 
 # Crear usuario
 flask crear-usuario
+
+# Purgar bitácora de auditoría más antigua a N días (única vía de borrado)
+flask purge-audit-log --dias 365
+
+# Normalizar fechas históricas en texto a tipos date/datetime nativos
+flask fix-dates [--dry-run]
 
 # Ejecutar aplicación
 python app.py
@@ -109,7 +119,15 @@ No se requieren cambios en la base de datos o en las plantillas existentes.
 ## Próximos Pasos Sugeridos
 
 1. Implementar tests unitarios para los servicios
-2. Agregar migraciones de base de datos con Flask-Migrate
+2. ~~Agregar migraciones de base de datos con Flask-Migrate~~ ✅ **Implementado**: `migrations/` con Alembic (esquema inicial `112a730df0d5` + auditoría `b7c31d92e4a1`); el esquema se aplica con `flask db upgrade` y `init-db` solo crea datos
 3. Documentar API interna de los servicios
 4. Considerar mover validadores a `utils/validators.py`
 5. Implementar logging estructurado
+
+## Novedades Consolidadas (octubre 2026)
+
+- **Auditoría anti-fraude**: modelo `AuditLog`, blueprint `routes/auditoria.py` (`/admin/auditoria`, solo administrador, solo lectura) y comando `flask purge-audit-log`.
+- **Servicio PDF centralizado**: `services/pdf_service.py` exclusivamente con fpdf2 (reportlab y WeasyPrint eliminados).
+- **PWA**: `static/manifest.json`, `static/sw.js` e íconos instalables.
+- **Contraseña por defecto**: `admin` / `admin123` (antes `Taller2026`).
+- **Nota**: la carpeta `utils/` propuesta originalmente no llegó a materializarse; los helpers viven en `models.py` (fechas) y `routes/validators.py` (validaciones).

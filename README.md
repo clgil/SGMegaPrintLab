@@ -152,7 +152,7 @@ DATABASE_URL=sqlite:///taller.db
 | **Usuario** | `admin` |
 | **Contraseña** | `admin123` |
 
-> 🔒 **Recomendación de Seguridad**: Cambie la contraseña inmediatamente después del primer acceso.
+> 🔒 **Recomendación de Seguridad**: Cambie la contraseña inmediatamente después del primer acceso (menú lateral → **Cambiar Clave**). La contraseña por defecto `admin123` reemplazó a la anterior `Taller2026` desde octubre de 2026.
 
 ### Módulos Disponibles
 
@@ -236,6 +236,21 @@ DATABASE_URL=sqlite:///taller.db
 - Configurar datos del taller para impresiones
 - Procedimiento simplificado para USB
 
+#### 📝 Auditoría (solo administradores)
+- Bitácora anti-fraude de todas las acciones sobre los datos (`/admin/auditoria`)
+- Registro automático de creación, edición y eliminación por tabla
+- Solo lectura desde la interfaz: nadie puede borrar sus propios rastros
+- Filtros por usuario, tabla afectada y rango de fechas
+- Purga de registros antiguos solo por línea de comandos (`flask purge-audit-log`)
+
+#### ❓ Ayuda contextual
+- Documentación de uso integrada por módulo (`/ayuda`)
+
+#### 📱 PWA / Acceso móvil
+- Manifiest PWA e instalable como aplicación en el teléfono
+- Service Worker para uso offline de la interfaz
+- Interfaz responsive para tablets y móviles
+
 ---
 
 ## 🔄 Procedimiento de Respaldo y Restauración
@@ -268,39 +283,61 @@ workspace/
 ├── README.md                # Este archivo
 ├── SECURITY.md              # Políticas de seguridad
 ├── PULL_REQUEST.md          # Guía para contribuciones
+├── DESPLEGAR.md             # Guía completa de instalación y despliegue
+├── INSTRUCCIONES_PRUEBAS_MOVIL.md  # Pruebas de acceso móvil/PWA
 │
 └── taller_impresoras/       # Directorio principal de la aplicación
-    ├── app.py               # Punto de entrada (Flask)
-    ├── models.py            # Modelos de base de datos
+    ├── app.py               # Punto de entrada (factory create_app + CLI)
+    ├── models.py            # Modelos de BD, auditoría y helpers de fechas
     ├── requirements.txt     # Dependencias de Python
     ├── install.bat          # Script de instalación (Windows)
     ├── install.sh           # Script de instalación (Linux)
+    ├── migrate.py           # Migración histórica de columnas (legado)
+    ├── migracion_finanzas.py# Migración histórica de gastos/tributos (legado)
     │
-    ├── routes/              # Módulos de rutas
-    │   ├── auth.py          # Autenticación de usuarios
+    ├── config/              # Configuración por entorno
+    │   └── __init__.py      # Development / Production / Testing
+    │
+    ├── services/            # Lógica de negocio y extensiones
+    │   ├── extensions.py    # db, login_manager, migrate (Flask-Migrate)
+    │   ├── dashboard_service.py  # Estadísticas del panel
+    │   └── pdf_service.py   # Generación de PDFs (fpdf2 + DejaVu Sans)
+    │
+    ├── migrations/          # Migraciones Alembic (esquema de BD versionado)
+    │   └── versions/        # esquema inicial + audit_log
+    │
+    ├── routes/              # Módulos de rutas (blueprints)
+    │   ├── auth.py          # Autenticación, registro, cambio de clave
     │   ├── clientes.py      # Gestión de clientes
     │   ├── dispositivos.py  # Gestión de dispositivos
     │   ├── ordenes.py       # Órdenes de reparación
     │   ├── inventario.py    # Inventario de piezas
     │   ├── tecnicos.py      # Gestión de técnicos
-    │   ├── reportes.py      # Reportes y estadísticas
+    │   ├── reportes.py      # Reportes, finanzas y exportación CSV/PDF
     │   ├── backup.py        # Respaldo y restauración
     │   ├── proveedores.py   # Gestión de proveedores
     │   ├── contratos.py     # Contratos de mantenimiento
     │   ├── usuarios.py      # Gestión de usuarios
-    │   ├── decorators.py    # Decoradores de roles
+    │   ├── auditoria.py     # Bitácora de auditoría (solo admin)
+    │   ├── decorators.py    # Decoradores de roles (@rol_requerido)
     │   ├── validators.py    # Validadores de datos
     │   └── ayuda/           # Módulo de ayuda contextual
     │
     ├── static/              # Archivos estáticos
     │   ├── css/             # Hojas de estilo
     │   ├── js/              # JavaScript del frontend
-    │   └── uploads/         # Archivos subidos
+    │   ├── fonts/           # Fuentes DejaVu Sans (PDFs Unicode)
+    │   ├── icons/           # Íconos PWA
+    │   ├── uploads/         # Archivos subidos
+    │   ├── manifest.json    # Manifiesto PWA
+    │   └── sw.js            # Service Worker (offline)
     │
     ├── templates/           # Plantillas HTML
     │   ├── base.html        # Layout principal
     │   ├── dashboard.html   # Panel de control
     │   ├── login.html       # Inicio de sesión
+    │   ├── error.html       # Páginas de error
+    │   ├── macros.html      # Macros reutilizables
     │   ├── auth/            # Plantillas de autenticación
     │   ├── clientes/        # Plantillas de clientes
     │   ├── dispositivos/    # Plantillas de dispositivos
@@ -311,14 +348,25 @@ workspace/
     │   ├── proveedores/     # Plantillas de proveedores
     │   ├── contratos/       # Plantillas de contratos
     │   ├── usuarios/        # Plantillas de usuarios
+    │   ├── auditoria/       # Plantillas de auditoría
     │   ├── backup/          # Plantillas de respaldo
     │   └── ayuda/           # Plantillas de ayuda
     │
-    ├── instance/            # Base de datos SQLite (auto-generada)
-    │   └── taller.db
-    │
-    └── backup/              # Respaldos de base de datos
+    └── instance/            # Base de datos SQLite (auto-generada)
+        └── taller.db
 ```
+
+### Comandos CLI disponibles
+
+Ejecutados desde `taller_impresoras/` con el entorno virtual activado:
+
+| Comando | Descripción |
+|---------|-------------|
+| `flask db upgrade` | Aplica el esquema/migraciones de la base de datos (Alembic) |
+| `flask init-db` | Crea los datos iniciales (admin por defecto, configuración tributaria). Ya **no** crea tablas |
+| `flask crear-usuario` | Crea un usuario desde la terminal (útil para restablecer accesos) |
+| `flask purge-audit-log --dias N [--si]` | Purga la bitácora de auditoría más antigua a N días (única vía de borrado) |
+| `flask fix-dates [--dry-run]` | Convierte fechas históricas en texto a tipos date/datetime nativos |
 
 ---
 
@@ -363,14 +411,15 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### WeasyPrint no instala correctamente (Linux)
+### WeasyPrint no se instala correctamente (Linux)
 
-WeasyPrint requiere dependencias del sistema:
+> ℹ️ **Actualización octubre 2026**: WeasyPrint fue **eliminado** del proyecto. La generación de PDFs usa únicamente **fpdf2** (Python puro), por lo que este error **ya no debería ocurrir** y **no se requieren dependencias nativas** (`libpango`, `libharfbuzz`, etc.). Este apartado queda solo como referencia para instalaciones antiguas:
+
 ```bash
-# Ubuntu/Debian
+# (Obsoleto) Ubuntu/Debian
 sudo apt-get install libpango1.0-dev libharfbuzz-dev libffi-dev
 
-# Fedora
+# (Obsoleto) Fedora
 sudo dnf install pango-devel harfbuzz-devel libffi-devel
 ```
 
@@ -387,19 +436,25 @@ sudo dnf install pango-devel harfbuzz-devel libffi-devel
 
 ### Cambio de Contraseña de Administrador
 
-**Método 1**: Desde la interfaz (en desarrollo)
+**Método 1**: Desde la interfaz: inicie sesión → menú lateral → **Cambiar Clave** (ruta `/auth/cambiar_password`).
 
-**Método 2**: Vía consola de Python:
+**Método 2**: Vía consola de Python (si perdió el acceso):
 ```python
-from app import app, db
+from app import create_app
+from services.extensions import db
 from models import Usuario
-from werkzeug.security import generate_password_hash
 
+app = create_app()
 with app.app_context():
     user = Usuario.query.filter_by(usuario='admin').first()
-    user.password_hash = generate_password_hash('NuevaContraseña')
+    user.set_password('NuevaContraseña')   # aplica hash automáticamente
     db.session.commit()
     print("Contraseña actualizada exitosamente")
+```
+
+**Método 3**: Cree un usuario administrativo nuevo desde la terminal:
+```bash
+flask crear-usuario --nombre "Admin" --usuario admin2 --rol administrador
 ```
 
 ---
@@ -410,13 +465,16 @@ with app.app_context():
 |---------|---------|-----------|
 | Flask | 3.0.0 | Framework web |
 | Flask-SQLAlchemy | 3.1.1 | ORM de base de datos |
+| Flask-Migrate | 4.1.0 | Migraciones de esquema (comandos `flask db`) |
+| alembic | 1.16.5 | Motor de migraciones subyacente |
+| Mako | 1.3.10 | Plantillas de Alembic |
 | Flask-Login | 0.6.3 | Gestión de sesiones |
 | bcrypt | 4.1.2 | Hash de contraseñas |
 | Werkzeug | 3.0.1 | Utilidades web |
 | python-dotenv | 1.0.0 | Variables de entorno |
-| reportlab | 5.0.0 | Generación de PDFs |
-| fpdf2 | 2.8.7 | Generación de PDFs alternativa |
-| WeasyPrint | 62.0 | Renderizado HTML a PDF |
+| fpdf2 | 2.8.7 | Generación de PDFs (única librería de PDF del proyecto) |
+
+> ℹ️ **Nota (octubre 2026)**: `reportlab` y `WeasyPrint` fueron **eliminados** de las dependencias. Toda la generación de PDFs (recibos de órdenes y reportes) se centralizó en `services/pdf_service.py` usando exclusivamente **fpdf2** (Python puro, sin dependencias nativas del sistema).
 
 ---
 

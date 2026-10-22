@@ -23,12 +23,14 @@ Este documento describe las características de seguridad implementadas en SGMeg
 
 ### Primera Vez que se Ejecuta
 
-Al ejecutar por primera vez, el sistema crea un usuario administrador por defecto:
+Al ejecutar por primera vez (tras `flask db upgrade` + `flask init-db`), el sistema crea un usuario administrador por defecto:
 
 ```
 Usuario: admin
-Contraseña: Taller2026
+Contraseña: admin123
 ```
+
+> ℹ️ **Nota (octubre 2026):** la contraseña por defecto cambió de `Taller2026` a `admin123`. Esta contraseña es deliberadamente débil para simplificar la instalación inicial, por lo que el cambio inmediato es **obligatorio**.
 
 ⚠️ **ACCIÓN OBLIGATORIA:**
 
@@ -137,10 +139,12 @@ python app.py
 
 | Rol | Permisos | Acceso a |
 |-----|----------|----------|
-| **Administrador** | Control total | Dashboard completo, Usuarios, Configuración |
+| **Administrador** | Control total | Dashboard completo, Usuarios, Configuración, Auditoría (`/admin/auditoria`), Finanzas |
 | **Técnico** | Órdenes y reparaciones | Órdenes, Inventario, Dispositivos |
 | **Proveedor** | Gestión de inventario | Solo inventario de piezas |
 | **Cliente** | Consulta personal | Solo sus órdenes y dispositivos |
+
+El control se aplica con el decorador `@rol_requerido([...])` (`routes/decorators.py`) combinado con `@login_required`.
 
 ### Restricciones de API
 
@@ -153,6 +157,17 @@ Las APIs internas están protegidas por rol:
 ```
 
 Los clientes **no pueden** acceder a estas APIs.
+
+### Bitácora de Auditoría (anti-fraude interno)
+
+Desde la versión 1.2.0 el sistema registra automáticamente las acciones sobre datos en la tabla `audit_log` (creación, edición y eliminación de órdenes, piezas, movimientos de inventario, gastos, proveedores, clientes, dispositivos, técnicos, contratos, configuración y usuarios).
+
+- **Solo lectura desde la interfaz**: ningún rol puede editar o borrar registros de auditoría por HTTP. Un administrador puede consultarlos en `/admin/auditoria` (con filtros por usuario, tabla y fechas), pero **no puede borrar sus propios rastros**.
+- **Purga solo por CLI**: la única vía autorizada para eliminar registros es el comando de mantenimiento en el servidor:
+  ```bash
+  flask purge-audit-log --dias 365 [--si]
+  ```
+- Los usuarios anónimos no tienen acceso al módulo de auditoría.
 
 ---
 
@@ -214,7 +229,7 @@ Especialmente después de:
 
 ❌ **NO HAGAS**
 ```
-Todos usan: admin / Taller2026
+Todos usan: admin / admin123
 ```
 
 ✅ **HAZLO**
@@ -289,6 +304,14 @@ Este proyecto implementa defensas contra:
 
 ## 📝 Changelog de Seguridad
 
+### v1.2.0 - Endurecimiento operativo (octubre 2026)
+
+✅ Contraseña por defecto del administrador cambiada de `Taller2026` a `admin123` (simplificación de la instalación inicial; el cambio inmediato tras el primer acceso sigue siendo obligatorio)
+✅ Esquema de base de datos gestionado con Flask-Migrate/Alembic (`flask db upgrade`); `init-db` ya no crea tablas, solo datos iniciales
+✅ Bitácora de auditoría solo lectura (`audit_log`): la purga es posible únicamente por CLI (`flask purge-audit-log`)
+✅ Ayuda para restablecer credenciales vía CLI: `flask crear-usuario`
+✅ Filtros y serialización de fechas centralizados en `models.py` (formato ISO en BD, visualización DD/MM/YYYY)
+
 ### v1.1.0 - Mejoras de Seguridad
 
 ✅ Eliminadas credenciales hardcodeadas de login.html
@@ -314,5 +337,5 @@ Este sistema fue desarrollado con prácticas de seguridad razonables, pero **no 
 
 ---
 
-**Última actualización:** Julio 2026
-**Versión:** 1.1.0
+**Última actualización:** Octubre 2026
+**Versión:** 1.2.0

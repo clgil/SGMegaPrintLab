@@ -1,8 +1,10 @@
-# Cambios de Seguridad y UX - Pull Request
+# Cambios de Seguridad, UX y Arquitectura - Documentación Consolidada
 
 ## 📝 Descripción
 
-Esta PR implementa **mejoras críticas de seguridad** y **enhancements de UX** en SGMegaPrintLab basados en auditoría de código.
+Este documento resume las **mejoras críticas de seguridad**, **enhancements de UX** y la **evolución arquitectónica** implementadas en SGMegaPrintLab (auditoría de código + refactorización + migraciones).
+
+> ℹ️ **Actualización (octubre 2026)**: la contraseña por defecto del administrador cambió de `Taller2026` a **`admin123`** (ver `app.py`, comando `flask init-db`). El resto de credenciales citadas históricamente en este documento quedan obsoletas.
 
 ## 🔴 Problemas de Seguridad Corregidos
 
@@ -183,12 +185,26 @@ Ver [SECURITY.md](./SECURITY.md) para:
 
 1. Implementar rate limiting en login
 2. Agregar 2FA (Two-Factor Authentication)
-3. Audit logging de acciones críticas
+3. ~~Audit logging de acciones críticas~~ ✅ **Implementado**: bitácora `audit_log` solo lectura con consulta en `/admin/auditoria` y purga por CLI (`flask purge-audit-log`)
 4. Implement HTTPS obligatorio
 5. CSP (Content Security Policy) headers
 
+## 🏗️ Evolución Arquitectónica Post-PR (v1.2.0, octubre 2026)
+
+Cambios estructurales realizados sobre la base de esta PR:
+
+- **Factory pattern**: `create_app()` en `app.py` con configuraciones por entorno en `config/` (development / production / testing).
+- **Blueprints centralizados** en `routes/__init__.py` (`register_blueprints`).
+- **Capa de servicios**: `services/extensions.py` (db, login_manager, migrate), `services/dashboard_service.py` y `services/pdf_service.py`.
+- **Migraciones versionadas con Flask-Migrate/Alembic**: `migrations/versions/` incluye el esquema inicial (`112a730df0d5`) y la tabla de auditoría (`b7c31d92e4a1`). `flask init-db` ya no crea tablas; el esquema se aplica con `flask db upgrade`.
+- **Auditoría anti-fraude**: modelo `AuditLog`, blueprint `routes/auditoria.py` (solo administrador) y comando CLI de purga.
+- **PDFs unificados en fpdf2**: `reportlab` y `WeasyPrint` eliminados de `requirements.txt`; fuentes Unicode DejaVu Sans incluidas en `static/fonts/`.
+- **PWA**: `static/manifest.json`, `static/sw.js` e íconos para instalación en móviles (ver `INSTRUCCIONES_PRUEBAS_MOVIL.md`).
+- **Comandos CLI ampliados**: `flask crear-usuario`, `flask purge-audit-log`, `flask fix-dates`.
+- **Contraseña por defecto**: `admin` / `admin123` (antes `Taller2026`).
+
 ---
 
-**Versión:** 1.1.0
-**Tipo de cambio:** Security & Enhancement
-**Rompimiento de compatibilidad:** No
+**Versión:** 1.2.0
+**Tipo de cambio:** Security, Enhancement & Architecture
+**Rompimiento de compatibilidad:** No (los datos existentes se preservan mediante `flask db upgrade`)

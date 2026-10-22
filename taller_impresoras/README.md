@@ -102,7 +102,9 @@ exclusivamente en **fpdf2**:
 2. Navegue a: `http://localhost:5000`
 3. Inicie sesión con:
    - **Usuario**: `admin`
-   - **Contraseña**: `Taller2026`
+   - **Contraseña**: `admin123`
+
+> 🔒 Cambie esta contraseña inmediatamente después del primer acceso (menú lateral → **Cambiar Clave**). Desde octubre de 2026 la contraseña por defecto es `admin123` (anteriormente era `Taller2026`).
 
 ### Módulos Disponibles
 
@@ -142,15 +144,25 @@ exclusivamente en **fpdf2**:
 - Asignación a órdenes
 
 #### 📈 Reportes
-- Ingresos por período (exportable a CSV)
+- Ingresos por período (exportable a CSV y PDF)
 - Órdenes por estado
 - Piezas más utilizadas
 - Clientes activos
+- Gastos operativos y configuración financiera (tributos cubanos)
 
 #### 💾 Respaldo
 - Crear copia de seguridad de la base de datos
 - Restaurar desde respaldo
 - Configurar datos del taller para impresiones
+
+#### 📝 Auditoría (solo administradores)
+- Bitácora anti-fraude en `/admin/auditoria` (tabla `audit_log`)
+- Registro automático de altas, ediciones y bajas por tabla
+- Solo lectura desde la interfaz; purga únicamente por CLI (`flask purge-audit-log`)
+
+#### ❓ Ayuda y PWA
+- Ayuda contextual integrada por módulo (`/ayuda`)
+- Manifiesto PWA + Service Worker: instalable y usable en móviles
 
 ## Procedimiento de Respaldo y Restauración
 
@@ -174,21 +186,40 @@ exclusivamente en **fpdf2**:
 
 ```
 taller_impresoras/
-├── app.py                  # Punto de entrada principal
-├── models.py               # Modelos de base de datos
+├── app.py                  # Punto de entrada (create_app + comandos CLI)
+├── models.py               # Modelos de BD, auditoría y helpers de fechas
 ├── requirements.txt        # Dependencias de Python
-├── routes/                 # Rutas de la aplicación
-│   ├── auth.py            # Autenticación
-│   ├── clientes.py        # Gestión de clientes
-│   ├── dispositivos.py    # Gestión de dispositivos
-│   ├── ordenes.py         # Órdenes de reparación
-│   ├── inventario.py      # Inventario de piezas
-│   ├── tecnicos.py        # Gestión de técnicos
-│   ├── reportes.py        # Reportes y estadísticas
-│   └── backup.py          # Respaldo y restauración
+├── config/                 # Configuración por entorno (dev/prod/test)
+│   └── __init__.py
+├── services/               # Lógica de negocio y extensiones
+│   ├── extensions.py       # db, login_manager, migrate
+│   ├── dashboard_service.py# Estadísticas del panel
+│   └── pdf_service.py      # PDFs con fpdf2 (recibos y reportes)
+├── migrations/             # Migraciones Alembic (esquema versionado)
+│   └── versions/           # esquema inicial + audit_log
+├── routes/                 # Blueprints de rutas
+│   ├── auth.py             # Autenticación, registro, cambio de clave
+│   ├── clientes.py         # Gestión de clientes
+│   ├── dispositivos.py     # Gestión de dispositivos
+│   ├── ordenes.py          # Órdenes de reparación
+│   ├── inventario.py       # Inventario de piezas
+│   ├── usuarios.py         # Gestión de usuarios
+│   ├── tecnicos.py         # Gestión de técnicos
+│   ├── proveedores.py      # Gestión de proveedores
+│   ├── contratos.py        # Contratos de mantenimiento
+│   ├── reportes.py         # Reportes, finanzas, CSV/PDF
+│   ├── backup.py           # Respaldo y restauración
+│   ├── auditoria.py        # Bitácora de auditoría (solo admin)
+│   ├── decorators.py       # Decoradores de roles
+│   ├── validators.py       # Validadores de datos
+│   └── ayuda/              # Módulo de ayuda contextual
 ├── static/                 # Archivos estáticos
 │   ├── css/               # Hojas de estilo
-│   └── js/                # JavaScript
+│   ├── js/                # JavaScript
+│   ├── fonts/             # Fuentes DejaVu Sans (PDFs Unicode)
+│   ├── icons/             # Íconos PWA
+│   ├── manifest.json      # Manifiesto PWA
+│   └── sw.js              # Service Worker
 ├── templates/              # Plantillas HTML
 │   ├── base.html          # Layout principal
 │   ├── dashboard.html     # Panel de control
@@ -198,11 +229,27 @@ taller_impresoras/
 │   ├── ordenes/           # Plantillas de órdenes
 │   ├── inventario/        # Plantillas de inventario
 │   ├── tecnicos/          # Plantillas de técnicos
-│   └── reportes/          # Plantillas de reportes
+│   ├── reportes/          # Plantillas de reportes
+│   ├── proveedores/       # Plantillas de proveedores
+│   ├── contratos/         # Plantillas de contratos
+│   ├── usuarios/          # Plantillas de usuarios
+│   ├── auditoria/         # Plantillas de auditoría
+│   ├── backup/            # Plantillas de respaldo
+│   └── ayuda/             # Plantillas de ayuda
 ├── backup/                 # Respaldos de base de datos
 └── instance/               # Base de datos SQLite (auto-generada)
     └── taller.db
 ```
+
+### Comandos CLI
+
+| Comando | Descripción |
+|---------|-------------|
+| `flask db upgrade` | Crea/actualiza el esquema de la BD con Alembic (necesario antes de `init-db`) |
+| `flask init-db` | Crea los datos iniciales: usuario `admin` / `admin123` y configuración tributaria. Ya no crea tablas |
+| `flask crear-usuario` | Crea un usuario desde la terminal |
+| `flask purge-audit-log --dias N [--si]` | Purga la bitácora de auditoría (única vía autorizada de borrado) |
+| `flask fix-dates [--dry-run]` | Normaliza fechas históricas en texto a tipos date/datetime |
 
 ## Solución de Problemas
 
@@ -237,18 +284,22 @@ app.run(host='127.0.0.1', port=5001, debug=False)
 Para cambiar la contraseña del administrador:
 
 1. Inicie sesión como admin
-2. Vaya a Configuración (en desarrollo)
-3. O directamente en la consola de Python:
+2. Vaya al menú lateral → **Cambiar Clave** (`/auth/cambiar_password`)
+3. O, si perdió el acceso, use la consola de Python:
 
 ```python
-from app import app, db, Usuario
-from werkzeug.security import generate_password_hash
+from app import create_app
+from services.extensions import db
+from models import Usuario
 
+app = create_app()
 with app.app_context():
     user = Usuario.query.filter_by(usuario='admin').first()
-    user.password_hash = generate_password_hash('NuevaContraseña')
+    user.set_password('NuevaContraseña')
     db.session.commit()
 ```
+
+También puede crear un usuario nuevo desde la terminal: `flask crear-usuario`.
 
 ## Soporte y Mantenimiento
 
