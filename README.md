@@ -150,7 +150,7 @@ DATABASE_URL=sqlite:///taller.db
 | Campo | Valor |
 |-------|-------|
 | **Usuario** | `admin` |
-| **Contraseña** | `Taller2026` |
+| **Contraseña** | `admin123` |
 
 > 🔒 **Recomendación de Seguridad**: Cambie la contraseña inmediatamente después del primer acceso.
 
