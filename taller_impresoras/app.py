@@ -569,5 +569,9 @@ if __name__ == '__main__':
             print("⚠  ADVERTENCIA: la base de datos no parece estar migrada.")
             print("   Ejecute:  flask db upgrade   (ver install.sh / install.bat)")
 
-    # Ejecutar en localhost:5000
-    app.run(host='127.0.0.1', port=5000, debug=False)
+    # Escuchar en todas las interfaces (0.0.0.0) para que el servidor de
+    # Termux/Android sea accesible desde la red local (ej. http://192.168.x.x:5000).
+    # Chrome sigue tratando 127.0.0.1/localhost como origen seguro (secure
+    # context), por lo que la PWA se puede instalar sin HTTPS.
+    # Puede sobreescribirse con la variable de entorno FLASK_HOST.
+    app.run(host=os.getenv('FLASK_HOST', '0.0.0.0'), port=5000, debug=False)

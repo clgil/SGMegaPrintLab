@@ -112,7 +112,7 @@ function initCommandPalette() {
     // category: agrupación en la UI | roles: roles permitidos (ausente = todos)
     const commands = [
         // Navegación
-        { id: 'dashboard',        title: 'Ir al Dashboard',          subtitle: 'Panel principal',            category: 'Navegación', icon: '📊', url: '/dashboard',      roles: ['administrador', 'tecnico', 'proveedor', 'cliente'] },
+        { id: 'dashboard',        title: 'Ir al Dashboard',          subtitle: 'Panel principal',            category: 'Navegación', icon: '📊', url: '/',      roles: ['administrador', 'tecnico', 'proveedor', 'cliente'] },
         { id: 'ordenes',          title: 'Órdenes',                  subtitle: 'Gestionar órdenes de servicio', category: 'Navegación', icon: '📋', url: '/ordenes',     roles: ['administrador', 'tecnico', 'proveedor', 'cliente'] },
         { id: 'clientes',         title: 'Clientes',                 subtitle: 'Administrar clientes',          category: 'Navegación', icon: '👥', url: '/clientes',     roles: ['administrador', 'tecnico'] },
         { id: 'dispositivos',     title: 'Dispositivos',             subtitle: 'Equipos registrados',           category: 'Navegación', icon: '🖨️', url: '/dispositivos', roles: ['administrador', 'tecnico', 'cliente'] },
