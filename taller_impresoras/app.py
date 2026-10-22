@@ -248,6 +248,24 @@ def register_main_routes(app):
         
         return render_template('dashboard.html', **context)
     
+    # ------------------------------------------------------------
+    # PWA: Service Worker servido desde la RAÍZ (/sw.js)
+    # El archivo físico sigue estando en static/sw.js (Flask lo sirve
+    # desde ahí con send_static_file). Al exponerlo en '/', el navegador
+    # permite registrar el SW con scope '/' gracias al header
+    # 'Service-Worker-Allowed'. Sin esto se lanza:
+    #   SecurityError: ... max scope allowed ('/static/')
+    # ------------------------------------------------------------
+    @app.route('/sw.js')
+    def service_worker():
+        """Sirve static/sw.js desde la raíz con permisos de scope '/'.
+        Público (sin login): el SW debe poder bajarse antes de autenticar."""
+        response = app.send_static_file('sw.js')
+        response.headers['Service-Worker-Allowed'] = '/'
+        response.headers['Content-Type'] = 'application/javascript'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+
     # Ruta de error 404
     @app.errorhandler(404)
     def not_found(error):
