@@ -2,11 +2,10 @@
     "name": "SGMegaPrintLab — Gestión de Taller de Impresoras",
     "short_name": "SGMegaPrintLab",
     "description": "Sistema offline-first para talleres de impresión: órdenes, dispositivos, inventario, clientes y reportes.",
-    "id": "/dashboard",
-    "start_url": "/dashboard",
+    "id": "/",
+    "start_url": "/",
     "scope": "/",
     "display": "standalone",
-    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "orientation": "any",
     "background_color": "#0f172a",
     "theme_color": "#2563eb",
@@ -44,7 +43,7 @@
             "name": "Órdenes",
             "short_name": "Órdenes",
             "description": "Ver órdenes de servicio",
-            "url": "/ordenes/",
+            "url": "/ordenes",
             "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
         },
         {

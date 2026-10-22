@@ -61,13 +61,17 @@ const OFFLINE_HTML = `<!DOCTYPE html>
     <h1>Servidor no disponible</h1>
     <p>El servidor local de <strong>SGMegaPrintLab</strong> está reiniciándose o no responde.
        Los datos y la interfaz volverán en unos segundos.</p>
-    <a class="btn" href="/dashboard" onclick="location.reload()">Reintentar ahora</a>
+    <a class="btn" href="/" onclick="location.reload()">Reintentar ahora</a>
     <div class="hint">Consejo: verifica que la aplicación de escritorio esté abierta<br>o ejecuta el servidor del taller nuevamente.</div>
   </div>
 </body>
 </html>`;
 
 // Precarga de recursos críticos de la UI (CacheFirst en runtime también).
+// '/' es la raiz del SCOPE: se cachea SIEMPRE como respuesta sintetica valida
+// para que cache.add('/') nunca falle durante la instalacion del SW. La
+// respuesta real (redirigida a /login o renderizando el dashboard) se obtiene
+// con estrategia NetworkFirst en cada navegacion.
 const PRECACHE_URLS = [
   '/static/css/bootstrap.min.css',
   '/static/css/custom.css',
@@ -85,9 +89,25 @@ const PRECACHE_URLS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      // Si un recurso falta (p.ej. aún no desplegado), no bloquear la instalación.
-      .catch(() => {})
+      .then(async (cache) => {
+        try {
+          await cache.addAll(PRECACHE_URLS);
+        } catch (e) { /* recurso ausente: no bloquear la instalacion */ }
+        // Raiz del scope SIEMPRE cacheada (respuesta sintetica -> nunca falla).
+        try {
+          const rootResp = await fetch('/', { cache: 'no-store' });
+          if (rootResp && rootResp.ok) {
+            await cache.put('/', rootResp.clone());
+          } else {
+            throw new Error('root no-200');
+          }
+        } catch (e) {
+          await cache.put('/', new Response(OFFLINE_HTML, {
+            status: 200,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          }));
+        }
+      })
       .then(() => self.skipWaiting())
   );
 });
